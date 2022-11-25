@@ -30,11 +30,12 @@ Hello:
 
 We have Swagger-UI running on our microservices.
 
-To access the webpage go to: http://localhost:<port>/swagger-ui/index.html
+To access the webpage go to: http://localhost:port/swagger-ui/index.html
 The ports will be different depending on the microservice.
 Right now:
 
 8081 - auth
+
 8082 - example-microservice
 
 Example for authentication microservices:
