@@ -1,0 +1,34 @@
+image: gradle:6.7-jdk15
+
+stages:
+  - build
+  - staticAnalysis
+  - test
+
+variables:
+  # Disable the Gradle daemon to ensure isolated runs of the CI pipeline.
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+build-authentication-microservice:
+  stage: build
+  script:
+    gradle authentication-microservice:assemble authentication-microservice:testClasses
+
+checkStyle-authentication-microservice:
+  stage: staticAnalysis
+  script:
+    gradle authentication-microservice:checkstyleMain authentication-microservice:checkStyleTest
+  allow_failure: true
+
+PMD-authentication-microservice:
+  stage: staticAnalysis
+  script:
+    gradle authentication-microservice:pmdMain
+  allow_failure: true
+
+test-authentication-microservice:
+  stage: test
+  script:
+    - gradle authentication-microservice:test authentication-microservice:jacocoTestReport
+    - cat authentication-microservice/build/reports/jacoco/test/html/index.html | grep -Po "Total.*?([0-9]{1,3})%"
+  coverage: /([0-9]{1,3})%/
