@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.example.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import nl.tudelft.sem.template.example.authentication.AuthManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * </p>
  */
 @RestController
+@SecurityRequirement(name = "Bearer Authentication")
 public class DefaultController {
 
     private final transient AuthManager authManager;
