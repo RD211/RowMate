@@ -1,3 +1,4 @@
 include:
   - authentication-microservice/.gitlab-ci.yml
   - example-microservice/.gitlab-ci.yml
+  - users-microservice/.gitlab-ci.yml
