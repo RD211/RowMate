@@ -9,6 +9,7 @@
         </processorPath>
         <module name="template.authentication-microservice.main" />
         <module name="template.users-microservice.main" />
+        <module name="template.activity-microservice.main" />
         <module name="template.example-microservice.main" />
       </profile>
     </annotationProcessing>
