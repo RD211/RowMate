@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.activities.config;
+package nl.tudelft.sem.project.activities.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

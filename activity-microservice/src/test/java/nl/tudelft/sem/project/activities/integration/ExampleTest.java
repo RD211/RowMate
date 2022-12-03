@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.activities.integration;
+package nl.tudelft.sem.project.activities.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
