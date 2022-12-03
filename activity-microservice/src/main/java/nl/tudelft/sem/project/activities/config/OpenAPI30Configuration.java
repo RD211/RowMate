@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.activities.config;
+package nl.tudelft.sem.project.activities.config;
 
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;

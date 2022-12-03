@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.activities;
+package nl.tudelft.sem.project.activities;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
