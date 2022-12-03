@@ -12,7 +12,7 @@ variables:
 build-activity-microservice:
   stage: build
   script:
-    gradle activity-microservice:assemble actvitiy-microservice:testClasses
+    gradle activity-microservice:assemble activity-microservice:testClasses
 
 checkStyle-activity-microservice:
   stage: staticAnalysis
