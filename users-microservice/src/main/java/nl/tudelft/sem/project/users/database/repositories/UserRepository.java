@@ -11,20 +11,10 @@ import java.util.UUID;
 public interface UserRepository extends PagingAndSortingRepository<User, UUID> {
     Optional<User> findByEmailIgnoreCase(String email);
 
-    /**
-     * Checks if the provided email and username are unique.
-     *
-     * @param email the email to check
-     * @param username the username to check
-     * @return whether the email or username already exists in the database
-     */
+    Optional<User> findByUsername(String username);
+
     boolean existsByEmailIgnoreCaseOrUsername(String email, String username);
 
-    /**
-     * Checks if the provided username is unique.
-     *
-     * @param username the username to check
-     * @return whether the username already exists in the database
-     */
     boolean existsByUsername(String username);
+
 }

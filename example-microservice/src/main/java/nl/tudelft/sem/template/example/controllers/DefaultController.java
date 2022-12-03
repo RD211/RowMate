@@ -37,7 +37,7 @@ public class DefaultController {
      * @return the example found in the database with the given id
      */
     @GetMapping("/hello")
-    public ResponseEntity<String> helloWorld(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<String> helloWorld() {
         return ResponseEntity.ok("Hello " + authManager.getNetId());
     }
 

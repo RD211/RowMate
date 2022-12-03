@@ -37,9 +37,11 @@ repositories {
 
 dependencies {
 	implementation project(":commons")
+	// gson
+	implementation 'com.google.code.gson:gson:2.10'
+
 	compileOnly 'org.projectlombok:lombok:1.18.24'
 	annotationProcessor 'org.projectlombok:lombok:1.18.24'
-
 	// Swagger UI
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.4'
 

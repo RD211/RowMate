@@ -11,12 +11,19 @@ import java.util.List;
 import java.util.UUID;
 
 
+/**
+ * The user entity.
+ * Stores the details that are required for a user.
+ * Extends DTO-able since it will need to be able to be transformed into
+ * a dto.
+ */
 @Getter
 @Setter
 @ToString
 @Entity
 @RequiredArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
+@Builder
 public class User implements DTOable<UserDTO> {
 
     @Id
@@ -25,10 +32,10 @@ public class User implements DTOable<UserDTO> {
     @Column(name = "id", updatable = false, nullable = false)
     protected UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     protected String username;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     protected String email;
 
     @Column(nullable = true)
@@ -56,18 +63,15 @@ public class User implements DTOable<UserDTO> {
     }
 
     /**
-     * Construct a new entity from a DTO ignoring score, gamesPlayed and gamePlayer fields.
+     * The user constructor given the dto.
      *
-     * @param dto DTO to map to entity.
+     * @param dto the user dto.
      */
     public User(UserDTO dto) {
         this.id = dto.getId();
         this.username = dto.getUsername();
         this.email = dto.getEmail();
-        this.gender = null;
-        this.organization = null;
         this.boatRoles = new ArrayList<>();
         availableTime = new ArrayList<>();
     }
-
 }

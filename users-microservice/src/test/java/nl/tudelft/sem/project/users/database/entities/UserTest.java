@@ -11,11 +11,13 @@ class UserTest {
 
     @Test
     void testToDTO() {
-        User user = new User();
         var id = UUID.randomUUID();
-        user.setId(id);
-        user.setUsername("ane");
-        user.setEmail("ane@ane.com");
+
+        User user = User.builder()
+                .id(id)
+                .username("ane")
+                .email("ane@ane.com")
+                .build();
 
         var dto = user.toDTO();
         assertEquals(id, dto.getId());
@@ -28,7 +30,11 @@ class UserTest {
     void testFromDTOConstructor() {
         var id = UUID.randomUUID();
 
-        UserDTO dto = new UserDTO(id, "ane", "ane@ane.com");
+        UserDTO dto = UserDTO.builder()
+                .id(id)
+                .username("ane")
+                .email("ane@ane.com")
+                .build();
 
         var user = new User(dto);
         assertEquals(dto.getId(), user.getId());

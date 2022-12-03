@@ -10,6 +10,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserDTO implements DTO {
     /**
      * The user's ID.
