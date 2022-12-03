@@ -1,5 +1,6 @@
-rootProject.name = 'template'
+rootProject.name = 'project'
 
 include 'authentication-microservice'
 include 'example-microservice'
 include 'users-microservice'
+include 'commons'
