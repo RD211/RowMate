@@ -59,6 +59,7 @@ public class Certificate {
 
     /**
      * Computes all certificates implied by possession of this certificate.
+     *
      * @return List of all implied certificates
      */
     public List<Certificate> getAllFromCertificateChain() {
@@ -68,7 +69,9 @@ public class Certificate {
             result.add(finger);
             finger = finger.supersedes;
             // Stop if for some reason we have circular supersedence
-            if (finger == this) break;
+            if (this.equals(finger)) {
+                break;
+            }
         }
         return result;
     }
