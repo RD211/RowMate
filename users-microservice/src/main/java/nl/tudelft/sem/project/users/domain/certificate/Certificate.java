@@ -3,6 +3,7 @@ package nl.tudelft.sem.project.users.domain.certificate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.UUID;
@@ -28,8 +29,8 @@ public class Certificate {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne(targetEntity = Certificate.class)
-    @Column(name = "supersedes")
+    @ManyToOne
+    @JoinColumn(name = "supersedes")
     private Certificate supersedes;
 
     @Column(name = "for_boat")
