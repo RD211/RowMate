@@ -1,5 +1,8 @@
 package nl.tudelft.sem.project.users.controllers;
 
+import feign.Body;
+import feign.Param;
+import feign.RequestLine;
 import nl.tudelft.sem.project.entities.users.UserDTO;
 import nl.tudelft.sem.project.users.database.entities.User;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
@@ -43,3 +46,4 @@ public class DefaultController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 }
+

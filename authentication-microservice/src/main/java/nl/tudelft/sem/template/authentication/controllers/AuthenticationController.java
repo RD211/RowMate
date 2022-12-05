@@ -1,5 +1,11 @@
 package nl.tudelft.sem.template.authentication.controllers;
 
+import com.google.gson.Gson;
+import feign.Feign;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import nl.tudelft.sem.project.entities.users.ExampleFeignUsers;
+import nl.tudelft.sem.project.entities.users.UserDTO;
 import nl.tudelft.sem.template.authentication.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.template.authentication.authentication.JwtUserDetailsService;
 import nl.tudelft.sem.template.authentication.domain.user.NetId;
@@ -9,6 +15,7 @@ import nl.tudelft.sem.template.authentication.models.AuthenticationRequestModel;
 import nl.tudelft.sem.template.authentication.models.AuthenticationResponseModel;
 import nl.tudelft.sem.template.authentication.models.RegistrationRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.codec.Encoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -92,7 +99,16 @@ public class AuthenticationController {
             NetId netId = new NetId(request.getNetId());
             Password password = new Password(request.getPassword());
             registrationService.registerUser(netId, password);
+
+            // Temporary feign way to communicate with the users microservice
+            ExampleFeignUsers client = Feign.builder()
+                    .encoder(new GsonEncoder())
+                    .decoder(new GsonDecoder())
+                    .target(ExampleFeignUsers.class, "http://localhost:8084");
+            var responnse = client.addUser(UserDTO.builder().email("").username(netId.toString()).build());
+            System.out.println(responnse);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
 
