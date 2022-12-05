@@ -43,6 +43,7 @@ dependencies {
 	// feign
 	implementation 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.RELEASE'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.5.RELEASE'
+	implementation 'io.github.openfeign:feign-gson:10.11'
 
 	compileOnly 'org.projectlombok:lombok:1.18.24'
 	annotationProcessor 'org.projectlombok:lombok:1.18.24'
