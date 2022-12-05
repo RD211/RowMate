@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.example.config;
+package nl.tudelft.sem.project.notifications.config;
 
 import javax.sql.DataSource;
 import lombok.Getter;

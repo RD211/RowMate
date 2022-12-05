@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.example.config;
+package nl.tudelft.sem.project.notifications.config;
 
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
