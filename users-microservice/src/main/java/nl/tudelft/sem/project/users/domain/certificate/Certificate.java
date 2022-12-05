@@ -2,9 +2,12 @@ package nl.tudelft.sem.project.users.domain.certificate;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -14,21 +17,25 @@ import java.util.UUID;
 @Entity
 @Table(name = "certificates")
 @NoArgsConstructor
-@Getter
 public class Certificate {
 
     /**
      * Identifier for a certificate.
      */
+    @Getter
+    @Setter
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false)
-    protected UUID id;
+    private UUID id;
 
+    @Getter
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Getter
+    @Setter
     @ManyToOne
     @JoinColumn(name = "supersedes")
     private Certificate supersedes;
@@ -51,6 +58,22 @@ public class Certificate {
     }
 
     /**
+     * Computes all certificates implied by possession of this certificate.
+     * @return List of all implied certificates
+     */
+    public List<Certificate> getAllFromCertificateChain() {
+        List<Certificate> result = new ArrayList<>();
+        Certificate finger = this;
+        while (finger != null) {
+            result.add(finger);
+            finger = finger.supersedes;
+            // Stop if for some reason we have circular supersedence
+            if (finger == this) break;
+        }
+        return result;
+    }
+
+    /**
      * Equality is only based on the identifier.
      */
     @Override
@@ -65,6 +88,9 @@ public class Certificate {
         return id.equals(certificate.id);
     }
 
+    /**
+     * Hash code is only based on the identifier.
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id);
