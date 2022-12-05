@@ -1,11 +1,11 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
+import javax.persistence.*;
 import java.util.Objects;
 import java.util.UUID;
-import javax.persistence.*;
-
-import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 
 /**
  * A DDD entity representing a boat certificate in our domain.
@@ -38,9 +38,10 @@ public class Certificate {
     /**
      * Creates a certificate object.
      * The boatUUIDReference should be a valid UUID from the boats service.
-     * @param certificateName
-     * @param supersedes
-     * @param boatUUIDReference
+     *
+     * @param certificateName The certificate name
+     * @param supersedes The certificate that this certificate supersedes
+     * @param boatUUIDReference A UUID reference to a boat from the boats service
      */
     public Certificate(String certificateName, Certificate supersedes, UUID boatUUIDReference) {
         this.name = certificateName;
@@ -60,7 +61,7 @@ public class Certificate {
             return false;
         }
         Certificate certificate = (Certificate) o;
-        return id == certificate.id;
+        return id.equals(certificate.id);
     }
 
     @Override
