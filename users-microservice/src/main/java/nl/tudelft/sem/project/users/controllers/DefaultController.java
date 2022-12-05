@@ -5,6 +5,7 @@ import feign.Param;
 import feign.RequestLine;
 import nl.tudelft.sem.project.entities.users.UserDTO;
 import nl.tudelft.sem.project.users.database.entities.User;
+import nl.tudelft.sem.project.users.database.entities.Username;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,7 +42,7 @@ public class DefaultController {
      */
     @GetMapping("/get_user")
     public ResponseEntity<UserDTO> getUserByUsername(@RequestParam String username) {
-        var user = userRepository.findByUsername(username);
+        var user = userRepository.findByUsername(new Username(username));
         return user.map(value -> ResponseEntity.ok(value.toDTO()))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }

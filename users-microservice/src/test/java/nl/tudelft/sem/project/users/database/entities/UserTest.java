@@ -15,8 +15,8 @@ class UserTest {
 
         User user = User.builder()
                 .id(id)
-                .username("ane")
-                .email("ane@ane.com")
+                .username(new Username("ane"))
+                .email(new UserEmail("ane@ane.com"))
                 .build();
 
         var dto = user.toDTO();
@@ -38,7 +38,7 @@ class UserTest {
 
         var user = new User(dto);
         assertEquals(dto.getId(), user.getId());
-        assertEquals(dto.getUsername(), user.getUsername());
-        assertEquals(dto.getEmail(), user.getEmail());
+        assertEquals(dto.getUsername(), user.getUsername().toString());
+        assertEquals(dto.getEmail(), user.getEmail().toString());
     }
 }

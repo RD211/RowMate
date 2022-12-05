@@ -33,17 +33,20 @@ public class User implements DTOable<UserDTO> {
     protected UUID id;
 
     @Column(nullable = false, unique = true)
-    protected String username;
+    @Convert(converter = UsernameAttributeConverter.class)
+    protected Username username;
 
     @Column(nullable = false, unique = true)
-    protected String email;
+    @Convert(converter = UserEmailAttributeConverter.class)
+    protected UserEmail email;
 
     @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     protected Gender gender;
 
     @Column(nullable = true)
-    protected String organization;
+    @Convert(converter = OrganizationAttributeConverter.class)
+    protected Organization organization;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)
@@ -57,8 +60,8 @@ public class User implements DTOable<UserDTO> {
     public UserDTO toDTO() {
         return new UserDTO(
                 this.id,
-                this.username,
-                this.email
+                this.username.toString(),
+                this.email.toString()
         );
     }
 
@@ -69,8 +72,8 @@ public class User implements DTOable<UserDTO> {
      */
     public User(UserDTO dto) {
         this.id = dto.getId();
-        this.username = dto.getUsername();
-        this.email = dto.getEmail();
+        this.username = new Username(dto.getUsername());
+        this.email = new UserEmail(dto.getEmail());
         this.boatRoles = new ArrayList<>();
         availableTime = new ArrayList<>();
     }
