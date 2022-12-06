@@ -26,6 +26,7 @@ dependencies {
 	// feign
 	implementation 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.RELEASE'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.5.RELEASE'
+
 }
 
 repositories {
