@@ -2,9 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/authentication-microservice/template.authentication-microservice.main.iml" filepath="$PROJECT_DIR$/.idea/modules/authentication-microservice/template.authentication-microservice.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/example-microservice/template.example-microservice.main.iml" filepath="$PROJECT_DIR$/.idea/modules/example-microservice/template.example-microservice.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/users-microservice/template.users-microservice.main.iml" filepath="$PROJECT_DIR$/.idea/modules/users-microservice/template.users-microservice.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/activity-microservice/project.activity-microservice.main.iml" filepath="$PROJECT_DIR$/.idea/modules/activity-microservice/project.activity-microservice.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/authentication-microservice/project.authentication-microservice.main.iml" filepath="$PROJECT_DIR$/.idea/modules/authentication-microservice/project.authentication-microservice.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/commons/project.commons.main.iml" filepath="$PROJECT_DIR$/.idea/modules/commons/project.commons.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/example-microservice/project.example-microservice.main.iml" filepath="$PROJECT_DIR$/.idea/modules/example-microservice/project.example-microservice.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/notifications-microservice/project.notifications-microservice.main.iml" filepath="$PROJECT_DIR$/.idea/modules/notifications-microservice/project.notifications-microservice.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/users-microservice/project.users-microservice.main.iml" filepath="$PROJECT_DIR$/.idea/modules/users-microservice/project.users-microservice.main.iml" />
     </modules>
   </component>
 </project>

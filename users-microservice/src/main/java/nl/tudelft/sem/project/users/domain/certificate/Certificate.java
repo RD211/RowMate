@@ -33,18 +33,19 @@ public class Certificate implements DTOable<CertificateDTO> {
     @EqualsAndHashCode.Include
     @Setter
     @Getter
+    @NonNull
     private UUID id;
 
     @Column(name = "name", nullable = false)
     @Setter
     @Getter
+    @NonNull
     private String name;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supersedes")
-    @Getter
-    @NonNull
-    private Optional<Certificate> superseded;
+    private Certificate superseded;
 
     @Column(name = "for_boat")
     @Getter
@@ -57,7 +58,16 @@ public class Certificate implements DTOable<CertificateDTO> {
      * @param superseded A non-null certificate
      */
     public void setSuperseded(@NonNull Certificate superseded) {
-        this.superseded = Optional.of(superseded);
+        this.superseded = superseded;
+    }
+
+    /**
+     * Gets the certificate superseded by this one.
+     *
+     * @return The superseded certificate. If there is none, then empty.
+     */
+    public Optional<Certificate> getSuperseded() {
+        return Optional.ofNullable(superseded);
     }
 
     /**
@@ -68,10 +78,10 @@ public class Certificate implements DTOable<CertificateDTO> {
      * @param superseded The certificate that this certificate supersedes
      * @param boatUUIDReference A UUID reference to a boat from the boats service
      */
-    public Certificate(String certificateName, Certificate superseded, UUID boatUUIDReference) {
+    public Certificate(String certificateName, @NonNull Certificate superseded, UUID boatUUIDReference) {
         this.id = UUID.randomUUID();
         this.name = certificateName;
-        this.superseded = Optional.of(superseded);
+        this.superseded = superseded;
         this.forBoat = boatUUIDReference;
     }
 
@@ -86,7 +96,6 @@ public class Certificate implements DTOable<CertificateDTO> {
     public Certificate(String certificateName, UUID boatUUIDReference) {
         this.id = UUID.randomUUID();
         this.name = certificateName;
-        this.superseded = Optional.empty();
         this.forBoat = boatUUIDReference;
     }
 
@@ -97,12 +106,12 @@ public class Certificate implements DTOable<CertificateDTO> {
      */
     public List<Certificate> getAllFromCertificateChain() {
         List<Certificate> result = new ArrayList<>();
-        Optional<Certificate> finger = Optional.of(this);
-        while (finger.isPresent()) {
-            result.add(finger.get());
-            finger = finger.get().superseded;
+        Certificate finger = this;
+        while (finger != null) {
+            result.add(finger);
+            finger = finger.superseded;
             // Stop if for some reason we have circular supersedence
-            if (Optional.of(this).equals(finger)) {
+            if (this.equals(finger)) {
                 break;
             }
         }
@@ -114,14 +123,9 @@ public class Certificate implements DTOable<CertificateDTO> {
         var res = new CertificateDTO(
                 id,
                 name,
-                Optional.empty(),
+                Optional.ofNullable(superseded).map(c -> c.getId()),
                 forBoat
         );
-        if (superseded.isPresent()) {
-            res.setSupersededId(
-                    Optional.of(superseded.get().getId())
-            );
-        }
         return res;
     }
 
@@ -134,7 +138,6 @@ public class Certificate implements DTOable<CertificateDTO> {
         this.id = dto.getId();
         this.name = dto.getName();
         // TODO should find the superseded certificate if any
-        this.superseded = Optional.empty();
         this.forBoat = dto.getForBoat();
     }
 }
