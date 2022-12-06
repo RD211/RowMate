@@ -1,8 +1,8 @@
 package nl.tudelft.sem.project.notifications.controllers;
 
+import nl.tudelft.sem.project.entities.notifications.NotificationDTO;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Hello World example controller.
@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
  * </p>
  */
 @RestController
-public class DefaultController {
+public class NotificationsController {
+
     /**
      * The default test endpoint for the Notifications microservice.
      *
@@ -20,5 +21,12 @@ public class DefaultController {
     @GetMapping("/notifications")
     public ResponseEntity<String> notificationDefault() {
         return ResponseEntity.ok("[ENDPOINT] Notifications Microservice - WIP");
+    }
+
+    //TODO The endpoint should accept user, type of activity, and model w/ details relevant for model
+    @PostMapping("/sendNotification")
+    public ResponseEntity<String> sendNotification(@RequestParam NotificationDTO notificationDTO) {
+
+        return ResponseEntity.ok("Notification sent to <None>.");
     }
 }
