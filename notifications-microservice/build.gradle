@@ -26,7 +26,7 @@ plugins {
 	id 'info.solidsoft.pitest' version '1.5.2'
 }
 
-group = 'nl.tudelft.cse.sem.template'
+group = 'nl.tudelft.sem.project'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 11
 targetCompatibility = 11
@@ -36,14 +36,9 @@ repositories {
 }
 
 dependencies {
-
+	implementation project(":commons")
 	compileOnly 'org.projectlombok:lombok:1.18.24'
 	annotationProcessor 'org.projectlombok:lombok:1.18.24'
-
-	// feign
-	implementation 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.RELEASE'
-	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.5.RELEASE'
-	implementation 'io.github.openfeign:feign-gson:10.11'
 
 	// Swagger UI
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.4'
@@ -73,7 +68,7 @@ test {
 	useJUnitPlatform()
 	jacoco {
 		enabled = true
-		includes = ['nl.tudelft.sem.template.*']
+		includes = ['nl.tudelft.sem.project.*']
 		excludes = []
 	}
 }
@@ -88,7 +83,7 @@ jacocoTestCoverageVerification() {
 		rule {
 			enabled = true
 			element = 'CLASS'
-			includes = ['nl.tudelft.sem.template.*']
+			includes = ['nl.tudelft.sem.project.*']
 
 			limit {
 				counter = 'BRANCH'
@@ -117,7 +112,7 @@ pitest {
 	//adds dependency to org.pitest:pitest-junit5-plugin and sets "testPlugin" to "junit5"
 	junit5PluginVersion = '0.12'
 
-	targetClasses = ['nl.tudelft.sem.template.*']  //by default "${project.group}.*"
+	targetClasses = ['nl.tudelft.sem.project.*']  //by default "${project.group}.*"
 	pitestVersion = '1.5.1' //not needed when a default PIT version should be used
 	threads = 4
 	outputFormats = ['XML', 'HTML']

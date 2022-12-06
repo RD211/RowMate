@@ -1,3 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
 </FindBugsFilter>
+<rule
+ref="category/java/errorprone.xml/BeanMembersShouldSerialize">
+<properties>
+    <property name="ignoredAnnotations"
+              value="lombok.Data|lombok.Getter|lombok.Value|org.springframework.beans.factory.annotation.Autowired" />
+    <property name="prefix" value="" />
+</properties>
+</rule>

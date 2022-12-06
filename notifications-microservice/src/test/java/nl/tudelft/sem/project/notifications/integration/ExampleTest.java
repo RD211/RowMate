@@ -1,19 +1,14 @@
-package nl.tudelft.sem.project.users.integration;
+package nl.tudelft.sem.project.notifications.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import nl.tudelft.sem.project.entities.users.UserDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.json.JacksonJsonParser;
-import org.springframework.boot.json.JsonParser;
-import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -25,7 +20,8 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 // activate profiles to have spring use mocks during auto-injection of certain beans.
-@ActiveProfiles({"test"})
+@ActiveProfiles({"test", "mockTokenVerifier", "mockAuthenticationManager"})
+//@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 public class ExampleTest {
 
@@ -33,26 +29,20 @@ public class ExampleTest {
     private MockMvc mockMvc;
 
     @Test
-    public void addUser() throws Exception {
-        Gson gson = new Gson();
+    public void helloWorld() throws Exception {
 
-
-        var user = UserDTO.builder()
-                .username("test")
-                .email("test@tester.com")
-                .build();
-        var userJson = gson.toJson(user);
-
-        ResultActions result = mockMvc.perform(post("/add_user")
+        // Act
+        // Still include Bearer token as AuthFilter itself is not mocked
+        ResultActions result = mockMvc.perform(get("/notifications")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(userJson));
+                .header("Authorization", "Bearer MockedToken"));
 
+        // Assert
         result.andExpect(status().isOk());
 
-        UserDTO response = gson.fromJson(result.andReturn().getResponse().getContentAsString(), UserDTO.class);
+        String response = result.andReturn().getResponse().getContentAsString();
 
-        assertThat(response.getId()).isNotNull();
-        assertThat(response.getUsername()).isEqualTo(user.getUsername());
-        assertThat(response.getEmail()).isEqualTo(user.getEmail());
+        assertThat(response).isEqualTo("[ENDPOINT] Notifications Microservice - WIP");
+
     }
 }
