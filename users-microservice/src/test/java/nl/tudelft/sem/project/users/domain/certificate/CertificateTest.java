@@ -12,8 +12,6 @@ class CertificateTest {
     @Test
     void testCertificateChainOne() {
         var cert1 = new Certificate("certificate1", null, null);
-        UUID id = new UUID(123, 567);
-        cert1.setId(id);
 
         assertEquals(cert1.getAllFromCertificateChain(), List.of(cert1));
     }
@@ -24,13 +22,6 @@ class CertificateTest {
         var cert1 = new Certificate("certificate1", cert3, null);
         var cert2 = new Certificate("certificate2", cert1, null);
 
-        UUID id1 = new UUID(123, 567);
-        cert1.setId(id1);
-        UUID id2 = new UUID(555, 111);
-        cert2.setId(id2);
-        UUID id3 = new UUID(412, 897);
-        cert3.setId(id3);
-
         assertEquals(cert1.getAllFromCertificateChain(), List.of(cert1, cert3));
         assertEquals(cert2.getAllFromCertificateChain(), List.of(cert2, cert1, cert3));
     }
@@ -39,11 +30,6 @@ class CertificateTest {
     void testCertificateChainCircular() {
         var cert1 = new Certificate("certificate1", null, null);
         var cert2 = new Certificate("certificate2", cert1, null);
-
-        UUID id1 = new UUID(123, 567);
-        cert1.setId(id1);
-        UUID id2 = new UUID(555, 111);
-        cert2.setId(id2);
 
         cert1.setSupersedes(cert2);
 
@@ -73,9 +59,7 @@ class CertificateTest {
         var cert1 = new Certificate("certificate", null, null);
         var cert2 = new Certificate("other certificate", null, null);
 
-        UUID id = new UUID(123, 567);
-        cert1.setId(id);
-        cert2.setId(id);
+        cert2.setId(cert1.getId());
 
         assertEquals(cert1, cert2);
     }
@@ -85,11 +69,6 @@ class CertificateTest {
         var cert1 = new Certificate("certificate", null, null);
         var cert2 = new Certificate("other certificate", null, null);
 
-        UUID id1 = new UUID(123, 567);
-        UUID id2 = new UUID(321, 765);
-        cert1.setId(id1);
-        cert2.setId(id2);
-
         assertNotEquals(cert1, cert2);
     }
 
@@ -98,9 +77,7 @@ class CertificateTest {
         var cert1 = new Certificate("certificate", null, null);
         var cert2 = new Certificate("other certificate", null, null);
 
-        UUID id = new UUID(123, 567);
-        cert1.setId(id);
-        cert2.setId(id);
+        cert2.setId(cert1.getId());
 
         assertEquals(cert1.hashCode(), cert2.hashCode());
     }

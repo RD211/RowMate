@@ -1,42 +1,38 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
  * A DDD entity representing a boat certificate in our domain.
+ * Equality and hashcode based on id only.
  */
 @Entity
+@Data
 @Table(name = "certificates")
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Certificate {
 
     /**
      * Identifier for a certificate.
      */
-    @Getter
-    @Setter
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false)
+    @EqualsAndHashCode.Include
     private UUID id;
 
-    @Getter
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Getter
-    @Setter
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supersedes")
     private Certificate supersedes;
 
@@ -52,6 +48,7 @@ public class Certificate {
      * @param boatUUIDReference A UUID reference to a boat from the boats service
      */
     public Certificate(String certificateName, Certificate supersedes, UUID boatUUIDReference) {
+        this.id = UUID.randomUUID();
         this.name = certificateName;
         this.supersedes = supersedes;
         this.forBoat = boatUUIDReference;
@@ -76,26 +73,4 @@ public class Certificate {
         return result;
     }
 
-    /**
-     * Equality is only based on the identifier.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Certificate certificate = (Certificate) o;
-        return id.equals(certificate.id);
-    }
-
-    /**
-     * Hash code is only based on the identifier.
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }
