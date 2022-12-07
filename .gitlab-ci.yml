@@ -4,3 +4,5 @@ include:
   - activity-microservice/.gitlab-ci.yml
   - users-microservice/.gitlab-ci.yml
   - matchmaking-microservice/.gitlab-ci.yml
+  - activity-microservice/.gitlab-ci.yml
+  - notifications-microservice/.gitlab-ci.yml
