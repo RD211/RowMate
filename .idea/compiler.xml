@@ -14,7 +14,6 @@
         <module name="project.users-microservice.main" />
         <module name="project.matchmaking-microservice.main" />
         <module name="project.example-microservice.main" />
->>>>>>> .idea/compiler.xml
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="11" />
