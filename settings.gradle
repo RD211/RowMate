@@ -2,7 +2,7 @@ rootProject.name = 'project'
 
 include 'commons'
 include 'authentication-microservice'
-include 'example-microservice'
+include 'gateway-microservice'
 include 'users-microservice'
 include 'activity-microservice'
 include 'notifications-microservice'
