@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project.users.database.entities;
+package nl.tudelft.sem.project.entities.shared;
 
 public class Organization {
     private final transient String name;
