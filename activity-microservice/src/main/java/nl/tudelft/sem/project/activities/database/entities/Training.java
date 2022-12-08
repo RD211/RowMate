@@ -41,8 +41,12 @@ public class Training implements Activity {
     /**
      * Map that refers every participant in the activity to their user info.
      */
-    @Column(nullable = false)
-    @ElementCollection
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "userID", column = @Column(name = "participantUserID")),
+            @AttributeOverride(name = "boatID", column = @Column(name = "participantBoatID")),
+            @AttributeOverride(name = "requestedRole", column = @Column(name = "participantRequestedRole")),
+    })
     protected List<ActivityUserInfo> participants;
 
     /**
