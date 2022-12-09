@@ -6,10 +6,10 @@ import nl.tudelft.sem.project.entities.users.UserDTO;
 
 @Data
 @NoArgsConstructor
-@RequiredArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
 @Builder
-public abstract class NotificationDTO {
+public class NotificationDTO {
 
     /**
      * The user DTO containing user ID, username, and e-mail address
@@ -21,7 +21,6 @@ public abstract class NotificationDTO {
      * The activity DTO containing details about the
      * activity the notification should be for
      */
-    @NonNull
     protected ActivityDTO activityDTO;
 
     /**
