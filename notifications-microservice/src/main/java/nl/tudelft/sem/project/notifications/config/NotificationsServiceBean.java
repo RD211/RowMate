@@ -8,6 +8,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class NotificationsServiceBean {
 
+    /**
+     * Bean returning a NotificationsService implementation.
+     *
+     * @return NotificationsService
+     */
     @Bean
     public NotificationsService getNotificationsService() {
         NotificationsService notificationsService = new NotificationsServiceImpl();
