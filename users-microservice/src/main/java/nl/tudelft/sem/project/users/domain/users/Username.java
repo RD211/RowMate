@@ -1,11 +1,13 @@
-package nl.tudelft.sem.project.users.database.entities;
+package nl.tudelft.sem.project.users.domain.users;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @EqualsAndHashCode
+@Data
 public class Username {
-    private final transient String name;
+    private final String name;
 
     public Username(String name) {
         // Validate input

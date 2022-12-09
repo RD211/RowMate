@@ -1,6 +1,9 @@
-package nl.tudelft.sem.project.users.database.entities;
+package nl.tudelft.sem.project.users.domain.users;
 
 import nl.tudelft.sem.project.entities.users.UserDTO;
+import nl.tudelft.sem.project.users.domain.users.User;
+import nl.tudelft.sem.project.users.domain.users.UserEmail;
+import nl.tudelft.sem.project.users.domain.users.Username;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

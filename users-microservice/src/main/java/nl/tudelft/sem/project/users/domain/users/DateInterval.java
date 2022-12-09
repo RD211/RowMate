@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project.users.database.entities;
+package nl.tudelft.sem.project.users.domain.users;
 
 import lombok.Data;
 
