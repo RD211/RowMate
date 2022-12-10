@@ -9,6 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface CertificateRepository extends PagingAndSortingRepository<Certificate, UUID> {
-    List<Certificate> findByForBoat(UUID boatId);
 }
 

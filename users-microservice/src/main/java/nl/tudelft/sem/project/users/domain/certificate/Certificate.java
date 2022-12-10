@@ -74,9 +74,8 @@ public class Certificate implements DTOable<CertificateDTO> {
      *
      * @param certificateName The certificate name
      * @param superseded The certificate that this certificate supersedes
-     * @param boatUUIDReference A UUID reference to a boat from the boats service
      */
-    public Certificate(String certificateName, @NonNull Certificate superseded, UUID boatUUIDReference) {
+    public Certificate(String certificateName, @NonNull Certificate superseded) {
         this.id = UUID.randomUUID();
         this.name = certificateName;
         this.superseded = superseded;
@@ -88,9 +87,8 @@ public class Certificate implements DTOable<CertificateDTO> {
      * The certificate will not supersede any other certificate.
      *
      * @param certificateName The certificate name
-     * @param boatUUIDReference A UUID reference to a boat from the boats service
      */
-    public Certificate(String certificateName, UUID boatUUIDReference) {
+    public Certificate(String certificateName) {
         this.id = UUID.randomUUID();
         this.name = certificateName;
     }
