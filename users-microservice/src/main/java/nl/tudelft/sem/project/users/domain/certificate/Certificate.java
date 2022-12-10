@@ -49,10 +49,6 @@ public class Certificate implements DTOable<CertificateDTO> {
     @JoinColumn(name = "supersedes")
     private Certificate superseded;
 
-    @Column(name = "for_boat")
-    @Getter
-    @Setter
-    private UUID forBoat;
 
     /**
      * Sets superseded certificate.
@@ -84,7 +80,6 @@ public class Certificate implements DTOable<CertificateDTO> {
         this.id = UUID.randomUUID();
         this.name = certificateName;
         this.superseded = superseded;
-        this.forBoat = boatUUIDReference;
     }
 
     /**
@@ -98,7 +93,6 @@ public class Certificate implements DTOable<CertificateDTO> {
     public Certificate(String certificateName, UUID boatUUIDReference) {
         this.id = UUID.randomUUID();
         this.name = certificateName;
-        this.forBoat = boatUUIDReference;
     }
 
     /**
@@ -125,8 +119,7 @@ public class Certificate implements DTOable<CertificateDTO> {
         var res = new CertificateDTO(
                 id,
                 name,
-                Optional.ofNullable(superseded).map(c -> c.getId()),
-                forBoat
+                Optional.ofNullable(superseded).map(c -> c.getId())
         );
         return res;
     }
@@ -147,6 +140,5 @@ public class Certificate implements DTOable<CertificateDTO> {
             }
             this.superseded = maybeSuperseded.get();
         }
-        this.forBoat = dto.getForBoat();
     }
 }
