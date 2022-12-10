@@ -1,7 +1,9 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
 import nl.tudelft.sem.project.entities.users.CertificateDTO;
+import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
@@ -115,12 +117,38 @@ class CertificateTest {
     }
 
     @Test
-    void testFromDTO() {
+    void testFromDTOWithoutSuperseding() throws CertificateNotFoundException {
         var dto = new CertificateDTO(UUID.randomUUID(), "cert_name", Optional.empty(), null);
-        var certFromDTO = new Certificate(dto);
+        var certFromDTO = new Certificate(dto, null);
         var cert = new Certificate("cert_name", null);
+
         assertEquals(certFromDTO.getName(), cert.getName());
         assertEquals(certFromDTO.getSuperseded(), cert.getSuperseded());
         assertEquals(certFromDTO.getForBoat(), cert.getForBoat());
+    }
+
+    @Test
+    void testFromDTOWithSupersedingPresent() throws CertificateNotFoundException {
+        CertificateRepository repo = Mockito.mock(CertificateRepository.class);
+        var supersededCertificate = new Certificate("superseded_cert", null);
+        Mockito.when(repo.findById(supersededCertificate.getId())).thenReturn(Optional.of(supersededCertificate));
+
+        var dto = new CertificateDTO(UUID.randomUUID(), "cert_name", Optional.of(supersededCertificate.getId()), null);
+        var certFromDTO = new Certificate(dto, repo);
+
+        assertTrue(certFromDTO.getSuperseded().isPresent());
+        assertEquals(certFromDTO.getSuperseded().get(), supersededCertificate);
+    }
+
+    @Test
+    void testFromDTOWithSupersedingMissing() {
+        CertificateRepository repo = Mockito.mock(CertificateRepository.class);
+        UUID nonexistentCertId = UUID.randomUUID();
+        Mockito.when(repo.findById(nonexistentCertId)).thenReturn(Optional.empty());
+
+        var dto = new CertificateDTO(UUID.randomUUID(), "cert_name", Optional.of(nonexistentCertId), null);
+
+        assertThrows(CertificateNotFoundException.class, () -> new Certificate(dto, repo));
+
     }
 }
