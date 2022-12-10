@@ -135,13 +135,15 @@ public class Certificate implements DTOable<CertificateDTO> {
      *
      * @param dto Data transfer object
      */
-    public Certificate(CertificateDTO dto, CertificateRepository repo) throws SupersededCertificateDoesNotExist {
+    public Certificate(CertificateDTO dto, CertificateRepository repo) throws SupersededCertificateDoesNotExistException {
         this.id = dto.getId();
         this.name = dto.getName();
         if (dto.getSupersededId().isPresent()) {
             UUID supersededId = dto.getSupersededId().get();
             Optional<Certificate> maybeSuperseded = repo.findById(supersededId);
-            if (maybeSuperseded.isEmpty()) throw new SupersededCertificateDoesNotExist();
+            if (maybeSuperseded.isEmpty()) {
+                throw new SupersededCertificateDoesNotExistException(supersededId);
+            }
             this.superseded = maybeSuperseded.get();
         }
         this.forBoat = dto.getForBoat();

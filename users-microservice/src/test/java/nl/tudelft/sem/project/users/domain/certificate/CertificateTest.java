@@ -117,7 +117,7 @@ class CertificateTest {
     }
 
     @Test
-    void testFromDTOWithoutSuperseding() throws SupersededCertificateDoesNotExist {
+    void testFromDTOWithoutSuperseding() throws SupersededCertificateDoesNotExistException {
         var dto = new CertificateDTO(UUID.randomUUID(), "cert_name", Optional.empty(), null);
         var certFromDTO = new Certificate(dto, null);
         var cert = new Certificate("cert_name", null);
@@ -128,7 +128,7 @@ class CertificateTest {
     }
 
     @Test
-    void testFromDTOWithSupersedingPresent() throws SupersededCertificateDoesNotExist {
+    void testFromDTOWithSupersedingPresent() throws SupersededCertificateDoesNotExistException {
         CertificateRepository repo = Mockito.mock(CertificateRepository.class);
         var supersededCertificate = new Certificate("superseded_cert", null);
         Mockito.when(repo.findById(supersededCertificate.getId())).thenReturn(Optional.of(supersededCertificate));
@@ -148,7 +148,7 @@ class CertificateTest {
 
         var dto = new CertificateDTO(UUID.randomUUID(), "cert_name", Optional.of(nonexistentCertId), null);
 
-        assertThrows(SupersededCertificateDoesNotExist.class, () -> new Certificate(dto, repo));
+        assertThrows(SupersededCertificateDoesNotExistException.class, () -> new Certificate(dto, repo));
 
     }
 }
