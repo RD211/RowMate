@@ -123,11 +123,13 @@ class UsersServiceTest {
     @Test
     void addUserInvalidUsername() {
         assertThrows(UsernameInUseException.class, () -> usersService.addUser(susJoe));
+        verify(userRepository, times(0)).save(any(User.class));
     }
 
     @Test
     void addUserInvalidEmail() {
         assertThrows(EmailInUseException.class, () -> usersService.addUser(susMichael));
+        verify(userRepository, times(0)).save(any(User.class));
     }
 
     @Test
@@ -138,7 +140,6 @@ class UsersServiceTest {
 
     @Test
     void deleteUserByIdInvalid() {
-        System.out.println("wtasdasda");
         assertThrows(UserNotFoundException.class, () -> usersService.deleteUserById(susJoe.getId()));
     }
 
