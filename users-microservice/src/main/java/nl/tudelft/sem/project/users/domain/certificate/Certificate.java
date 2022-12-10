@@ -2,6 +2,7 @@ package nl.tudelft.sem.project.users.domain.certificate;
 
 import lombok.*;
 import nl.tudelft.sem.project.entities.users.CertificateDTO;
+import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import org.hibernate.annotations.GenericGenerator;
 import nl.tudelft.sem.project.entities.DTOable;
 
@@ -134,10 +135,15 @@ public class Certificate implements DTOable<CertificateDTO> {
      *
      * @param dto Data transfer object
      */
-    public Certificate(CertificateDTO dto) {
+    public Certificate(CertificateDTO dto, CertificateRepository repo) throws SupersededCertificateDoesNotExist {
         this.id = dto.getId();
         this.name = dto.getName();
-        // TODO should find the superseded certificate if any
+        if (dto.getSupersededId().isPresent()) {
+            UUID supersededId = dto.getSupersededId().get();
+            Optional<Certificate> maybeSuperseded = repo.findById(supersededId);
+            if (maybeSuperseded.isEmpty()) throw new SupersededCertificateDoesNotExist();
+            this.superseded = maybeSuperseded.get();
+        }
         this.forBoat = dto.getForBoat();
     }
 }
