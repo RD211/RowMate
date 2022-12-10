@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project.users.database.entities;
+package nl.tudelft.sem.project.users.domain.users;
 
 import lombok.*;
 import nl.tudelft.sem.project.entities.DTOable;
@@ -7,6 +7,7 @@ import nl.tudelft.sem.project.entities.shared.OrganizationAttributeConverter;
 import nl.tudelft.sem.project.entities.users.UserDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
+import nl.tudelft.sem.project.users.domain.certificate.Certificate;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -59,6 +60,10 @@ public class User implements DTOable<UserDTO> {
 
     @ElementCollection
     protected List<DateInterval> availableTime;
+
+    @OneToMany
+    @EqualsAndHashCode.Exclude
+    protected List<Certificate> certificates;
 
     @Override
     public UserDTO toDTO() {
