@@ -141,6 +141,7 @@ class UsersServiceTest {
     @Test
     void deleteUserByIdInvalid() {
         assertThrows(UserNotFoundException.class, () -> usersService.deleteUserById(susJoe.getId()));
+        verify(userRepository, times(0)).delete(any(User.class));
     }
 
     @Test
@@ -152,6 +153,7 @@ class UsersServiceTest {
     @Test
     void deleteUserByEmailInvalid() {
         assertThrows(UserNotFoundException.class, () -> usersService.deleteUserByEmail(susJoe.getEmail()));
+        verify(userRepository, times(0)).delete(any(User.class));
     }
 
     @Test
@@ -163,6 +165,7 @@ class UsersServiceTest {
     @Test
     void deleteUserByUsernameInvalid() {
         assertThrows(UserNotFoundException.class, () -> usersService.deleteUserByUsername(susMichael.getUsername()));
+        verify(userRepository, times(0)).delete(any(User.class));
     }
 
     @Test
