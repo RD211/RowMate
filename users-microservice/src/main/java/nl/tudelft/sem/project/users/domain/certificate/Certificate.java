@@ -5,6 +5,7 @@ import nl.tudelft.sem.project.entities.users.CertificateDTO;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import org.hibernate.annotations.GenericGenerator;
 import nl.tudelft.sem.project.entities.DTOable;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -135,14 +136,14 @@ public class Certificate implements DTOable<CertificateDTO> {
      *
      * @param dto Data transfer object
      */
-    public Certificate(CertificateDTO dto, CertificateRepository repo) throws SupersededCertificateDoesNotExistException {
+    public Certificate(CertificateDTO dto, @Autowired CertificateRepository repo) throws CertificateNotFoundException {
         this.id = dto.getId();
         this.name = dto.getName();
         if (dto.getSupersededId().isPresent()) {
             UUID supersededId = dto.getSupersededId().get();
             Optional<Certificate> maybeSuperseded = repo.findById(supersededId);
             if (maybeSuperseded.isEmpty()) {
-                throw new SupersededCertificateDoesNotExistException(supersededId);
+                throw new CertificateNotFoundException(supersededId);
             }
             this.superseded = maybeSuperseded.get();
         }
