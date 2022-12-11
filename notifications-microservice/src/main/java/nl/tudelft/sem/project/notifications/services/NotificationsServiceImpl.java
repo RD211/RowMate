@@ -35,6 +35,8 @@ public class NotificationsServiceImpl implements NotificationsService {
             }};
     }
 
+    /* TODO Finish method (properly adding activity details) once
+    ActivityDTO has been completely implemented. */
     /**
      * Sends a mail notification to the email address
      * specified in the NotificationDTO, and customizes
@@ -48,6 +50,7 @@ public class NotificationsServiceImpl implements NotificationsService {
      */
     public void sendNotification(NotificationDTO notificationDTO) throws MailNotSentException {
         SimpleMailMessage message = new SimpleMailMessage();
+        String activityDetails = "";
 
         message.setFrom("test@localhost");
         message.setTo(notificationDTO.getUserDTO().getEmail());
@@ -58,31 +61,11 @@ public class NotificationsServiceImpl implements NotificationsService {
         if (eventType == EventType.SIGN_UP
             || eventType == EventType.RESET_PASSWORD
             || eventType == EventType.TEST) {
-            sendNotificationUserRelated(notificationDTO, message);
-        } else {
-            sendNotificationActivityRelated(notificationDTO, message);
+            activityDetails = "\nActivity details:\n"
+                    + notificationDTO.getActivityDTO().toString();
         }
-    }
-
-    //TODO finish method once Activity DTO has been properly implemented
-    /**
-     * Send activity-related notification, including
-     * details about the activity.
-     */
-    private void sendNotificationActivityRelated(NotificationDTO notificationDTO, SimpleMailMessage message) {
-        String activityDetails = "\nActivity details:\n"
-                + notificationDTO.getActivityDTO().toString();
-
         message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage()
                 + activityDetails);
-        mailSender.send(message);
-    }
-
-    /**
-     * Send notification without any activity details.
-     */
-    private void sendNotificationUserRelated(NotificationDTO notificationDTO, SimpleMailMessage message) {
-        message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage());
         mailSender.send(message);
     }
 }
