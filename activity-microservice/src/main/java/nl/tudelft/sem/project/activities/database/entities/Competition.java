@@ -10,11 +10,13 @@ import javax.persistence.*;
  * It will have a 'C' in the discriminator column activity_type.
  */
 
-@Data
+@Getter
+@Setter
+@ToString
 @RequiredArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-@Builder
 @Entity
+@EqualsAndHashCode(callSuper = true)
 @DiscriminatorValue("C")
 public class Competition extends Activity {
 
@@ -34,6 +36,18 @@ public class Competition extends Activity {
      */
     @Column(nullable = false, unique = true)
     protected Gender requiredGender;
+
+    /**
+     * Creates a competition entity from a DTO.
+     *
+     * @param dto the DTO to create the entity from.
+     */
+    public Competition(CompetitionDTO dto) {
+        super(dto);
+        this.allowsAmateurs = dto.getAllowsAmateurs();
+        this.requiredOrganization = dto.getRequiredOrganization();
+        this.requiredGender = dto.getRequiredGender();
+    }
 
     @Override
     public CompetitionDTO toDTO() {

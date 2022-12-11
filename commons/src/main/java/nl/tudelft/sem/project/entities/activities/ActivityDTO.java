@@ -1,6 +1,7 @@
 package nl.tudelft.sem.project.entities.activities;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import nl.tudelft.sem.project.entities.DTO;
 
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class ActivityDTO implements DTO {
 
     protected UUID id;

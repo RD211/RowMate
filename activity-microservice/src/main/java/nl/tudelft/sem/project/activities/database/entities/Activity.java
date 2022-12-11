@@ -61,6 +61,11 @@ public class Activity implements DTOable<ActivityDTO> {
     @ElementCollection
     protected List<UUID> boats;
 
+    /**
+     * Creates an activity entity from a DTO.
+     *
+     * @param dto the DTO to create the entity from.
+     */
     public Activity(ActivityDTO dto) {
         this(dto.getId(), dto.getLocation(), dto.getStartTime(), dto.getEndTime(), dto.getBoats());
     }
