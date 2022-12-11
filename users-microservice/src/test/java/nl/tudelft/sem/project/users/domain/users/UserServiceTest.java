@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.users.domain.users;
 
+import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.exceptions.EmailInUseException;
 import nl.tudelft.sem.project.users.exceptions.UserNotFoundException;
 import nl.tudelft.sem.project.users.exceptions.UsernameInUseException;
@@ -20,13 +21,13 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class UsersServiceTest {
+class UserServiceTest {
 
     @Mock
     UserRepository userRepository;
 
     @InjectMocks
-    private UsersService usersService;
+    private UserService userService;
 
 
     User joe;
@@ -40,12 +41,12 @@ class UsersServiceTest {
     void setUp() {
         joe = User.builder()
                 .id(UUID.randomUUID())
-                .username(new Username("Joe"))
+                .username(new Username("Joey"))
                 .email(new UserEmail("Joe@joe.joe"))
                 .build();
         susJoe = User.builder()
                 .id(UUID.randomUUID())
-                .username(new Username("Joe"))
+                .username(new Username("Joey"))
                 .email(new UserEmail("Joe2@joe.joe"))
                 .build();
         michael = User.builder()
@@ -116,108 +117,108 @@ class UsersServiceTest {
     @Test
     void addUserValid() {
 
-        assertEquals(otherRichard, usersService.addUser(otherRichard));
+        assertEquals(otherRichard, userService.addUser(otherRichard));
         verify(userRepository, times(1)).save(otherRichard);
     }
 
     @Test
     void addUserInvalidUsername() {
-        assertThrows(UsernameInUseException.class, () -> usersService.addUser(susJoe));
+        assertThrows(UsernameInUseException.class, () -> userService.addUser(susJoe));
         verify(userRepository, times(0)).save(any(User.class));
     }
 
     @Test
     void addUserInvalidEmail() {
-        assertThrows(EmailInUseException.class, () -> usersService.addUser(susMichael));
+        assertThrows(EmailInUseException.class, () -> userService.addUser(susMichael));
         verify(userRepository, times(0)).save(any(User.class));
     }
 
     @Test
     void deleteUserByIdValid() {
-        assertDoesNotThrow(() -> usersService.deleteUserById(joe.getId()));
+        assertDoesNotThrow(() -> userService.deleteUserById(joe.getId()));
         verify(userRepository, times(1)).delete(joe);
     }
 
     @Test
     void deleteUserByIdInvalid() {
-        assertThrows(UserNotFoundException.class, () -> usersService.deleteUserById(susJoe.getId()));
+        assertThrows(UserNotFoundException.class, () -> userService.deleteUserById(susJoe.getId()));
         verify(userRepository, times(0)).delete(any(User.class));
     }
 
     @Test
     void deleteUserByEmailValid() {
-        assertDoesNotThrow(() -> usersService.deleteUserByEmail(joe.getEmail()));
+        assertDoesNotThrow(() -> userService.deleteUserByEmail(joe.getEmail()));
         verify(userRepository, times(1)).delete(joe);
     }
 
     @Test
     void deleteUserByEmailInvalid() {
-        assertThrows(UserNotFoundException.class, () -> usersService.deleteUserByEmail(susJoe.getEmail()));
+        assertThrows(UserNotFoundException.class, () -> userService.deleteUserByEmail(susJoe.getEmail()));
         verify(userRepository, times(0)).delete(any(User.class));
     }
 
     @Test
     void deleteUserByUsernameValid() {
-        assertDoesNotThrow(() -> usersService.deleteUserByUsername(michael.getUsername()));
+        assertDoesNotThrow(() -> userService.deleteUserByUsername(michael.getUsername()));
         verify(userRepository, times(1)).delete(michael);
     }
 
     @Test
     void deleteUserByUsernameInvalid() {
-        assertThrows(UserNotFoundException.class, () -> usersService.deleteUserByUsername(susMichael.getUsername()));
+        assertThrows(UserNotFoundException.class, () -> userService.deleteUserByUsername(susMichael.getUsername()));
         verify(userRepository, times(0)).delete(any(User.class));
     }
 
     @Test
     void getUserByIdValid() {
-        assertEquals(joe, usersService.getUserById(joe.getId()));
+        assertEquals(joe, userService.getUserById(joe.getId()));
         verify(userRepository, times(1)).findById(joe.getId());
     }
 
     @Test
     void getUserByIdInvalid() {
-        assertThrows(UserNotFoundException.class, () -> usersService.getUserById(susJoe.getId()));
+        assertThrows(UserNotFoundException.class, () -> userService.getUserById(susJoe.getId()));
     }
 
     @Test
     void getUserByUsernameValid() {
-        assertEquals(joe, usersService.getUserByUsername(joe.getUsername()));
+        assertEquals(joe, userService.getUserByUsername(joe.getUsername()));
         verify(userRepository, times(1)).findByUsername(joe.getUsername());
     }
 
     @Test
     void getUserByUsernameInvalid() {
-        assertThrows(UserNotFoundException.class, () -> usersService.getUserByUsername(susMichael.getUsername()));
+        assertThrows(UserNotFoundException.class, () -> userService.getUserByUsername(susMichael.getUsername()));
     }
 
     @Test
     void getUserByEmailValid() {
-        assertEquals(michael, usersService.getUserByEmail(michael.getEmail()));
+        assertEquals(michael, userService.getUserByEmail(michael.getEmail()));
         verify(userRepository, times(1)).findByEmail(michael.getEmail());
     }
 
     @Test
     void getUserByEmailInvalid() {
-        assertThrows(UserNotFoundException.class, () -> usersService.getUserByEmail(susJoe.getEmail()));
+        assertThrows(UserNotFoundException.class, () -> userService.getUserByEmail(susJoe.getEmail()));
     }
 
     @Test
     void existsByUsernameTrue() {
-        assertTrue(usersService.existsUsername(joe.getUsername()));
+        assertTrue(userService.existsUsername(joe.getUsername()));
     }
 
     @Test
     void existsByUsernameFalse() {
-        assertFalse(usersService.existsUsername(susMichael.getUsername()));
+        assertFalse(userService.existsUsername(susMichael.getUsername()));
     }
 
     @Test
     void existsByEmailTrue() {
-        assertTrue(usersService.existsByEmail(michael.getEmail()));
+        assertTrue(userService.existsByEmail(michael.getEmail()));
     }
 
     @Test
     void existsByEmailFalse() {
-        assertFalse(usersService.existsByEmail(susJoe.getEmail()));
+        assertFalse(userService.existsByEmail(susJoe.getEmail()));
     }
 }

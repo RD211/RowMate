@@ -1,7 +1,7 @@
-package nl.tudelft.sem.project.entities.activities;
+package nl.tudelft.sem.project.activities;
 
 import lombok.*;
-import nl.tudelft.sem.project.entities.DTO;
+import nl.tudelft.sem.project.DTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 
 import java.util.List;

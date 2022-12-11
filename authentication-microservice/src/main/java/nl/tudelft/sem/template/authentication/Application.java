@@ -1,9 +1,5 @@
 package nl.tudelft.sem.template.authentication;
 
-import feign.Feign;
-import feign.gson.GsonDecoder;
-import feign.gson.GsonEncoder;
-import nl.tudelft.sem.project.entities.users.ExampleFeignUsers;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

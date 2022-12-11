@@ -1,6 +1,6 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
-import nl.tudelft.sem.project.entities.users.CertificateDTO;
+import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

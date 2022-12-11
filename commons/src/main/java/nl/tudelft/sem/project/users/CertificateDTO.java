@@ -1,7 +1,7 @@
-package nl.tudelft.sem.project.entities.users;
+package nl.tudelft.sem.project.users;
 
 import lombok.*;
-import nl.tudelft.sem.project.entities.DTO;
+import nl.tudelft.sem.project.DTO;
 
 import java.util.Optional;
 import java.util.UUID;

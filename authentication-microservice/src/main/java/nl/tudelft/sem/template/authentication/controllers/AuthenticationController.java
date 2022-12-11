@@ -1,11 +1,5 @@
 package nl.tudelft.sem.template.authentication.controllers;
 
-import com.google.gson.Gson;
-import feign.Feign;
-import feign.gson.GsonDecoder;
-import feign.gson.GsonEncoder;
-import nl.tudelft.sem.project.entities.users.ExampleFeignUsers;
-import nl.tudelft.sem.project.entities.users.UserDTO;
 import nl.tudelft.sem.template.authentication.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.template.authentication.authentication.JwtUserDetailsService;
 import nl.tudelft.sem.template.authentication.domain.user.NetId;
@@ -15,7 +9,6 @@ import nl.tudelft.sem.template.authentication.models.AuthenticationRequestModel;
 import nl.tudelft.sem.template.authentication.models.AuthenticationResponseModel;
 import nl.tudelft.sem.template.authentication.models.RegistrationRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.codec.Encoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

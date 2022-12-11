@@ -1,11 +1,15 @@
 package nl.tudelft.sem.project.users.domain.users;
 
+import lombok.NonNull;
+import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.exceptions.EmailInUseException;
 import nl.tudelft.sem.project.users.exceptions.UserNotFoundException;
 import nl.tudelft.sem.project.users.exceptions.UsernameInUseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.*;
 import java.util.UUID;
 
 /**
@@ -13,7 +17,8 @@ import java.util.UUID;
  * Handles Create, Read, Delete operations for the user entity.
  */
 @Service
-public class UsersService {
+@Validated
+public class UserService {
 
     @Autowired
     private transient UserRepository userRepository;
@@ -26,7 +31,7 @@ public class UsersService {
      * @throws EmailInUseException if the email is already in use.
      * @throws UsernameInUseException if the username is already in use.
      */
-    public User addUser(User user) throws EmailInUseException, UsernameInUseException {
+    public User addUser(@NonNull User user) throws EmailInUseException, UsernameInUseException {
         boolean existsEmail = this.existsByEmail(user.getEmail());
         if (existsEmail) {
             throw new EmailInUseException("Email is already being used by somebody else.");
@@ -36,8 +41,7 @@ public class UsersService {
         if (existsUsername) {
             throw new UsernameInUseException("Username is already being used by somebody else.");
         }
-        var savedUser = userRepository.save(user);
-        return savedUser;
+        return userRepository.save(user);
     }
 
     /**
@@ -46,7 +50,7 @@ public class UsersService {
      * @param id the id given.
      * @throws UserNotFoundException if the user was not found.
      */
-    public void deleteUserById(UUID id) throws UserNotFoundException {
+    public void deleteUserById(@NonNull UUID id) throws UserNotFoundException {
         User foundUser = getUserById(id);
         userRepository.delete(foundUser);
     }
@@ -57,7 +61,7 @@ public class UsersService {
      * @param email the email given.
      * @throws UserNotFoundException if the user was not found.
      */
-    public void deleteUserByEmail(UserEmail email) throws UserNotFoundException {
+    public void deleteUserByEmail(@NonNull UserEmail email) throws UserNotFoundException {
         User foundUser = getUserByEmail(email);
         userRepository.delete(foundUser);
     }
@@ -68,7 +72,7 @@ public class UsersService {
      * @param username the username given.
      * @throws UserNotFoundException if the user was not found.
      */
-    public void deleteUserByUsername(Username username) throws UserNotFoundException {
+    public void deleteUserByUsername(@NonNull Username username) throws UserNotFoundException {
         User foundUser = getUserByUsername(username);
         userRepository.delete(foundUser);
     }
@@ -80,7 +84,7 @@ public class UsersService {
      * @return the found user.
      * @throws UserNotFoundException if the user was not found.
      */
-    public User getUserById(UUID id) throws UserNotFoundException {
+    public User getUserById(@NonNull UUID id) throws UserNotFoundException {
         var user = userRepository.findById(id);
         if (user.isPresent()) {
             return user.get();
@@ -96,7 +100,7 @@ public class UsersService {
      * @return the found user.
      * @throws UserNotFoundException if the user was not found.
      */
-    public User getUserByUsername(Username username) throws UserNotFoundException {
+    public User getUserByUsername(@NonNull Username username) throws UserNotFoundException {
         var user = userRepository.findByUsername(username);
         if (user.isPresent()) {
             return user.get();
@@ -112,7 +116,7 @@ public class UsersService {
      * @return the found user.
      * @throws UserNotFoundException if the user was not found.
      */
-    public User getUserByEmail(UserEmail email) throws UserNotFoundException {
+    public User getUserByEmail(@NonNull UserEmail email) throws UserNotFoundException {
         var user = userRepository.findByEmail(email);
         if (user.isPresent()) {
             return user.get();
@@ -127,7 +131,7 @@ public class UsersService {
      * @param username the username given.
      * @return a boolean indicating if the username exists already.
      */
-    public boolean existsUsername(Username username) {
+    public boolean existsUsername(@NonNull Username username) {
         return userRepository.existsByUsername(username);
     }
 
@@ -138,7 +142,7 @@ public class UsersService {
      * @param email the email given.
      * @return a boolean indicating if the email exists already.
      */
-    public boolean existsByEmail(UserEmail email) {
+    public boolean existsByEmail(@NonNull UserEmail email) {
         return userRepository.existsByEmail(email);
     }
 }

@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project.entities.shared;
+package nl.tudelft.sem.project.shared;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -12,7 +12,7 @@ public class OrganizationAttributeConverter implements AttributeConverter<Organi
             return null;
         }
 
-        return attribute.toString();
+        return attribute.getName();
     }
 
     @Override

@@ -5,7 +5,7 @@ package nl.tudelft.sem.project.users.exceptions;
  */
 public class EmailInUseException extends RuntimeException {
 
-    private static final long serialVersionUID = 10L;
+    private static final long serialVersionUID = -13123877854L;
 
     /**
      * EmailInUseException constructor.

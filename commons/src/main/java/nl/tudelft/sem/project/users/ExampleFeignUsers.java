@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project.entities.users;
+package nl.tudelft.sem.project.users;
 
 import feign.Headers;
 import feign.Param;
