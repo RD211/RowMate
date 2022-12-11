@@ -1,12 +1,9 @@
 package nl.tudelft.sem.project.users.controllers;
 
-import feign.Body;
-import feign.Param;
-import feign.RequestLine;
 import nl.tudelft.sem.project.entities.users.UserDTO;
-import nl.tudelft.sem.project.users.database.entities.User;
-import nl.tudelft.sem.project.users.database.entities.Username;
-import nl.tudelft.sem.project.users.database.repositories.UserRepository;
+import nl.tudelft.sem.project.users.domain.users.User;
+import nl.tudelft.sem.project.users.domain.users.Username;
+import nl.tudelft.sem.project.users.domain.users.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
