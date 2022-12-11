@@ -50,7 +50,7 @@ public class NotificationsServiceImpl implements NotificationsService {
      */
     public void sendNotification(NotificationDTO notificationDTO) throws MailNotSentException {
         SimpleMailMessage message = new SimpleMailMessage();
-        String activityDetails = "";
+        String activityDetails;
 
         message.setFrom("test@localhost");
         message.setTo(notificationDTO.getUserDTO().getEmail());
@@ -63,9 +63,11 @@ public class NotificationsServiceImpl implements NotificationsService {
             || eventType == EventType.TEST) {
             activityDetails = "\nActivity details:\n"
                     + notificationDTO.getActivityDTO().toString();
+            message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage()
+                    + activityDetails);
+        } else {
+            message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage());
         }
-        message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage()
-                + activityDetails);
         mailSender.send(message);
     }
 }
