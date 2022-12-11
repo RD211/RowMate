@@ -70,6 +70,7 @@ public class Activity implements DTOable<ActivityDTO> {
         this(dto.getId(), dto.getLocation(), dto.getStartTime(), dto.getEndTime(), dto.getBoats());
     }
 
+
     @Override
     public ActivityDTO toDTO() {
         return new ActivityDTO(this.id, this.location, this.startTime, this.endTime, this.boats);
