@@ -23,9 +23,12 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok:1.18.24'
 	annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
+	implementation 'jakarta.persistence:jakarta.persistence-api:2.2.3'
+
 	// feign
 	implementation 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.RELEASE'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.5.RELEASE'
+
 }
 
 repositories {
