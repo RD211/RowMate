@@ -20,20 +20,25 @@ class CertificateTest {
         var cert1 = new Certificate("certificate1");
 
         assertEquals(cert1.getAllFromCertificateChain(), List.of(cert1));
+        assertTrue(cert1.hasInChain(cert1));
     }
 
     @Test
     void testCertificateChainMany() {
-        var cert3 = new Certificate("certificate2");
+        var cert3 = new Certificate("certificate3");
         var cert1 = new Certificate("certificate1", cert3);
         var cert2 = new Certificate("certificate2", cert1);
 
         assertEquals(cert1.getAllFromCertificateChain(), List.of(cert1, cert3));
         assertEquals(cert2.getAllFromCertificateChain(), List.of(cert2, cert1, cert3));
+
+        assertTrue(cert1.hasInChain(cert3));
+        assertTrue(cert2.hasInChain(cert3));
+        assertFalse(cert3.hasInChain(cert1));
     }
 
     @Test
-    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 50, unit = TimeUnit.MILLISECONDS)
     void testCertificateChainCircular() {
         var cert1 = new Certificate("certificate1");
         var cert2 = new Certificate("certificate2", cert1);
@@ -41,6 +46,8 @@ class CertificateTest {
         cert1.setSuperseded(cert2);
 
         assertEquals(cert1.getAllFromCertificateChain(), List.of(cert1, cert2));
+        assertTrue(cert1.hasInChain(cert2));
+        assertFalse(cert1.hasInChain(new Certificate("Some other")));
     }
 
     @Test

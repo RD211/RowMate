@@ -5,7 +5,6 @@ import nl.tudelft.sem.project.entities.users.CertificateDTO;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import org.hibernate.annotations.GenericGenerator;
 import nl.tudelft.sem.project.entities.DTOable;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -112,6 +111,27 @@ public class Certificate implements DTOable<CertificateDTO> {
         return result;
     }
 
+    /**
+     * Check whether other is contained in the supersedence chain of this.
+     *
+     * @param other Certificate to be looked for
+     * @return True if other could be found in chain of this
+     */
+    public boolean hasInChain(Certificate other) {
+        Certificate finger = this;
+        while (finger != null) {
+            if (other.equals(finger)) {
+                return true;
+            }
+            finger = finger.superseded;
+            // Stop if for some reason we have circular supersedence
+            if (this.equals(finger)) {
+                break;
+            }
+        }
+        return false;
+    }
+
     @Override
     public CertificateDTO toDTO() {
         var res = new CertificateDTO(
@@ -127,7 +147,7 @@ public class Certificate implements DTOable<CertificateDTO> {
      *
      * @param dto Data transfer object
      */
-    public Certificate(CertificateDTO dto, @Autowired CertificateRepository repo) throws CertificateNotFoundException {
+    public Certificate(CertificateDTO dto, CertificateRepository repo) throws CertificateNotFoundException {
         this.id = dto.getId();
         this.name = dto.getName();
         if (dto.getSupersededId().isPresent()) {
