@@ -2,8 +2,6 @@ package nl.tudelft.sem.project.users.integration;
 
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
-import org.hibernate.Session;
-import org.hibernate.cfg.Configuration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.hibernate.SessionFactory;
+
+import java.util.List;
+import java.util.Optional;
 
 
 @SpringBootTest
@@ -30,27 +30,16 @@ public class CertificateTests {
 
     @Test
     public void repositoryStoresRecursiveCertificates() {
-        Configuration configuration = new Configuration().configure();
-        SessionFactory factory = configuration.buildSessionFactory();
-        Session session = factory.openSession();
-        session.beginTransaction();
 
         Certificate cert1 = new Certificate("Certificate 1");
+        cert1 = certificateRepository.save(cert1);
         Certificate cert2 = new Certificate("Certificate 2", cert1);
-        session.save(cert1);
-        session.save(cert2);
-        session.getTransaction().commit();
-        session.close();
+        cert2 = certificateRepository.save(cert2);
 
-//        session.
-//
-//        System.out.println(cert1.getId() + " " + savedCert1.getId());
-//
-//        var certFromRepo = certificateRepository.findById(savedCert2.getId());
-//        System.out.println(certFromRepo);
-////
-//        assertThat(certFromRepo.isPresent());
-//        assertThat(certFromRepo.get().hasInChain(savedCert1));
+        Optional<Certificate> fromRepo = certificateRepository.findByName("Certificate 2");
+
+        assertThat(fromRepo.isPresent()).isTrue();
+        assertThat(fromRepo.get().getAllFromCertificateChain()).containsAll(List.of(cert1, cert2));
     }
 
 }

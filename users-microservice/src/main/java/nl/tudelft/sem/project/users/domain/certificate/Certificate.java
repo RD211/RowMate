@@ -45,7 +45,7 @@ public class Certificate implements DTOable<CertificateDTO> {
     private String name;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "supersedes")
     private Certificate superseded;
 
