@@ -1,6 +1,6 @@
 package nl.tudelft.sem.project.notifications.services;
 
-import nl.tudelft.sem.project.entities.notifications.NotificationDTO;
+import nl.tudelft.sem.project.notifications.NotificationDTO;
 
 public interface NotificationsService {
 

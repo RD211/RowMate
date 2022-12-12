@@ -5,7 +5,7 @@ package nl.tudelft.sem.project.users.exceptions;
  */
 public class UsernameInUseException extends RuntimeException {
 
-    private static final long serialVersionUID = 11L;
+    private static final long serialVersionUID = -23434892348923L;
 
     /**
      * UsernameInUseException constructor.

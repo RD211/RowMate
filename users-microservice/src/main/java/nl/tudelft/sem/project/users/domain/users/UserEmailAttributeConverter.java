@@ -8,11 +8,17 @@ public class UserEmailAttributeConverter implements AttributeConverter<UserEmail
 
     @Override
     public String convertToDatabaseColumn(UserEmail attribute) {
-        return attribute.toString();
+        if (attribute == null) {
+            return null;
+        }
+        return attribute.getEmail();
     }
 
     @Override
     public UserEmail convertToEntityAttribute(String dbData) {
+        if (dbData == null) {
+            return null;
+        }
         return new UserEmail(dbData);
     }
 

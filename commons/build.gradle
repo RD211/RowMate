@@ -29,6 +29,8 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.RELEASE'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.5.RELEASE'
 
+	// validation
+	implementation 'org.hibernate:hibernate-validator:5.3.2.Final'
 }
 
 repositories {

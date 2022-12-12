@@ -2,7 +2,7 @@ package nl.tudelft.sem.project.activities.controllers;
 
 import nl.tudelft.sem.project.activities.database.entities.Boat;
 import nl.tudelft.sem.project.activities.database.repository.BoatRepository;
-import nl.tudelft.sem.project.entities.activities.BoatDTO;
+import nl.tudelft.sem.project.activities.BoatDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
