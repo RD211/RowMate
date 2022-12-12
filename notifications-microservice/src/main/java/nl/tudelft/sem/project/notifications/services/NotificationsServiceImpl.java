@@ -3,8 +3,10 @@ package nl.tudelft.sem.project.notifications.services;
 import nl.tudelft.sem.project.entities.notifications.EventType;
 import nl.tudelft.sem.project.entities.notifications.NotificationDTO;
 import nl.tudelft.sem.project.entities.notifications.mailTemplates.*;
+import nl.tudelft.sem.project.entities.notifications.mailTemplates.config.MailTemplateCollectionConfig;
 import nl.tudelft.sem.project.notifications.exceptions.MailNotSentException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 

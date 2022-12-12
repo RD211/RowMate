@@ -1,12 +1,12 @@
 package nl.tudelft.sem.project.entities.notifications;
 
-import org.springframework.cloud.openfeign.FeignClient;
+import feign.Headers;
+import feign.RequestLine;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(url = "http://localhost:8086", name = "notificationsController")
 public interface FeignNotifications {
-    @PostMapping("/sendNotification")
+    @RequestLine("POST /sendNotification")
+    @Headers("Content-Type: application/json")
     ResponseEntity<String> sendNotification(@RequestBody NotificationDTO notificationDTO);
 }

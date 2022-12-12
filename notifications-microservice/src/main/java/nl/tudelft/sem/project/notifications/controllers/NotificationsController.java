@@ -24,9 +24,6 @@ public class NotificationsController {
     @Autowired
     private transient NotificationsService notificationsService;
 
-    @Autowired
-    private transient FeignNotifications feignNotifications;
-
     /**
      * The default test endpoint for the Notifications microservice.
      *
@@ -82,10 +79,5 @@ public class NotificationsController {
             System.out.println(e);
             return ResponseEntity.status(500).body(e.getMessage());
         }
-    }
-
-    @PostMapping
-    public ResponseEntity<String> sendNotifFeign(@RequestBody NotificationDTO notificationDTO) {
-        return feignNotifications.sendNotification(notificationDTO);
     }
 }
