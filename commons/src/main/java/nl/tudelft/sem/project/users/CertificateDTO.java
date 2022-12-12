@@ -11,7 +11,14 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class CertificateDTO implements DTO {
+    /**
+     * The identifier of a certificate.
+     */
     private UUID id;
+
+    /**
+     * Specifies the name of the certificate.
+     */
     private String name;
 
     /**
@@ -19,5 +26,4 @@ public class CertificateDTO implements DTO {
      */
     private Optional<UUID> supersededId;
 
-    private UUID forBoat;
 }
