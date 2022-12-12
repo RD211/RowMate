@@ -55,8 +55,7 @@ public class NotificationsServiceImpl implements NotificationsService {
         }
         try {
             mailSender.send(message);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new MailNotSentException(e.getMessage());
         }
     }
