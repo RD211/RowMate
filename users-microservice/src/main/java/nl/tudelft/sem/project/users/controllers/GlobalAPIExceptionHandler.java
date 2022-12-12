@@ -38,9 +38,9 @@ public class GlobalAPIExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    @ExceptionHandler({})
+    @ExceptionHandler()
     public String handleGeneral(Exception ex) {
-        return "Something went wrong. Try again.";
+        return "Something went wrong. Try again. " + ex.getMessage();
     }
 }
 

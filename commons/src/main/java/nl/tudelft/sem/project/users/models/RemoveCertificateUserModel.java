@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @Validated({Existing.class})
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddCertificateUserModel {
+public class RemoveCertificateUserModel {
     @Valid @NotNull
     protected UserDTO user;
     @Valid @NotNull

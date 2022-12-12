@@ -1,23 +1,13 @@
 package nl.tudelft.sem.project.users.controllers;
 
-import lombok.NonNull;
-import nl.tudelft.sem.project.DateInterval;
-import nl.tudelft.sem.project.enums.Gender;
-import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
 import nl.tudelft.sem.project.users.domain.certificate.CertificateNotFoundException;
 import nl.tudelft.sem.project.users.domain.users.*;
-import nl.tudelft.sem.project.users.models.AddAvailabilityModel;
-import nl.tudelft.sem.project.users.models.AddCertificateUserModel;
-import nl.tudelft.sem.project.users.models.ChangeGenderModel;
-import nl.tudelft.sem.project.users.models.RemoveAvailabilityModel;
-import nl.tudelft.sem.project.utils.Existing;
+import nl.tudelft.sem.project.users.models.*;
 import nl.tudelft.sem.project.utils.Fictional;
-import nl.tudelft.sem.project.utils.FutureDate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -68,13 +58,14 @@ public class UserController {
     /**
      * Changes the gender of the user to some other value.
      *
-     * @param changeGenderModel the change gender model, it contains the user and the new gender.
+     * @param changeGenderUserModel the change gender model, it contains the user and the new gender.
      * @return the updated userDTO.
      */
     @PutMapping("/change_gender")
-    public ResponseEntity<UserDTO> changeGender(@Valid @NotNull ChangeGenderModel changeGenderModel) {
-        var realUser = userConverterService.toDatabaseEntity(changeGenderModel.getUser());
-        realUser.setGender(changeGenderModel.getGender());
+    public ResponseEntity<UserDTO> changeGender(
+            @Valid @NotNull @RequestBody ChangeGenderUserModel changeGenderUserModel) {
+        var realUser = userConverterService.toDatabaseEntity(changeGenderUserModel.getUser());
+        realUser.setGender(changeGenderUserModel.getGender());
         var savedUser = userRepository.save(realUser);
         return ResponseEntity.ok(userConverterService.toDTO(savedUser));
     }
@@ -83,13 +74,14 @@ public class UserController {
      * The add availability endpoint. It adds an availability interval to
      * the user collection of intervals.
      *
-     * @param addAvailabilityModel the model, it contains the user and the new interval.
+     * @param addAvailabilityUserModel the model, it contains the user and the new interval.
      * @return the updated userDTO.
      */
     @PostMapping("/add_availability")
-    public ResponseEntity<UserDTO> addAvailability(@Valid @NotNull AddAvailabilityModel addAvailabilityModel) {
-        var realUser = userConverterService.toDatabaseEntity(addAvailabilityModel.getUser());
-        realUser.addAvailableTime(addAvailabilityModel.getDateInterval());
+    public ResponseEntity<UserDTO> addAvailability(
+            @Valid @NotNull @RequestBody AddAvailabilityUserModel addAvailabilityUserModel) {
+        var realUser = userConverterService.toDatabaseEntity(addAvailabilityUserModel.getUser());
+        realUser.addAvailableTime(addAvailabilityUserModel.getDateInterval());
         var updatedUser = userRepository.save(realUser);
         return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
     }
@@ -97,13 +89,14 @@ public class UserController {
     /**
      * The remove availability model. It removes an availability from the user collection.
      *
-     * @param removeAvailabilityModel the model that contains the user and the availability.
+     * @param removeAvailabilityUserModel the model that contains the user and the availability.
      * @return the updated DTO.
      */
     @DeleteMapping("/remove_availability")
-    public ResponseEntity<UserDTO> removeAvailability(@Valid @NotNull RemoveAvailabilityModel removeAvailabilityModel) {
-        var realUser = userConverterService.toDatabaseEntity(removeAvailabilityModel.getUser());
-        realUser.removeAvailableTime(removeAvailabilityModel.getDateInterval());
+    public ResponseEntity<UserDTO> removeAvailability(
+            @Valid @NotNull @RequestBody RemoveAvailabilityUserModel removeAvailabilityUserModel) {
+        var realUser = userConverterService.toDatabaseEntity(removeAvailabilityUserModel.getUser());
+        realUser.removeAvailableTime(removeAvailabilityUserModel.getDateInterval());
         var updatedUser = userRepository.save(realUser);
         return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
     }
@@ -116,11 +109,59 @@ public class UserController {
      * @throws CertificateNotFoundException if the certificate was not valid or not found.
      */
     @PostMapping("/add_certificate")
-    public ResponseEntity<UserDTO> addCertificate(@Valid @NotNull AddCertificateUserModel addCertificateUserModel)
+    public ResponseEntity<UserDTO> addCertificate(
+            @Valid @NotNull @RequestBody AddCertificateUserModel addCertificateUserModel)
             throws CertificateNotFoundException {
         var realUser = userConverterService.toDatabaseEntity(addCertificateUserModel.getUser());
         realUser.addCertificate(new Certificate(addCertificateUserModel.getCertificate(), null));
         var updatedUser = userRepository.save(realUser);
         return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
     }
+
+    /**
+     * Removes a certificate from the users collection.
+     *
+     * @param removeCertificateUserModel the model that contains the user and the certificate to remove.
+     * @return the updated user.
+     * @throws CertificateNotFoundException in case the certificate does not exist in the database.
+     */
+    @DeleteMapping("/remove_certificate")
+    public ResponseEntity<UserDTO> removeCertificate(
+            @Valid @NotNull @RequestBody RemoveCertificateUserModel removeCertificateUserModel)
+            throws CertificateNotFoundException  {
+        var realUser = userConverterService.toDatabaseEntity(removeCertificateUserModel.getUser());
+        realUser.removeCertificate(new Certificate(removeCertificateUserModel.getCertificate(), null));
+        var updatedUser = userRepository.save(realUser);
+        return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
+    }
+
+    /**
+     * Adds a new role to the user collection.
+     *
+     * @param addRoleUserModel the model that contains the user and the role.
+     * @return the updated dto.
+     */
+    @PostMapping("/add_role")
+    public ResponseEntity<UserDTO> addRole(@Valid @NotNull @RequestBody AddRoleUserModel addRoleUserModel) {
+        var realUser = userConverterService.toDatabaseEntity(addRoleUserModel.getUser());
+        realUser.addBoatRole(addRoleUserModel.getRole());
+        var updatedUser = userRepository.save(realUser);
+        return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
+    }
+
+    /**
+     * Removes a role from the users collection.
+     *
+     * @param removeRoleUserModel the model that contains the user and the role to remove.
+     * @return the updated user.
+     */
+    @DeleteMapping("/remove_role")
+    public ResponseEntity<UserDTO> removeRole(
+            @Valid @NotNull @RequestBody RemoveRoleUserModel removeRoleUserModel) {
+        var realUser = userConverterService.toDatabaseEntity(removeRoleUserModel.getUser());
+        realUser.removeBoatRole(removeRoleUserModel.getRole());
+        var updatedUser = userRepository.save(realUser);
+        return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
+    }
+
 }

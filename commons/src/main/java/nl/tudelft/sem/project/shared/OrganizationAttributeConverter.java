@@ -17,6 +17,9 @@ public class OrganizationAttributeConverter implements AttributeConverter<Organi
 
     @Override
     public Organization convertToEntityAttribute(String dbData) {
+        if (dbData == null) {
+            return null;
+        }
         return new Organization(dbData);
     }
 

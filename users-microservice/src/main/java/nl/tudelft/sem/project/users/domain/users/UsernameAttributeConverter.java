@@ -16,6 +16,9 @@ public class UsernameAttributeConverter implements AttributeConverter<Username, 
 
     @Override
     public Username convertToEntityAttribute(String dbData) {
+        if (dbData == null) {
+            return null;
+        }
         return new Username(dbData);
     }
 

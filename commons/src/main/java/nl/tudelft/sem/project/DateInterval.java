@@ -11,6 +11,7 @@ import java.util.Date;
 @EqualsAndHashCode
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 public class DateInterval {
     @NotNull
     protected Date startDate;

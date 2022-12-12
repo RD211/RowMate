@@ -16,6 +16,9 @@ public class UserEmailAttributeConverter implements AttributeConverter<UserEmail
 
     @Override
     public UserEmail convertToEntityAttribute(String dbData) {
+        if (dbData == null) {
+            return null;
+        }
         return new UserEmail(dbData);
     }
 
