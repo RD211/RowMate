@@ -1,5 +1,10 @@
-rootProject.name = 'template'
+rootProject.name = 'project'
 
+include 'commons'
 include 'authentication-microservice'
-include 'example-microservice'
+include 'gateway-microservice'
 include 'users-microservice'
+include 'matchmaking-microservice'
+include 'activity-microservice'
+include 'notifications-microservice'
+include 'commons'
