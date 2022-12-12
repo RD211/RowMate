@@ -11,9 +11,9 @@
         <module name="project.activity-microservice.main" />
         <module name="project.commons.main" />
         <module name="project.users-microservice.main" />
-        <module name="project.example-microservice.main" />
         <module name="project.matchmaking-microservice.main" />
         <module name="project.authentication-microservice.main" />
+        <module name="project.gateway-microservice.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="11" />
