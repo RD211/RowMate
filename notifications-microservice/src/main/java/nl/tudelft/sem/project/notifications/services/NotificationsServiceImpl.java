@@ -37,7 +37,7 @@ public class NotificationsServiceImpl implements NotificationsService {
         SimpleMailMessage message = new SimpleMailMessage();
         String activityDetails;
 
-        message.setFrom("test@localhost");
+        message.setFrom("noreply.rowing.delft@gmail.com");
         message.setTo(notificationDTO.getUserDTO().getEmail());
         message.setSubject(messageTemplates.get(notificationDTO.getEventType()).getSubject());
 
@@ -53,6 +53,11 @@ public class NotificationsServiceImpl implements NotificationsService {
         } else {
             message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage());
         }
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+        }
+        catch (Exception e) {
+            throw new MailNotSentException(e.getMessage());
+        }
     }
 }

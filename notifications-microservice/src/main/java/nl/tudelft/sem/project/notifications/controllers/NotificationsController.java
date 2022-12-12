@@ -76,8 +76,7 @@ public class NotificationsController {
             notificationsService.sendNotification(notificationDTO);
             return ResponseEntity.ok("Notification sent to " + notificationDTO.getUserDTO().getEmail() + ".");
         } catch (Exception e) {
-            System.out.println(e);
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(e.toString());
         }
     }
 }
