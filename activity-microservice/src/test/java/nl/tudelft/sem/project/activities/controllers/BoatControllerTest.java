@@ -1,7 +1,7 @@
 package nl.tudelft.sem.project.activities.controllers;
 
 import com.google.gson.Gson;
-import nl.tudelft.sem.project.entities.activities.BoatDTO;
+import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

@@ -1,10 +1,10 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
 import lombok.*;
-import nl.tudelft.sem.project.entities.users.CertificateDTO;
+import nl.tudelft.sem.project.DTOable;
+import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import org.hibernate.annotations.GenericGenerator;
-import nl.tudelft.sem.project.entities.DTOable;
 
 import javax.persistence.*;
 import javax.transaction.Transactional;

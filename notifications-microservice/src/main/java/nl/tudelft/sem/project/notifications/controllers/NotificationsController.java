@@ -1,11 +1,10 @@
 package nl.tudelft.sem.project.notifications.controllers;
 
-import nl.tudelft.sem.project.entities.activities.TrainingDTO;
-import nl.tudelft.sem.project.entities.notifications.EventType;
-import nl.tudelft.sem.project.entities.notifications.FeignNotifications;
-import nl.tudelft.sem.project.entities.notifications.NotificationDTO;
-import nl.tudelft.sem.project.entities.users.UserDTO;
+import nl.tudelft.sem.project.activities.TrainingDTO;
+import nl.tudelft.sem.project.notifications.EventType;
+import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.notifications.services.NotificationsService;
+import nl.tudelft.sem.project.users.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

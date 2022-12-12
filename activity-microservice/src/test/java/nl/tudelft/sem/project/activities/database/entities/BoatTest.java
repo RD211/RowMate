@@ -1,6 +1,6 @@
 package nl.tudelft.sem.project.activities.database.entities;
 
-import nl.tudelft.sem.project.entities.activities.BoatDTO;
+import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import org.junit.jupiter.api.Test;
 

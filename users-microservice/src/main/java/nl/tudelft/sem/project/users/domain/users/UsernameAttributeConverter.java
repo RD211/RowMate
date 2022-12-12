@@ -8,11 +8,17 @@ public class UsernameAttributeConverter implements AttributeConverter<Username, 
 
     @Override
     public String convertToDatabaseColumn(Username attribute) {
-        return attribute.toString();
+        if (attribute == null) {
+            return null;
+        }
+        return attribute.getName();
     }
 
     @Override
     public Username convertToEntityAttribute(String dbData) {
+        if (dbData == null) {
+            return null;
+        }
         return new Username(dbData);
     }
 

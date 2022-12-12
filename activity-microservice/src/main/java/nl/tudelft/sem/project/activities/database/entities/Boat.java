@@ -1,8 +1,8 @@
 package nl.tudelft.sem.project.activities.database.entities;
 
 import lombok.*;
-import nl.tudelft.sem.project.entities.DTOable;
-import nl.tudelft.sem.project.entities.activities.BoatDTO;
+import nl.tudelft.sem.project.DTOable;
+import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import org.hibernate.annotations.GenericGenerator;
 

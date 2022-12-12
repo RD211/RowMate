@@ -5,7 +5,7 @@ package nl.tudelft.sem.project.users.exceptions;
  */
 public class UserNotFoundException extends RuntimeException {
 
-    private static final long serialVersionUID = 12L;
+    private static final long serialVersionUID = -1353465654432L;
 
     /**
      * UserNotFoundException constructor.

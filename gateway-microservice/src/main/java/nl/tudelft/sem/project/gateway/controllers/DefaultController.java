@@ -1,7 +1,7 @@
 package nl.tudelft.sem.project.gateway.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import nl.tudelft.sem.project.entities.users.UserDTO;
+import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
