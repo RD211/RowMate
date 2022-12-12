@@ -3,13 +3,11 @@ package nl.tudelft.sem.project.notifications.services;
 import nl.tudelft.sem.project.entities.notifications.EventType;
 import nl.tudelft.sem.project.entities.notifications.NotificationDTO;
 import nl.tudelft.sem.project.entities.notifications.mailTemplates.*;
-import nl.tudelft.sem.project.notifications.config.JavaMailSenderConfig;
 import nl.tudelft.sem.project.notifications.exceptions.MailNotSentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import java.io.File;
 import java.util.HashMap;
 
 public class NotificationsServiceImpl implements NotificationsService {
@@ -17,23 +15,8 @@ public class NotificationsServiceImpl implements NotificationsService {
     @Autowired
     private transient JavaMailSender mailSender;
 
+    @Autowired
     private transient HashMap<EventType, MailTemplate> messageTemplates;
-
-    /**
-     * Constructor method. Puts the message templates
-     * in the messageTemplates table.
-     */
-    public NotificationsServiceImpl() {
-        messageTemplates = new HashMap<>() {{
-                put(EventType.ACTIVITY_FULL, new MailActivityFull());
-                put(EventType.ACTIVITY_START_SOON, new MailActivityStartSoon());
-                put(EventType.RESET_PASSWORD, new MailResetPassword());
-                put(EventType.SIGN_UP, new MailSignUp());
-                put(EventType.TEST, new MailTest());
-                put(EventType.USER_JOINED, new MailUserJoined());
-                put(EventType.USER_LEFT, new MailUserLeft());
-            }};
-    }
 
     /* TODO Finish method (properly adding activity details) once
     ActivityDTO has been completely implemented. */

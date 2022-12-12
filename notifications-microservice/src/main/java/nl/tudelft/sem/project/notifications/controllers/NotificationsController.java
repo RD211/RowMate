@@ -2,16 +2,14 @@ package nl.tudelft.sem.project.notifications.controllers;
 
 import nl.tudelft.sem.project.entities.activities.TrainingDTO;
 import nl.tudelft.sem.project.entities.notifications.EventType;
+import nl.tudelft.sem.project.entities.notifications.FeignNotifications;
 import nl.tudelft.sem.project.entities.notifications.NotificationDTO;
 import nl.tudelft.sem.project.entities.users.UserDTO;
 import nl.tudelft.sem.project.notifications.services.NotificationsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
-import java.sql.SQLOutput;
 import java.util.UUID;
 
 /**
@@ -27,7 +25,7 @@ public class NotificationsController {
     private transient NotificationsService notificationsService;
 
     @Autowired
-    private transient FeignController feignController;
+    private transient FeignNotifications feignNotifications;
 
     /**
      * The default test endpoint for the Notifications microservice.
@@ -88,6 +86,6 @@ public class NotificationsController {
 
     @PostMapping
     public ResponseEntity<String> sendNotifFeign(@RequestBody NotificationDTO notificationDTO) {
-        return feignController.sendNotification(notificationDTO);
+        return feignNotifications.sendNotification(notificationDTO);
     }
 }
