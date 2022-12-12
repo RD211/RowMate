@@ -7,6 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 import nl.tudelft.sem.project.entities.DTOable;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,14 +38,14 @@ public class Certificate implements DTOable<CertificateDTO> {
     @NonNull
     private UUID id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     @Setter
     @Getter
     @NonNull
     private String name;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "supersedes")
     private Certificate superseded;
 
@@ -63,6 +64,7 @@ public class Certificate implements DTOable<CertificateDTO> {
      *
      * @return The superseded certificate. If there is none, then empty.
      */
+    @Transactional
     public Optional<Certificate> getSuperseded() {
         return Optional.ofNullable(superseded);
     }
@@ -97,6 +99,7 @@ public class Certificate implements DTOable<CertificateDTO> {
      *
      * @return List of all implied certificates
      */
+    @Transactional
     public List<Certificate> getAllFromCertificateChain() {
         List<Certificate> result = new ArrayList<>();
         Certificate finger = this;
@@ -117,6 +120,7 @@ public class Certificate implements DTOable<CertificateDTO> {
      * @param other Certificate to be looked for
      * @return True if other could be found in chain of this
      */
+    @Transactional
     public boolean hasInChain(Certificate other) {
         Certificate finger = this;
         while (finger != null) {
