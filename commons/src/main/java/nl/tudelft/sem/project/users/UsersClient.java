@@ -22,6 +22,10 @@ public interface UsersClient {
     @Headers("Content-Type: application/json")
     UserDTO changeGenderOfUser(ChangeGenderUserModel changeGenderUserModel) throws FeignException;
 
+    @PutMapping("/change_amateur")
+    @Headers("Content-Type: application/json")
+    UserDTO changeAmateurOfUser(ChangeAmateurUserModel changeAmateurUserModel) throws FeignException;
+
     @PostMapping("/add_availability")
     @Headers("Content-Type: application/json")
     UserDTO addAvailabilityToUser(AddAvailabilityUserModel addAvailabilityUserModel) throws FeignException;
@@ -39,4 +43,13 @@ public interface UsersClient {
     @DeleteMapping("/remove_role")
     @Headers("Content-Type: application/json")
     UserDTO removeRoleFromUser(RemoveRoleUserModel removeRoleUserModel) throws FeignException;
+
+    @PostMapping("/add_certificate")
+    @Headers("Content-Type: application/json")
+    UserDTO addCertificateToUser(AddCertificateUserModel addCertificateUserModel) throws FeignException;
+
+
+    @DeleteMapping("/remove_certificate")
+    @Headers("Content-Type: application/json")
+    UserDTO removeCertificateFromUser(RemoveCertificateUserModel removeCertificateUserModel) throws FeignException;
 }

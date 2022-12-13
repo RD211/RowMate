@@ -159,6 +159,30 @@ public class FeignClientTest {
     }
 
     @Test
+    void changeAmateurOfUserTest() {
+        var userDTO = UserDTO.builder()
+                .email("email@emai54l.com")
+                .username("tester74")
+                .isAmateur(true)
+                .build();
+
+        var userToSend = usersClient.addUser(
+                userDTO
+        );
+
+        var model = new ChangeAmateurUserModel(
+                userToSend,
+                false
+        );
+
+        var response = usersClient.changeAmateurOfUser(
+                model
+        );
+
+        assertFalse(response.isAmateur());
+    }
+
+    @Test
     void addRoleToUserTest() {
         var userDTO = UserDTO.builder().email("emai23l@email.com").username("te54ster").build();
         var newRole = BoatRole.Coach;
