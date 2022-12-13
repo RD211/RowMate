@@ -3,7 +3,7 @@ package nl.tudelft.sem.project.users.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import nl.tudelft.sem.project.DateInterval;
+import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.utils.Existing;
 import org.springframework.validation.annotation.Validated;

@@ -1,5 +1,7 @@
 package nl.tudelft.sem.project.authentication.domain.user;
 
+import lombok.NonNull;
+import nl.tudelft.sem.project.authentication.Password;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -13,7 +15,7 @@ public class PasswordHashingService {
         this.encoder = encoder;
     }
 
-    public HashedPassword hash(Password password) {
-        return new HashedPassword(encoder.encode(password.toString()));
+    public HashedPassword hash(@NonNull Password password) {
+        return new HashedPassword(encoder.encode(password.getPasswordValue()));
     }
 }

@@ -1,8 +1,9 @@
 package nl.tudelft.sem.project.users.controllers;
 
-import nl.tudelft.sem.project.DateInterval;
+import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
@@ -79,6 +80,24 @@ class UserControllerTest {
         assertEquals(userDTO, userController.getUserById(uuid).getBody());
 
         verify(userService, times(1)).getUserById(uuid);
+        verify(userConverterService, times(1)).toDTO(user);
+        verifyNoMoreInteractions(userConverterService, userService);
+    }
+
+    @Test
+    void getUserByUsernameTest() {
+        var username = new Username("user");
+        var uuid = UUID.randomUUID();
+        var userDTO = UserDTO.builder().id(uuid).email("user@user.com").username("user").build();
+        var user =
+                User.builder().id(uuid).username(username).email(new UserEmail("user@user.com")).build();
+
+        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(userConverterService.toDTO(user)).thenReturn(userDTO);
+
+        assertEquals(userDTO, userController.getUserByUsername(username).getBody());
+
+        verify(userService, times(1)).getUserByUsername(username);
         verify(userConverterService, times(1)).toDTO(user);
         verifyNoMoreInteractions(userConverterService, userService);
     }

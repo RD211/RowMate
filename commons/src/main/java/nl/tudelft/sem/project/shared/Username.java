@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project.users.domain.users;
+package nl.tudelft.sem.project.shared;
 
 import lombok.*;
 import org.springframework.validation.annotation.Validated;
@@ -8,14 +8,15 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Getter
-@ToString
 @EqualsAndHashCode
 @Validated
+@Setter
+@NoArgsConstructor
 public class Username {
 
     @NotNull
     @Size(min = 4, max = 50, message = "Name must be between 4 and 50 characters")
-    private final String name;
+    protected String name;
 
     /**
      * The username constructor.
@@ -38,5 +39,10 @@ public class Username {
         if (!results.isEmpty()) {
             throw new ConstraintViolationException(results);
         }
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

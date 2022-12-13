@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project.users.domain.users;
+package nl.tudelft.sem.project.shared;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
