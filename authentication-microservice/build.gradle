@@ -36,9 +36,16 @@ repositories {
 }
 
 dependencies {
-
+	implementation project(":commons")
 	compileOnly 'org.projectlombok:lombok:1.18.24'
 	annotationProcessor 'org.projectlombok:lombok:1.18.24'
+	// gson
+	implementation 'com.google.code.gson:gson:2.10'
+
+	// feign
+	implementation 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.RELEASE'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.5.RELEASE'
+	implementation 'io.github.openfeign:feign-gson:10.11'
 
 	// Swagger UI
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.4'
