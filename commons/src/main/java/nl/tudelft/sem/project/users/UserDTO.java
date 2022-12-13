@@ -53,6 +53,12 @@ public class UserDTO implements DTO {
     protected Gender gender;
 
     /**
+     * If the user is an amateur or not.
+     */
+    @Builder.Default
+    protected boolean isAmateur = true;
+
+    /**
      * User's boat roles.
      */
     @Builder.Default

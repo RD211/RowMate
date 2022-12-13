@@ -25,6 +25,7 @@ public class UserConverterService implements ConverterEntityDTO<UserDTO, User> {
                 .id(user.getId())
                 .email(user.getEmail().getEmail())
                 .username(user.getUsername().getName())
+                .isAmateur(user.isAmateur())
                 .boatRoles(user.getBoatRoles())
                         .gender(user.getGender())
                                 .organization(user.getOrganization())
@@ -44,6 +45,7 @@ public class UserConverterService implements ConverterEntityDTO<UserDTO, User> {
                 .availableTime(dto.getAvailableTime())
                 .organization(dto.getOrganization())
                 .boatRoles(dto.getBoatRoles())
+                .isAmateur(dto.isAmateur())
                 .certificates(dto.getCertificates() == null ? null :
                         dto.getCertificates().stream().map(x ->
                                  new Certificate(x, null)

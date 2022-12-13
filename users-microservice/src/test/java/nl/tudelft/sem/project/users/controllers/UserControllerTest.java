@@ -5,7 +5,9 @@ import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
+import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
+import nl.tudelft.sem.project.users.domain.certificate.Certificate;
 import nl.tudelft.sem.project.users.domain.users.*;
 import nl.tudelft.sem.project.users.models.*;
 import org.junit.jupiter.api.Test;
@@ -19,10 +21,8 @@ import org.mockito.quality.Strictness;
 import java.sql.Date;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -39,6 +39,9 @@ class UserControllerTest {
 
     @Mock
     transient UserConverterService userConverterService;
+
+    @Mock
+    transient CertificateRepository certificateRepository;
 
     @InjectMocks
     UserController userController;
@@ -123,6 +126,55 @@ class UserControllerTest {
         when(userConverterService.toDTO(savedUser)).thenReturn(savedUserDTO);
 
         assertEquals(savedUserDTO, userController.changeGender(changeGenderModel).getBody());
+
+        verify(userConverterService, times(1)).toDatabaseEntity(userDTO);
+        verify(userRepository, times(1)).save(user);
+        verify(userConverterService, times(1)).toDTO(savedUser);
+        verifyNoMoreInteractions(userConverterService, userService, userRepository);
+    }
+
+    @Test
+    void changeAmateurTest() {
+        var uuid = UUID.randomUUID();
+        var userDTO = UserDTO.builder()
+                .id(uuid)
+                .email("user@user.com")
+                .username("user")
+                .isAmateur(true)
+                .build();
+
+        var user =
+                User.builder()
+                        .id(uuid)
+                        .username(new Username("user"))
+                        .email(new UserEmail("user@user.com"))
+                        .isAmateur(true)
+                        .build();
+
+        var savedUser = User.builder()
+                .id(uuid)
+                .username(new Username("user"))
+                .email(new UserEmail("user@user.com"))
+                .isAmateur(false)
+                .build();
+
+        var savedUserDTO = UserDTO.builder()
+                .id(uuid)
+                .email("user@user.com")
+                .username("user")
+                .isAmateur(false)
+                .build();
+
+        final var changeAmateurUserModel = new ChangeAmateurUserModel(
+                userDTO,
+                false
+        );
+
+        when(userConverterService.toDatabaseEntity(userDTO)).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(savedUser);
+        when(userConverterService.toDTO(savedUser)).thenReturn(savedUserDTO);
+
+        assertEquals(savedUserDTO, userController.changeAmateur(changeAmateurUserModel).getBody());
 
         verify(userConverterService, times(1)).toDatabaseEntity(userDTO);
         verify(userRepository, times(1)).save(user);
@@ -387,5 +439,129 @@ class UserControllerTest {
         verify(userRepository, times(1)).save(user);
         verify(userConverterService, times(1)).toDTO(savedUser);
         verifyNoMoreInteractions(userConverterService, userService, userRepository);
+    }
+
+    @Test
+    void addCertificateTest() {
+        var firstCert = new Certificate("cert B");
+        var certToAdd = new Certificate("Cert D");
+
+        Set<Certificate> initialCerts = new HashSet<>(
+                List.of(firstCert)
+        );
+
+        Set<Certificate> newCerts = new HashSet<>(
+                List.of(firstCert, certToAdd)
+        );
+
+        var uuid = UUID.randomUUID();
+        var userDTO = UserDTO.builder()
+                .id(uuid)
+                .email("user@user.com")
+                .username("user")
+                .certificates(initialCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))
+                .build();
+
+        var user =
+                User.builder()
+                        .id(uuid)
+                        .username(new Username("user"))
+                        .email(new UserEmail("user@user.com"))
+                        .certificates(initialCerts)
+                        .build();
+
+        var savedUser = User.builder()
+                .id(uuid)
+                .username(new Username("user"))
+                .email(new UserEmail("user@user.com"))
+                .certificates(newCerts)
+                .build();
+
+        var savedUserDTO = UserDTO.builder()
+                .id(uuid)
+                .email("user@user.com")
+                .username("user")
+                .certificates(newCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))
+                .build();
+
+        final var addCertificateUserModel = new AddCertificateUserModel(
+                userDTO,
+                certToAdd.toDTO()
+        );
+
+        when(userConverterService.toDatabaseEntity(userDTO)).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(savedUser);
+        when(userConverterService.toDTO(savedUser)).thenReturn(savedUserDTO);
+        when(certificateRepository.findById(certToAdd.getId())).thenReturn(Optional.of(certToAdd));
+
+        assertEquals(savedUserDTO, userController.addCertificate(addCertificateUserModel).getBody());
+
+        verify(userConverterService, times(1)).toDatabaseEntity(userDTO);
+        verify(userRepository, times(1)).save(user);
+        verify(userConverterService, times(1)).toDTO(savedUser);
+        verify(certificateRepository, times(1)).findById(certToAdd.getId());
+        verifyNoMoreInteractions(userConverterService, userService, userRepository, certificateRepository);
+    }
+
+    @Test
+    void removeCertificateTest() {
+        var certToRemove = new Certificate("cert A");
+        var otherCert = new Certificate("cert B");
+
+        Set<Certificate> initialCerts = new HashSet<>(
+                List.of(certToRemove, otherCert)
+        );
+
+        Set<Certificate> newCerts = new HashSet<>(
+                List.of(otherCert)
+        );
+
+        var uuid = UUID.randomUUID();
+        var userDTO = UserDTO.builder()
+                .id(uuid)
+                .email("user@user.com")
+                .username("user")
+                .certificates(initialCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))
+                .build();
+
+        var user =
+                User.builder()
+                        .id(uuid)
+                        .username(new Username("user"))
+                        .email(new UserEmail("user@user.com"))
+                        .certificates(initialCerts)
+                        .build();
+
+        var savedUser = User.builder()
+                .id(uuid)
+                .username(new Username("user"))
+                .email(new UserEmail("user@user.com"))
+                .certificates(newCerts)
+                .build();
+
+        var savedUserDTO = UserDTO.builder()
+                .id(uuid)
+                .email("user@user.com")
+                .username("user")
+                .certificates(newCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))
+                .build();
+
+        final var removeCertificateUserModel = new RemoveCertificateUserModel(
+                userDTO,
+                certToRemove.toDTO()
+        );
+
+        when(userConverterService.toDatabaseEntity(userDTO)).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(savedUser);
+        when(userConverterService.toDTO(savedUser)).thenReturn(savedUserDTO);
+        when(certificateRepository.findById(certToRemove.getId())).thenReturn(Optional.of(certToRemove));
+
+        assertEquals(savedUserDTO, userController.removeCertificate(removeCertificateUserModel).getBody());
+
+        verify(userConverterService, times(1)).toDatabaseEntity(userDTO);
+        verify(userRepository, times(1)).save(user);
+        verify(userConverterService, times(1)).toDTO(savedUser);
+        verify(certificateRepository, times(1)).findById(certToRemove.getId());
+        verifyNoMoreInteractions(userConverterService, userService, userRepository, certificateRepository);
     }
 }
