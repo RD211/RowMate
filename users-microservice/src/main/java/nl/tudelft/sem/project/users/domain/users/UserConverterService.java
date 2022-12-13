@@ -2,19 +2,12 @@ package nl.tudelft.sem.project.users.domain.users;
 
 import nl.tudelft.sem.project.ConverterEntityDTO;
 import nl.tudelft.sem.project.users.UserDTO;
-import nl.tudelft.sem.project.users.domain.certificate.Certificate;
-import nl.tudelft.sem.project.users.domain.certificate.CertificateNotFoundException;
+import nl.tudelft.sem.project.users.domain.certificate.CertificateConverterService;
 import nl.tudelft.sem.project.users.exceptions.UserNotFoundException;
-import nl.tudelft.sem.project.utils.Existing;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import javax.validation.ValidationException;
-import javax.validation.constraints.Null;
-import javax.validation.groups.Default;
 import java.util.stream.Collectors;
 
 
@@ -23,6 +16,8 @@ public class UserConverterService implements ConverterEntityDTO<UserDTO, User> {
 
     @Autowired
     transient UserService userService;
+    @Autowired
+    transient CertificateConverterService certificateConverterService;
 
     @Override
     public UserDTO toDTO(User user) {
@@ -35,9 +30,10 @@ public class UserConverterService implements ConverterEntityDTO<UserDTO, User> {
                         .gender(user.getGender())
                                 .organization(user.getOrganization())
                 .availableTime(user.getAvailableTime())
-                .certificates(user.getCertificates() == null ? null : user.getCertificates().stream().map(
-                        Certificate::toDTO
-                ).collect(Collectors.toSet()))
+                .certificates(user.getCertificates() == null ? null : user.getCertificates().stream()
+                        .map(c -> certificateConverterService.toDTO(c))
+                        .collect(Collectors.toSet())
+                )
                 .build();
     }
 
@@ -51,9 +47,9 @@ public class UserConverterService implements ConverterEntityDTO<UserDTO, User> {
                 .organization(dto.getOrganization())
                 .boatRoles(dto.getBoatRoles())
                 .certificates(dto.getCertificates() == null ? null :
-                        dto.getCertificates().stream().map(x ->
-                                 new Certificate(x, null)
-                        ).collect(Collectors.toSet()))
+                        dto.getCertificates().stream()
+                                .map(x -> certificateConverterService.toEntity(x))
+                                .collect(Collectors.toSet()))
                 .build();
     }
 

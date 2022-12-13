@@ -2,6 +2,7 @@ package nl.tudelft.sem.project.users.integration;
 
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
+import nl.tudelft.sem.project.users.domain.certificate.CertificateName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class CertificateTests {
         Certificate cert2 = new Certificate("Certificate 2", cert1);
         cert2 = certificateRepository.save(cert2);
 
-        Optional<Certificate> fromRepo = certificateRepository.findByName("Certificate 2");
+        Optional<Certificate> fromRepo = certificateRepository.findByCertificateName(new CertificateName("Certificate 2"));
 
         assertThat(fromRepo.isPresent()).isTrue();
         assertThat(fromRepo.get().getAllFromCertificateChain()).containsAll(List.of(cert1, cert2));

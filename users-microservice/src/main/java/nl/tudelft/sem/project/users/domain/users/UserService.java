@@ -21,7 +21,7 @@ import java.util.UUID;
 public class UserService {
 
     @Autowired
-    private transient UserRepository userRepository;
+    transient UserRepository userRepository;
 
     /**
      * Adds a user to the database.
