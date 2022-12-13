@@ -46,6 +46,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     protected Gender gender;
 
+    @Column(nullable = false)
+    @Builder.Default
+    protected boolean isAmateur = true;
+
     @Column(nullable = true)
     @Convert(converter = OrganizationAttributeConverter.class)
     protected Organization organization;
