@@ -1,8 +1,9 @@
 package nl.tudelft.sem.project.users.controllers;
 
-import nl.tudelft.sem.project.DateInterval;
+import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.domain.users.*;

@@ -1,7 +1,7 @@
 package nl.tudelft.sem.project.users.integration;
 
 import feign.FeignException;
-import nl.tudelft.sem.project.DateInterval;
+import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.users.UserDTO;

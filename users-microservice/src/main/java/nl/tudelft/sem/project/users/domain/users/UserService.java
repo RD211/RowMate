@@ -1,15 +1,15 @@
 package nl.tudelft.sem.project.users.domain.users;
 
 import lombok.NonNull;
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.exceptions.EmailInUseException;
 import nl.tudelft.sem.project.users.exceptions.UserNotFoundException;
-import nl.tudelft.sem.project.users.exceptions.UsernameInUseException;
+import nl.tudelft.sem.project.shared.UsernameInUseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.*;
 import java.util.UUID;
 
 /**

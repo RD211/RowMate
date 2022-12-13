@@ -1,11 +1,13 @@
 package nl.tudelft.sem.project.users.domain.users;
 
 import lombok.*;
-import nl.tudelft.sem.project.DateInterval;
+import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.shared.Organization;
 import nl.tudelft.sem.project.shared.OrganizationAttributeConverter;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
+import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.shared.UsernameAttributeConverter;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
 import org.hibernate.annotations.GenericGenerator;
 

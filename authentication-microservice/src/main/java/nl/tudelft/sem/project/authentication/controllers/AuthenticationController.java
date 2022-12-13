@@ -2,26 +2,23 @@ package nl.tudelft.sem.project.authentication.controllers;
 
 import nl.tudelft.sem.project.authentication.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.project.authentication.authentication.JwtUserDetailsService;
-import nl.tudelft.sem.project.authentication.domain.user.NetId;
-import nl.tudelft.sem.project.authentication.domain.user.Password;
 import nl.tudelft.sem.project.authentication.domain.user.RegistrationService;
-import nl.tudelft.sem.project.authentication.models.AuthenticationRequestModel;
-import nl.tudelft.sem.project.authentication.models.AuthenticationResponseModel;
-import nl.tudelft.sem.project.authentication.models.RegistrationRequestModel;
+import nl.tudelft.sem.project.authentication.AppUserModel;
+import nl.tudelft.sem.project.authentication.Token;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+
+import javax.validation.Valid;
 
 @RestController
+@RequestMapping(value ="api/")
 public class AuthenticationController {
 
     private final transient AuthenticationManager authenticationManager;
@@ -51,51 +48,22 @@ public class AuthenticationController {
         this.registrationService = registrationService;
     }
 
-    /**
-     * Endpoint for authentication.
-     *
-     * @param request The login model
-     * @return JWT token if the login is successful
-     * @throws Exception if the user does not exist or the password is incorrect
-     */
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponseModel> authenticate(@RequestBody AuthenticationRequestModel request)
-            throws Exception {
+    public ResponseEntity<Token> authenticate(@Valid @RequestBody AppUserModel request) {
 
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getNetId(),
-                            request.getPassword()));
-        } catch (DisabledException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "USER_DISABLED", e);
-        } catch (BadCredentialsException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", e);
-        }
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername().getName(),
+                        request.getPassword().getPasswordValue()));
 
-        final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(request.getNetId());
-        final String jwtToken = jwtTokenGenerator.generateToken(userDetails);
-        return ResponseEntity.ok(new AuthenticationResponseModel(jwtToken));
+        final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(request.getUsername().getName());
+        final Token jwtToken = jwtTokenGenerator.generateToken(userDetails);
+        return ResponseEntity.ok(jwtToken);
     }
 
-    /**
-     * Endpoint for registration.
-     *
-     * @param request The registration model
-     * @return 200 OK if the registration is successful
-     * @throws Exception if a user with this netid already exists
-     */
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegistrationRequestModel request) throws Exception {
-
-        try {
-            NetId netId = new NetId(request.getNetId());
-            Password password = new Password(request.getPassword());
-            registrationService.registerUser(netId, password);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-
+    public ResponseEntity register(@Valid @RequestBody AppUserModel appUserModel) throws Exception {
+        registrationService.registerUser(appUserModel.getUsername(), appUserModel.getPassword());
         return ResponseEntity.ok().build();
     }
 }
