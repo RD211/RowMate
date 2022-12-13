@@ -15,11 +15,26 @@ public class RegistrationService {
     transient UserRepository userRepository;
     transient PasswordHashingService passwordHashingService;
 
+    /**
+     * Registration service constructor.
+     *
+     * @param userRepository the user repository.
+     * @param passwordHashingService the service used to hash passwords.
+     */
     public RegistrationService(UserRepository userRepository, PasswordHashingService passwordHashingService) {
         this.userRepository = userRepository;
         this.passwordHashingService = passwordHashingService;
     }
 
+
+    /**
+     * Registers a user.
+     *
+     * @param username the username of the user. must be non-null.
+     * @param password the password of the user. Must be non-null.
+     * @return the appUser that was created.
+     * @throws Exception if the operation had a failure.
+     */
     public AppUser registerUser(@NonNull Username username, @NonNull Password password) throws Exception {
 
         if (checkUsernameIsUnique(username)) {

@@ -2,6 +2,7 @@ package nl.tudelft.sem.project.users;
 
 import feign.FeignException;
 import feign.Headers;
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.models.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,10 @@ public interface UsersClient {
     @GetMapping("/get_user_by_id?userId={userId}")
     @Headers("Content-Type: application/json")
     UserDTO getUserById(@PathVariable(value = "userId") UUID userId) throws FeignException;
+
+    @GetMapping("/get_user_by_username?username={username}")
+    @Headers("Content-Type: application/json")
+    UserDTO getUserByUsername(@PathVariable(value = "username") Username username) throws FeignException;
 
     @PutMapping("/change_gender")
     @Headers("Content-Type: application/json")

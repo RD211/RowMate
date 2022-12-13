@@ -4,6 +4,7 @@ import feign.FeignException;
 import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.users.models.*;
@@ -76,6 +77,18 @@ public class FeignClientTest {
         );
 
         var newResponse = usersClient.getUserById(response.getId());
+
+        assertEquals(response, newResponse);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"testidu,test@testidu.com", "tEstidu,tester@gmailuid.com", "amazing_name_heureid,wuow@woidw.com"})
+    void getUserByUsernameTest(String username, String email) {
+        var response = usersClient.addUser(
+                UserDTO.builder().email(email).username(username).build()
+        );
+
+        var newResponse = usersClient.getUserByUsername(new Username(response.getUsername()));
 
         assertEquals(response, newResponse);
     }

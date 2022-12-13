@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.users.controllers;
 
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
@@ -55,6 +56,18 @@ public class UserController {
     @GetMapping("/get_user_by_id")
     public ResponseEntity<UserDTO> getUserById(@Valid @NotNull @RequestParam  UUID userId) {
         var user = userService.getUserById(userId);
+        return ResponseEntity.ok(userConverterService.toDTO(user));
+    }
+
+    /**
+     * Gets a userDTO by the username.
+     *
+     * @param username the requested username.
+     * @return the userDTO.
+     */
+    @GetMapping("/get_user_by_username")
+    public ResponseEntity<UserDTO> getUserByUsername(@Valid @NotNull @RequestParam Username username) {
+        var user = userService.getUserByUsername(username);
         return ResponseEntity.ok(userConverterService.toDTO(user));
     }
 

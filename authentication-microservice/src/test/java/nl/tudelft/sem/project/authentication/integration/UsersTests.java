@@ -70,7 +70,7 @@ public class UsersTests {
         model.setPassword(testPassword);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/register")
+        ResultActions resultActions = mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model)));
 
@@ -98,7 +98,7 @@ public class UsersTests {
         model.setPassword(newTestPassword);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/register")
+        ResultActions resultActions = mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model)));
 
@@ -119,7 +119,8 @@ public class UsersTests {
         final HashedPassword testHashedPassword = new HashedPassword("hashedTestPassword");
         when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
 
-        when(mockAuthenticationManager.authenticate(argThat(authentication -> !testUser.getName().equals(authentication.getPrincipal().toString())
+        when(mockAuthenticationManager.authenticate(argThat(authentication ->
+                        !testUser.getName().equals(authentication.getPrincipal().toString())
         || !testPassword.getPasswordValue().equals(authentication.getCredentials().toString())
 
         ))).thenThrow(new UsernameNotFoundException("User not found"));
@@ -137,7 +138,7 @@ public class UsersTests {
         model.setPassword(testPassword);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/authenticate")
+        ResultActions resultActions = mockMvc.perform(post("/api/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model)));
 
@@ -169,7 +170,7 @@ public class UsersTests {
         model.setPassword(testPassword);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/authenticate")
+        ResultActions resultActions = mockMvc.perform(post("/api/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model)));
 
@@ -201,7 +202,7 @@ public class UsersTests {
         model.setPassword(wrongPassword);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/authenticate")
+        ResultActions resultActions = mockMvc.perform(post("/api/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model)));
 

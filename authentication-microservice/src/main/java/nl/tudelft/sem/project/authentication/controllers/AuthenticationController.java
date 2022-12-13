@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping(value ="api/")
+@RequestMapping(value = "api/")
 public class AuthenticationController {
 
     private final transient AuthenticationManager authenticationManager;
@@ -48,6 +48,12 @@ public class AuthenticationController {
         this.registrationService = registrationService;
     }
 
+    /**
+     * Authenticates a user given his credentials.
+     *
+     * @param request the app user model that contains the username and password.
+     * @return a token which the user can use in the future.
+     */
     @PostMapping("/authenticate")
     public ResponseEntity<Token> authenticate(@Valid @RequestBody AppUserModel request) {
 
@@ -61,6 +67,13 @@ public class AuthenticationController {
         return ResponseEntity.ok(jwtToken);
     }
 
+    /**
+     * Register endpoint. Registers a user given the username and password.
+     *
+     * @param appUserModel the user model that contains the user and password.
+     * @return nothing
+     * @throws Exception if the registration was unsuccessful.
+     */
     @PostMapping("/register")
     public ResponseEntity register(@Valid @RequestBody AppUserModel appUserModel) throws Exception {
         registrationService.registerUser(appUserModel.getUsername(), appUserModel.getPassword());

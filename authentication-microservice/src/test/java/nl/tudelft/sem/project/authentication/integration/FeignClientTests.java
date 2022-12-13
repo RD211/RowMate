@@ -33,4 +33,21 @@ public class FeignClientTests {
                         .password(new Password(password)).build()
         ));
     }
+
+    @ParameterizedTest
+    @CsvSource({"AAAA,AAAAAAAAAA", "BBBB,AAAAAAAAAA", "CCCC,AAAAAAAAAA"})
+    void authenticateValidTest(String username, String password) {
+        var appModel = AppUserModel.builder()
+                .username(new Username(username))
+                .password(new Password(password)).build();
+        assertDoesNotThrow(() -> authClient.register(
+                AppUserModel.builder()
+                        .username(new Username(username))
+                        .password(new Password(password)).build()
+        ));
+
+        var response = authClient.authenticate(appModel);
+
+        assertNotNull(response);
+    }
 }

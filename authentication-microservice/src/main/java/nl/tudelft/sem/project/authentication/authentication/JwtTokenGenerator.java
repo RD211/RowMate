@@ -36,6 +36,12 @@ public class JwtTokenGenerator {
     }
 
 
+    /**
+     * Generates a token given the userdetails.
+     *
+     * @param userDetails the user details.
+     * @return the token that was generated.
+     */
     public Token generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return new Token(Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername())
