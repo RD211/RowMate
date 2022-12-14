@@ -37,7 +37,7 @@ public class CertificateTests {
         Certificate cert2 = new Certificate("Certificate 2", cert1);
         cert2 = certificateRepository.save(cert2);
 
-        Optional<Certificate> fromRepo = certificateRepository.findByCertificateName(new CertificateName("Certificate 2"));
+        Optional<Certificate> fromRepo = certificateRepository.findByName(new CertificateName("Certificate 2"));
 
         assertThat(fromRepo.isPresent()).isTrue();
         assertThat(fromRepo.get().getAllFromCertificateChain()).containsAll(List.of(cert1, cert2));

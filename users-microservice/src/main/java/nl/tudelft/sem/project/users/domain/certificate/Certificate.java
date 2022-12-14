@@ -45,6 +45,7 @@ public class Certificate {
 
     @ManyToOne
     @JoinColumn(name = "supersedes")
+    @ToString.Exclude
     private Certificate superseded;
 
     /**

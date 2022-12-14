@@ -34,7 +34,7 @@ class CertificateTest {
     }
 
     @Test
-    @Timeout(value = 300, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     void testCertificateChainCircular() {
         var cert1 = new Certificate("certificate1");
         var cert2 = new Certificate("certificate2", cert1);

@@ -26,7 +26,7 @@ public class CertificateService {
     transient CertificateRepository certificateRepository;
 
     public Certificate addCertificate(@NonNull Certificate certificate) throws CertificateNameInUseException {
-        if (certificateRepository.existsByCertificateName(certificate.getName())) {
+        if (certificateRepository.existsByName(certificate.getName())) {
             throw new CertificateNameInUseException(certificate.getName());
         }
 
