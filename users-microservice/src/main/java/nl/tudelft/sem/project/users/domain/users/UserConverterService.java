@@ -1,20 +1,14 @@
 package nl.tudelft.sem.project.users.domain.users;
 
 import nl.tudelft.sem.project.ConverterEntityDTO;
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
-import nl.tudelft.sem.project.users.domain.certificate.CertificateNotFoundException;
 import nl.tudelft.sem.project.users.exceptions.UserNotFoundException;
-import nl.tudelft.sem.project.utils.Existing;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import javax.validation.ValidationException;
-import javax.validation.constraints.Null;
-import javax.validation.groups.Default;
 import java.util.stream.Collectors;
 
 

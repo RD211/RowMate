@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 
+import nl.tudelft.sem.project.authentication.Password;
+import nl.tudelft.sem.project.shared.Username;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +34,7 @@ public class RegistrationServiceTests {
     @Test
     public void createUser_withValidData_worksCorrectly() throws Exception {
         // Arrange
-        final NetId testUser = new NetId("SomeUser");
+        final Username testUser = new Username("SomeUser");
         final Password testPassword = new Password("password123");
         final HashedPassword testHashedPassword = new HashedPassword("hashedTestPassword");
         when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
@@ -41,16 +43,16 @@ public class RegistrationServiceTests {
         registrationService.registerUser(testUser, testPassword);
 
         // Assert
-        AppUser savedUser = userRepository.findByNetId(testUser).orElseThrow();
+        AppUser savedUser = userRepository.findByUsername(testUser).orElseThrow();
 
-        assertThat(savedUser.getNetId()).isEqualTo(testUser);
+        assertThat(savedUser.getUsername()).isEqualTo(testUser);
         assertThat(savedUser.getPassword()).isEqualTo(testHashedPassword);
     }
 
     @Test
     public void createUser_withExistingUser_throwsException() {
         // Arrange
-        final NetId testUser = new NetId("SomeUser");
+        final Username testUser = new Username("SomeUser");
         final HashedPassword existingTestPassword = new HashedPassword("password123");
         final Password newTestPassword = new Password("password456");
 
@@ -64,9 +66,9 @@ public class RegistrationServiceTests {
         assertThatExceptionOfType(Exception.class)
                 .isThrownBy(action);
 
-        AppUser savedUser = userRepository.findByNetId(testUser).orElseThrow();
+        AppUser savedUser = userRepository.findByUsername(testUser).orElseThrow();
 
-        assertThat(savedUser.getNetId()).isEqualTo(testUser);
+        assertThat(savedUser.getUsername()).isEqualTo(testUser);
         assertThat(savedUser.getPassword()).isEqualTo(existingTestPassword);
     }
 }

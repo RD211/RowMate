@@ -1,8 +1,8 @@
 package nl.tudelft.sem.project.authentication.authentication;
 
 import java.util.ArrayList;
-import nl.tudelft.sem.project.authentication.domain.user.NetId;
 import nl.tudelft.sem.project.authentication.domain.user.UserRepository;
+import nl.tudelft.sem.project.shared.Username;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +32,7 @@ public class JwtUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var optionalUser = userRepository.findByNetId(new NetId(username));
+        var optionalUser = userRepository.findByUsername(new Username(username));
 
         if (optionalUser.isEmpty()) {
             throw new UsernameNotFoundException("User does not exist");
@@ -40,7 +40,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 
         var user = optionalUser.get();
 
-        return new User(user.getNetId().toString(), user.getPassword().toString(),
-                new ArrayList<>()); // no authorities/roles
+        return new User(user.getUsername().getName(), user.getPassword().getHash(),
+                new ArrayList<>(){}); // no authorities/roles
     }
 }
