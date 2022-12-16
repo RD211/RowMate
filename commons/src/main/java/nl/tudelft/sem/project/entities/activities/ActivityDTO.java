@@ -21,6 +21,9 @@ public class ActivityDTO implements DTO {
     protected String location;
 
     @NonNull
+    protected String owner;
+
+    @NonNull
     protected LocalDateTime startTime;
 
     @NonNull

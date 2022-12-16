@@ -46,6 +46,11 @@ public class Activity implements DTOable<ActivityDTO> {
     String location;
 
     /**
+     * The username of the activity owner.
+     */
+    String owner;
+
+    /**
      * Start and end times of the activity.
      */
     @Column(name = "start_time", columnDefinition = "TIMESTAMP")
@@ -67,12 +72,12 @@ public class Activity implements DTOable<ActivityDTO> {
      * @param dto the DTO to create the entity from.
      */
     public Activity(ActivityDTO dto) {
-        this(dto.getId(), dto.getLocation(), dto.getStartTime(), dto.getEndTime(), dto.getBoats());
+        this(dto.getId(), dto.getLocation(), dto.getOwner(), dto.getStartTime(), dto.getEndTime(), dto.getBoats());
     }
 
 
     @Override
     public ActivityDTO toDTO() {
-        return new ActivityDTO(this.id, this.location, this.startTime, this.endTime, this.boats);
+        return new ActivityDTO(this.id, this.location, this.owner, this.startTime, this.endTime, this.boats);
     }
 }

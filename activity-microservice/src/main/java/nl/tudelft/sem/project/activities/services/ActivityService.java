@@ -22,7 +22,7 @@ public class ActivityService {
     }
 
     public List<ActivityDTO> findActivitiesFromFilter(ActivityFilterDTO dto) {
-        return this.toDTOs(activityRepository.findAll());
+        return this.toDTOs(activityRepository.findWithinTimeSlot(dto.getStartTime(), dto.getEndTime()));
     }
 
     /**

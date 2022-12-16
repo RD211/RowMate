@@ -23,18 +23,18 @@ public class Competition extends Activity {
     /**
      * Determines if the competitions is available for amateurs.
      */
-    @Column(nullable = false)
+    @Column(nullable = true)
     Boolean allowsAmateurs;
     /**
      * The Organization of the competition.
      */
-    @Column(nullable = false)
+    @Column(nullable = true)
     String requiredOrganization;
 
     /**
      * Gender of person who wants to join the competition.
      */
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true, unique = true)
     protected Gender requiredGender;
 
     /**
