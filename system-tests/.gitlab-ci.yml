@@ -17,6 +17,4 @@ build-system-tests:
 test-system-tests:
   stage: test
   script:
-    - gradle system-tests:test system-tests:jacocoTestReport
-    - cat system-tests/build/reports/jacoco/test/html/index.html | grep -Po "Total.*?([0-9]{1,3})%"
-  coverage: /([0-9]{1,3})%/
+    - gradle system-tests:test
