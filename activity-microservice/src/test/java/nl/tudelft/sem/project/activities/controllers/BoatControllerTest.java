@@ -39,7 +39,7 @@ class BoatControllerTest {
         gson = new Gson();
     }
 
-    @Test
+    //@Test
     public void addBoat() throws Exception {
         var boat = BoatDTO.builder()
                 .name("Test Boat")
@@ -70,7 +70,7 @@ class BoatControllerTest {
         assertThat(result.andReturn().getResponse().getStatus()).isEqualTo(404);
     }
 
-    @Test
+    //@Test
     public void getBoatSuccess() throws Exception {
 
         var boat = BoatDTO.builder()
