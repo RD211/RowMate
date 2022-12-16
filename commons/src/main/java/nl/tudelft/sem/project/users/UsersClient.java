@@ -2,6 +2,7 @@ package nl.tudelft.sem.project.users;
 
 import feign.FeignException;
 import feign.Headers;
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.models.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +19,17 @@ public interface UsersClient {
     @Headers("Content-Type: application/json")
     UserDTO getUserById(@PathVariable(value = "userId") UUID userId) throws FeignException;
 
+    @GetMapping("/get_user_by_username?username={username}")
+    @Headers("Content-Type: application/json")
+    UserDTO getUserByUsername(@PathVariable(value = "username") Username username) throws FeignException;
+
     @PutMapping("/change_gender")
     @Headers("Content-Type: application/json")
     UserDTO changeGenderOfUser(ChangeGenderUserModel changeGenderUserModel) throws FeignException;
+
+    @PutMapping("/change_amateur")
+    @Headers("Content-Type: application/json")
+    UserDTO changeAmateurOfUser(ChangeAmateurUserModel changeAmateurUserModel) throws FeignException;
 
     @PostMapping("/add_availability")
     @Headers("Content-Type: application/json")
@@ -39,4 +48,13 @@ public interface UsersClient {
     @DeleteMapping("/remove_role")
     @Headers("Content-Type: application/json")
     UserDTO removeRoleFromUser(RemoveRoleUserModel removeRoleUserModel) throws FeignException;
+
+    @PostMapping("/add_certificate")
+    @Headers("Content-Type: application/json")
+    UserDTO addCertificateToUser(AddCertificateUserModel addCertificateUserModel) throws FeignException;
+
+
+    @DeleteMapping("/remove_certificate")
+    @Headers("Content-Type: application/json")
+    UserDTO removeCertificateFromUser(RemoveCertificateUserModel removeCertificateUserModel) throws FeignException;
 }

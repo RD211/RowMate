@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project.users.exceptions;
+package nl.tudelft.sem.project.shared;
 
 /**
  * Exception thrown when a username is already used.

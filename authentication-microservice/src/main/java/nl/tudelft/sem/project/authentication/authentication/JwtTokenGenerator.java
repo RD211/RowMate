@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import nl.tudelft.sem.project.authentication.domain.providers.TimeProvider;
+import nl.tudelft.sem.project.authentication.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,17 +35,18 @@ public class JwtTokenGenerator {
         this.timeProvider = timeProvider;
     }
 
+
     /**
-     * Generate a JWT token for the provided user.
+     * Generates a token given the userdetails.
      *
-     * @param userDetails The user details
-     * @return the JWT token
+     * @param userDetails the user details.
+     * @return the token that was generated.
      */
-    public String generateToken(UserDetails userDetails) {
+    public Token generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        return Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername())
+        return new Token(Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(timeProvider.getCurrentTime().toEpochMilli()))
                 .setExpiration(new Date(timeProvider.getCurrentTime().toEpochMilli() + JWT_TOKEN_VALIDITY))
-                .signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
+                .signWith(SignatureAlgorithm.HS512, jwtSecret).compact());
     }
 }

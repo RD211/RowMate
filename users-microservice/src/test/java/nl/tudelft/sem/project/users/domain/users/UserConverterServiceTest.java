@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.users.domain.users;
 
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
 

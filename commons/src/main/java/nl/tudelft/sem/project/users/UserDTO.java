@@ -2,7 +2,7 @@ package nl.tudelft.sem.project.users;
 
 import lombok.*;
 import nl.tudelft.sem.project.DTO;
-import nl.tudelft.sem.project.DateInterval;
+import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.shared.Organization;
@@ -51,6 +51,12 @@ public class UserDTO implements DTO {
      * User's gender.
      */
     protected Gender gender;
+
+    /**
+     * If the user is an amateur or not.
+     */
+    @Builder.Default
+    protected boolean isAmateur = true;
 
     /**
      * User's boat roles.
