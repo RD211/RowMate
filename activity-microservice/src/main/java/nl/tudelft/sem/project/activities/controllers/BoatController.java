@@ -38,17 +38,6 @@ public class BoatController {
     transient BoatService boatService;
 
     /**
-     * A testing mapping to make sure everything works.
-     *
-     * @return True
-     */
-    @PostMapping("/test")
-    public ResponseEntity<String> testMapping(BoatDTO boatDTO) {
-
-        return ResponseEntity.ok(boatDTO.getName());
-    }
-
-    /**
      * The add boat endpoint. There should be no ID in the request added.
      *
      * @param boatDTO The boat DTO, the data will be added to the database.
@@ -129,7 +118,7 @@ public class BoatController {
      * @return A boat DTO object if a position was successfully added. If there
      *         was no such boat, then {@link HttpStatus#NOT_FOUND} is returned.
      */
-    @PutMapping("/add_position_to_boat")
+    @PostMapping("/add_position_to_boat")
     public ResponseEntity<BoatDTO> addPositionToBoat(
             @Valid @NotNull @RequestBody UUID boatId,
             @Valid @NotNull @RequestParam BoatRole newPosition
@@ -151,7 +140,7 @@ public class BoatController {
      *         was no such boat, then {@link HttpStatus#NOT_FOUND} is returned. If there
      *         was no such position, then {@link HttpStatus#CONFLICT} is returned.
      */
-    @PutMapping("/remove_position_from_boat")
+    @DeleteMapping("/remove_position_from_boat")
     public ResponseEntity<BoatDTO> removePositionFromBoat(
             @Valid @NotNull @RequestBody UUID boatId,
             @Valid @NotNull @RequestParam BoatRole removedPosition
