@@ -2,6 +2,7 @@ image: gradle:6.7-jdk15
 
 stages:
   - build
+  - staticAnalysis
   - test
 
 variables:
@@ -12,6 +13,19 @@ build-system-tests:
   stage: build
   script:
     gradle system-tests:assemble system-tests:testClasses
+
+checkStyle-system-tests:
+  stage: staticAnalysis
+  script:
+    gradle system-tests:checkstyleMain system-tests:checkStyleTest
+  allow_failure: true
+
+
+PMD-system-tests:
+  stage: staticAnalysis
+  script:
+    gradle system-tests:pmdMain
+  allow_failure: true
 
 test-system-tests:
   stage: test
