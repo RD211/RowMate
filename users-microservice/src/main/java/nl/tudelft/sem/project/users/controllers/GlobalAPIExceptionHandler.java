@@ -1,7 +1,7 @@
 package nl.tudelft.sem.project.users.controllers;
 
 import nl.tudelft.sem.project.users.domain.certificate.CertificateNotFoundException;
-import nl.tudelft.sem.project.users.exceptions.UserNotFoundException;
+import nl.tudelft.sem.project.users.UserNotFoundException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;

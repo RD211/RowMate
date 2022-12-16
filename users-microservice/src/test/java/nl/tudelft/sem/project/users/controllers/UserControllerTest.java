@@ -48,12 +48,11 @@ class UserControllerTest {
 
     @Test
     void addUserTest() {
-        var uuid = UUID.randomUUID();
         var userDTO = UserDTO.builder().email("user@user.com").username("user").build();
         var user = User.builder().username(new Username("user")).email(new UserEmail("user@user.com")).build();
         var savedUser =
-                User.builder().id(uuid).username(new Username("user")).email(new UserEmail("user@user.com")).build();
-        var savedUserDTO = UserDTO.builder().id(uuid).email("user@user.com").username("user").build();
+                User.builder().username(new Username("user")).email(new UserEmail("user@user.com")).build();
+        var savedUserDTO = UserDTO.builder().email("user@user.com").username("user").build();
         when(userConverterService.toEntity(userDTO)).thenReturn(user);
         when(userService.addUser(user)).thenReturn(savedUser);
         when(userConverterService.toDTO(savedUser)).thenReturn(savedUserDTO);
@@ -68,29 +67,11 @@ class UserControllerTest {
     }
 
     @Test
-    void getUserByIdTest() {
-        var uuid = UUID.randomUUID();
-        var userDTO = UserDTO.builder().id(uuid).email("user@user.com").username("user").build();
-        var user =
-                User.builder().id(uuid).username(new Username("user")).email(new UserEmail("user@user.com")).build();
-
-        when(userService.getUserById(uuid)).thenReturn(user);
-        when(userConverterService.toDTO(user)).thenReturn(userDTO);
-
-        assertEquals(userDTO, userController.getUserById(uuid).getBody());
-
-        verify(userService, times(1)).getUserById(uuid);
-        verify(userConverterService, times(1)).toDTO(user);
-        verifyNoMoreInteractions(userConverterService, userService);
-    }
-
-    @Test
     void getUserByUsernameTest() {
         var username = new Username("user");
-        var uuid = UUID.randomUUID();
-        var userDTO = UserDTO.builder().id(uuid).email("user@user.com").username("user").build();
+        var userDTO = UserDTO.builder().email("user@user.com").username("user").build();
         var user =
-                User.builder().id(uuid).username(username).email(new UserEmail("user@user.com")).build();
+                User.builder().username(username).email(new UserEmail("user@user.com")).build();
 
         when(userService.getUserByUsername(username)).thenReturn(user);
         when(userConverterService.toDTO(user)).thenReturn(userDTO);
@@ -104,9 +85,7 @@ class UserControllerTest {
 
     @Test
     void changeGenderTest() {
-        var uuid = UUID.randomUUID();
         var userDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .gender(Gender.NonBinary)
@@ -114,21 +93,18 @@ class UserControllerTest {
 
         var user =
                 User.builder()
-                        .id(uuid)
                         .username(new Username("user"))
                         .email(new UserEmail("user@user.com"))
                         .gender(Gender.NonBinary)
                         .build();
 
         var savedUser = User.builder()
-                .id(uuid)
                 .username(new Username("user"))
                 .email(new UserEmail("user@user.com"))
                 .gender(Gender.Female)
                 .build();
 
         var savedUserDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .gender(Gender.Female)
@@ -153,9 +129,7 @@ class UserControllerTest {
 
     @Test
     void changeAmateurTest() {
-        var uuid = UUID.randomUUID();
         var userDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .isAmateur(true)
@@ -163,21 +137,18 @@ class UserControllerTest {
 
         var user =
                 User.builder()
-                        .id(uuid)
                         .username(new Username("user"))
                         .email(new UserEmail("user@user.com"))
                         .isAmateur(true)
                         .build();
 
         var savedUser = User.builder()
-                .id(uuid)
                 .username(new Username("user"))
                 .email(new UserEmail("user@user.com"))
                 .isAmateur(false)
                 .build();
 
         var savedUserDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .isAmateur(false)
@@ -222,9 +193,7 @@ class UserControllerTest {
                 )
         );
 
-        var uuid = UUID.randomUUID();
         var userDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .availableTime(initialTimes)
@@ -232,21 +201,18 @@ class UserControllerTest {
 
         var user =
                 User.builder()
-                        .id(uuid)
                         .username(new Username("user"))
                         .email(new UserEmail("user@user.com"))
                         .availableTime(initialTimes)
                         .build();
 
         var savedUser = User.builder()
-                .id(uuid)
                 .username(new Username("user"))
                 .email(new UserEmail("user@user.com"))
                 .availableTime(newTimes)
                 .build();
 
         var savedUserDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .availableTime(newTimes)
@@ -296,7 +262,6 @@ class UserControllerTest {
 
         var uuid = UUID.randomUUID();
         var userDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .availableTime(initialTimes)
@@ -304,21 +269,18 @@ class UserControllerTest {
 
         var user =
                 User.builder()
-                        .id(uuid)
                         .username(new Username("user"))
                         .email(new UserEmail("user@user.com"))
                         .availableTime(initialTimes)
                         .build();
 
         var savedUser = User.builder()
-                .id(uuid)
                 .username(new Username("user"))
                 .email(new UserEmail("user@user.com"))
                 .availableTime(newTimes)
                 .build();
 
         var savedUserDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .availableTime(newTimes)
@@ -353,9 +315,7 @@ class UserControllerTest {
                 List.of(BoatRole.Coach, newRole)
         );
 
-        var uuid = UUID.randomUUID();
         var userDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .boatRoles(initialRoles)
@@ -363,21 +323,18 @@ class UserControllerTest {
 
         var user =
                 User.builder()
-                        .id(uuid)
                         .username(new Username("user"))
                         .email(new UserEmail("user@user.com"))
                         .boatRoles(initialRoles)
                         .build();
 
         var savedUser = User.builder()
-                .id(uuid)
                 .username(new Username("user"))
                 .email(new UserEmail("user@user.com"))
                 .boatRoles(newRoles)
                 .build();
 
         var savedUserDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .boatRoles(newRoles)
@@ -412,9 +369,7 @@ class UserControllerTest {
                 List.of(BoatRole.Cox)
         );
 
-        var uuid = UUID.randomUUID();
         var userDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .boatRoles(initialRoles)
@@ -422,21 +377,18 @@ class UserControllerTest {
 
         var user =
                 User.builder()
-                        .id(uuid)
                         .username(new Username("user"))
                         .email(new UserEmail("user@user.com"))
                         .boatRoles(initialRoles)
                         .build();
 
         var savedUser = User.builder()
-                .id(uuid)
                 .username(new Username("user"))
                 .email(new UserEmail("user@user.com"))
                 .boatRoles(newRoles)
                 .build();
 
         var savedUserDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .boatRoles(newRoles)
@@ -472,9 +424,7 @@ class UserControllerTest {
                 List.of(firstCert, certToAdd)
         );
 
-        var uuid = UUID.randomUUID();
         var userDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .certificates(initialCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))
@@ -482,21 +432,18 @@ class UserControllerTest {
 
         var user =
                 User.builder()
-                        .id(uuid)
                         .username(new Username("user"))
                         .email(new UserEmail("user@user.com"))
                         .certificates(initialCerts)
                         .build();
 
         var savedUser = User.builder()
-                .id(uuid)
                 .username(new Username("user"))
                 .email(new UserEmail("user@user.com"))
                 .certificates(newCerts)
                 .build();
 
         var savedUserDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .certificates(newCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))
@@ -534,9 +481,7 @@ class UserControllerTest {
                 List.of(otherCert)
         );
 
-        var uuid = UUID.randomUUID();
         var userDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .certificates(initialCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))
@@ -544,21 +489,18 @@ class UserControllerTest {
 
         var user =
                 User.builder()
-                        .id(uuid)
                         .username(new Username("user"))
                         .email(new UserEmail("user@user.com"))
                         .certificates(initialCerts)
                         .build();
 
         var savedUser = User.builder()
-                .id(uuid)
                 .username(new Username("user"))
                 .email(new UserEmail("user@user.com"))
                 .certificates(newCerts)
                 .build();
 
         var savedUserDTO = UserDTO.builder()
-                .id(uuid)
                 .email("user@user.com")
                 .username("user")
                 .certificates(newCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))

@@ -7,9 +7,7 @@ import nl.tudelft.sem.project.shared.OrganizationAttributeConverter;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.shared.Username;
-import nl.tudelft.sem.project.shared.UsernameAttributeConverter;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.*;
@@ -30,14 +28,8 @@ import java.util.*;
 @Builder
 public class User {
 
-    @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", updatable = false, nullable = false)
-    protected UUID id;
-
     @Column(nullable = false, unique = true)
-    @Convert(converter = UsernameAttributeConverter.class)
+    @EmbeddedId
     protected Username username;
 
     @Column(nullable = false, unique = true)
