@@ -67,25 +67,8 @@ repositories {
 test {
 	useJUnitPlatform()
 	jacoco {
-		enabled = true
+		enabled = false
 		includes = ['nl.tudelft.sem.project.tests.*']
 		excludes = []
-	}
-}
-
-jacocoTestCoverageVerification() {
-	dependsOn test
-	violationRules {
-		rule {
-			enabled = true
-			element = 'CLASS'
-			includes = ['nl.tudelft.sem.project.tests.*']
-
-			limit {
-				counter = 'BRANCH'
-				value = 'COVEREDRATIO'
-				minimum = 0.1
-			}
-		}
 	}
 }
