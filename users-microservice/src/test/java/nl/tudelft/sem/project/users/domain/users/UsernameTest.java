@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.users.domain.users;
 
+import nl.tudelft.sem.project.shared.Username;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolationException;

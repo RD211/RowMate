@@ -1,9 +1,10 @@
 package nl.tudelft.sem.project.users.integration;
 
 import feign.FeignException;
-import nl.tudelft.sem.project.DateInterval;
+import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.users.models.*;
@@ -76,6 +77,18 @@ public class FeignClientTest {
         );
 
         var newResponse = usersClient.getUserById(response.getId());
+
+        assertEquals(response, newResponse);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"testidu,test@testidu.com", "tEstidu,tester@gmailuid.com", "amazing_name_heureid,wuow@woidw.com"})
+    void getUserByUsernameTest(String username, String email) {
+        var response = usersClient.addUser(
+                UserDTO.builder().email(email).username(username).build()
+        );
+
+        var newResponse = usersClient.getUserByUsername(new Username(response.getUsername()));
 
         assertEquals(response, newResponse);
     }
@@ -156,6 +169,30 @@ public class FeignClientTest {
         );
 
         assertEquals(newGender, response.getGender());
+    }
+
+    @Test
+    void changeAmateurOfUserTest() {
+        var userDTO = UserDTO.builder()
+                .email("email@emai54l.com")
+                .username("tester74")
+                .isAmateur(true)
+                .build();
+
+        var userToSend = usersClient.addUser(
+                userDTO
+        );
+
+        var model = new ChangeAmateurUserModel(
+                userToSend,
+                false
+        );
+
+        var response = usersClient.changeAmateurOfUser(
+                model
+        );
+
+        assertFalse(response.isAmateur());
     }
 
     @Test
