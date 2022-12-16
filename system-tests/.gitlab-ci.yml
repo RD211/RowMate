@@ -14,19 +14,6 @@ build-system-tests:
   script:
     gradle system-tests:assemble system-tests:testClasses
 
-checkStyle-system-tests:
-  stage: staticAnalysis
-  script:
-    gradle system-tests:checkstyleMain system-tests:checkStyleTest
-  allow_failure: true
-
-
-PMD-system-tests:
-  stage: staticAnalysis
-  script:
-    gradle system-tests:pmdMain
-  allow_failure: true
-
 test-system-tests:
   stage: test
   script:
