@@ -14,6 +14,7 @@ public class CertificateConverterService implements ConverterEntityDTO<Certifica
 
     @Autowired
     private transient CertificateService certificateService;
+
     @Override
     public CertificateDTO toDTO(Certificate certificate) {
         return CertificateDTO.builder()

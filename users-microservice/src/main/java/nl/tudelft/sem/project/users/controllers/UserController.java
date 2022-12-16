@@ -118,7 +118,8 @@ public class UserController {
             @Valid @NotNull @RequestBody AddCertificateUserModel addCertificateUserModel)
             throws CertificateNotFoundException {
         var realUser = userConverterService.toDatabaseEntity(addCertificateUserModel.getUser());
-        realUser.addCertificate(certificateConverterService.toDatabaseEntity(addCertificateUserModel.getCertificate()));
+        realUser.addCertificate(
+                certificateConverterService.toDatabaseEntity(addCertificateUserModel.getCertificate()));
         var updatedUser = userRepository.save(realUser);
         return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
     }
@@ -135,7 +136,8 @@ public class UserController {
             @Valid @NotNull @RequestBody RemoveCertificateUserModel removeCertificateUserModel)
             throws CertificateNotFoundException  {
         var realUser = userConverterService.toDatabaseEntity(removeCertificateUserModel.getUser());
-        realUser.removeCertificate(certificateConverterService.toDatabaseEntity(removeCertificateUserModel.getCertificate()));
+        realUser.removeCertificate(
+                certificateConverterService.toDatabaseEntity(removeCertificateUserModel.getCertificate()));
         var updatedUser = userRepository.save(realUser);
         return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
     }

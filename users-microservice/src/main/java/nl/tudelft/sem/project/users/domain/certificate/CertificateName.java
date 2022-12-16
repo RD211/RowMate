@@ -18,9 +18,15 @@ import javax.validation.constraints.Size;
 @Validated
 public class CertificateName {
     @NotNull
-    @Size(min = 4, max = 50, message = "Name must be between 4 and 50 characters")
+    @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
     private final String value;
 
+    /**
+     * Constructor for a certificate name. Check if the name String satisfies the constraints.
+     *
+     * @param name A string from which the name should be created.
+     * @throws ConstraintViolationException Is thrown when the parameter does not satisfy the constraints.
+     */
     public CertificateName(String name) throws ConstraintViolationException {
         this.value = name;
 

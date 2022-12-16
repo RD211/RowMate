@@ -1,7 +1,6 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
 import lombok.*;
-import nl.tudelft.sem.project.shared.OrganizationAttributeConverter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;

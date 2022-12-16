@@ -14,7 +14,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import java.util.Optional;
 
 
@@ -24,7 +23,7 @@ import java.util.Optional;
 @ActiveProfiles({"test"})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-public class CertificateTests {
+public class CertificateRepositoryTest {
 
     @Autowired
     private transient CertificateRepository certificateRepository;
@@ -39,8 +38,8 @@ public class CertificateTests {
 
         Optional<Certificate> fromRepo = certificateRepository.findByName(new CertificateName("Certificate 2"));
 
-        assertThat(fromRepo.isPresent()).isTrue();
-        assertThat(fromRepo.get().getAllFromCertificateChain()).containsAll(List.of(cert1, cert2));
+        assertThat(fromRepo).hasValue(cert2);
+        assertThat(fromRepo.get().getAllFromCertificateChain()).containsExactly(cert2, cert1);
     }
 
 }

@@ -12,9 +12,9 @@ public class CertificateNameInUseException extends RuntimeException {
     private static final long serialVersionUID = -2343642383269432L;
 
     /**
-     * Exception constructor.
+     * Exception constructor that takes the name of the certificate that already exists.
      *
-     * @param name The message to be displayed.
+     * @param name The name to be included in the exception message.
      */
     public CertificateNameInUseException(CertificateName name) {
         super(
