@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project.users.domain.users;
+package nl.tudelft.sem.project.users;
 
 import lombok.*;
 import org.hibernate.validator.constraints.Email;
@@ -11,10 +11,11 @@ import javax.validation.constraints.NotNull;
 @ToString
 @EqualsAndHashCode
 @Validated
+@NoArgsConstructor
 public class UserEmail {
     @Email(message = "Email must be valid.")
     @NotNull
-    private final String email;
+    private String email;
 
     /**
      * The user email constructor.

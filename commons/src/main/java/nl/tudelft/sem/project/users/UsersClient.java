@@ -55,4 +55,12 @@ public interface UsersClient {
     @DeleteMapping("/remove_certificate")
     @Headers("Content-Type: application/json")
     UserDTO removeCertificateFromUser(RemoveCertificateUserModel removeCertificateUserModel) throws FeignException;
+
+    @DeleteMapping("/delete_user_by_username")
+    @Headers("Content-Type: application/json")
+    void deleteUserByUsername(Username username) throws FeignException;
+
+    @DeleteMapping("/delete_user_by_email")
+    @Headers("Content-Type: application/json")
+    void deleteUserByEmail(UserEmail email) throws FeignException;
 }

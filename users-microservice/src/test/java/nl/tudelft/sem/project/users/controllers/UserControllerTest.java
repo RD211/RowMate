@@ -3,9 +3,11 @@ package nl.tudelft.sem.project.users.controllers;
 import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
+import nl.tudelft.sem.project.shared.Organization;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.UserDTO;
+import nl.tudelft.sem.project.users.UserEmail;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
@@ -169,6 +171,50 @@ class UserControllerTest {
         when(userConverterService.toDTO(savedUser)).thenReturn(savedUserDTO);
 
         assertEquals(savedUserDTO, userController.changeAmateur(changeAmateurUserModel).getBody());
+
+        verify(userConverterService, times(1)).toDatabaseEntity(userDTO);
+        verify(userRepository, times(1)).save(user);
+        verify(userConverterService, times(1)).toDTO(savedUser);
+        verifyNoMoreInteractions(userConverterService, userService, userRepository);
+    }
+
+    @Test
+    void changeOrganizationTest() {
+        var userDTO = UserDTO.builder()
+                .email("user@user.com")
+                .username("user")
+                .organization(new Organization("google"))
+                .build();
+
+        var user =
+                User.builder()
+                        .username(new Username("user"))
+                        .email(new UserEmail("user@user.com"))
+                        .organization(new Organization("google"))
+                        .build();
+
+        var savedUser = User.builder()
+                .username(new Username("user"))
+                .email(new UserEmail("user@user.com"))
+                .organization(new Organization("facebook"))
+                .build();
+
+        var savedUserDTO = UserDTO.builder()
+                .email("user@user.com")
+                .username("user")
+                .organization(new Organization("facebook"))
+                .build();
+
+        final var changeOrganizationUserModel = new ChangeOrganizationUserModel(
+                userDTO,
+                new Organization("facebook")
+        );
+
+        when(userConverterService.toDatabaseEntity(userDTO)).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(savedUser);
+        when(userConverterService.toDTO(savedUser)).thenReturn(savedUserDTO);
+
+        assertEquals(savedUserDTO, userController.changeOrganization(changeOrganizationUserModel).getBody());
 
         verify(userConverterService, times(1)).toDatabaseEntity(userDTO);
         verify(userRepository, times(1)).save(user);
@@ -556,5 +602,21 @@ class UserControllerTest {
         verify(userConverterService, times(1)).toDTO(savedUser);
         verify(certificateRepository, times(1)).findById(certToRemove.getId());
         verifyNoMoreInteractions(userConverterService, userService, userRepository, certificateRepository);
+    }
+
+    @Test
+    void deleteUserByUsernameTest() {
+        userController.deleteUserByUsername(new Username("user"));
+
+        verify(userService, times(1)).deleteUserByUsername(new Username("user"));
+        verifyNoMoreInteractions(userConverterService, userService);
+    }
+
+    @Test
+    void deleteUserByEmailTest() {
+        userController.deleteUserByEmail(new UserEmail("user@usering.user"));
+
+        verify(userService, times(1)).deleteUserByEmail(new UserEmail("user@usering.user"));
+        verifyNoMoreInteractions(userConverterService, userService);
     }
 }

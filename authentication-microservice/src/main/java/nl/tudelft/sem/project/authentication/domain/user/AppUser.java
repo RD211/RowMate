@@ -22,8 +22,16 @@ public class AppUser {
     @Column(nullable = false)
     protected boolean isAdmin = false;
 
-    public AppUser(Username username, HashedPassword password) {
+    /**
+     * Constructor for app user.
+     *
+     * @param username the username.
+     * @param password the password.
+     * @param isAdmin the flag for admin.
+     */
+    public AppUser(Username username, HashedPassword password, boolean isAdmin) {
         this.username = username;
         this.password = password;
+        this.isAdmin = isAdmin;
     }
 }
