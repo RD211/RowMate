@@ -11,7 +11,7 @@ public class BoatNotFoundException extends RuntimeException {
      * Default constructor.
      */
     public BoatNotFoundException() {
-        super();
+        super("There was no such boat.");
     }
 
     /**
