@@ -6,6 +6,7 @@ import nl.tudelft.sem.project.enums.BoatRole;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.UUID;
@@ -17,23 +18,23 @@ public interface BoatsClient {
     @Headers("Content-Type: application/json")
     BoatDTO addBoat(BoatDTO boatDTO) throws FeignException;
 
-    @GetMapping("/get_boat")
+    @GetMapping("/get_boat?boatId={boatId}")
     @Headers("Content-Type: application/json")
-    BoatDTO getBoat(UUID boatId) throws FeignException;
+    BoatDTO getBoat(@PathVariable(value = "boatId") UUID boatId) throws FeignException;
 
-    @PostMapping("/rename_boat")
+    @PostMapping("/rename_boat?newName={newName}")
     @Headers("Content-Type: application/json")
-    BoatDTO renameBoat(UUID boatId, String newName) throws FeignException;
+    BoatDTO renameBoat(UUID boatId, @PathVariable(value = "newName") String newName) throws FeignException;
 
-    @DeleteMapping("/delete_boat")
+    @DeleteMapping("/delete_boat?boatId={boatId}")
     @Headers("Content-Type: application/json")
-    void deleteBoat(UUID boatId) throws FeignException;
+    void deleteBoat(@PathVariable(value = "boatId") UUID boatId) throws FeignException;
 
-    @PostMapping("/add_position_to_boat")
+    @PostMapping("/add_position_to_boat?newPosition={newPosition}")
     @Headers("Content-Type: application/json")
-    BoatDTO addPositionToBoat(UUID boatId, BoatRole newPosition) throws FeignException;
+    BoatDTO addPositionToBoat(UUID boatId, @PathVariable(value = "newPosition") BoatRole newPosition) throws FeignException;
 
-    @DeleteMapping("/delete_position_from_boat")
+    @DeleteMapping("/delete_position_from_boat?removePosition={removedPosition}")
     @Headers("Content-Type: application/json")
-    BoatDTO removePositionFromBoat(UUID boatId, BoatRole removedPosition) throws FeignException;
+    BoatDTO removePositionFromBoat(UUID boatId, @PathVariable(value = "removedPosition") BoatRole removedPosition) throws FeignException;
 }

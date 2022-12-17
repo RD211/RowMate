@@ -2,10 +2,14 @@ package nl.tudelft.sem.project.activities.controllers;
 
 import com.google.gson.Gson;
 import nl.tudelft.sem.project.activities.BoatDTO;
+import nl.tudelft.sem.project.activities.database.entities.BoatService;
+import nl.tudelft.sem.project.activities.database.repository.BoatRepository;
 import nl.tudelft.sem.project.enums.BoatRole;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,10 +33,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class BoatControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Mock
+    BoatRepository boatRepository;
 
-    private static Gson gson;
+    @Mock
+    BoatService boatService;
+
+    @InjectMocks
+    BoatController boatController;
 
     @BeforeAll
     public static void setUp() {
@@ -97,5 +105,39 @@ class BoatControllerTest {
         assertThat(response.getBoatId()).isEqualTo(boatResponse.getBoatId());
         assertThat(response.getName()).isEqualTo(boatResponse.getName());
         assertThat(response.getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.Coach, BoatRole.ScullingRower);
+    }
+
+    @Test
+    void testAddBoat() {
+
+        BoatDTO boatDTO = BoatDTO.builder()
+                .boatId(UUID.randomUUID())
+                .name("Test Boat")
+                .availablePositions(List.of(BoatRole.Cox))
+                .build();
+
+        var ret = boatController.addBoat(boatDTO);
+
+
+    }
+
+    @Test
+    void getBoat() {
+    }
+
+    @Test
+    void renameBoat() {
+    }
+
+    @Test
+    void deleteBoat() {
+    }
+
+    @Test
+    void addPositionToBoat() {
+    }
+
+    @Test
+    void removePositionFromBoat() {
     }
 }
