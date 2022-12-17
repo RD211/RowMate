@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project;
+package nl.tudelft.sem.project.shared;
 
 import lombok.*;
 

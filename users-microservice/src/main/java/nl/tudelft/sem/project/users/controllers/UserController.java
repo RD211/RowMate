@@ -1,6 +1,8 @@
 package nl.tudelft.sem.project.users.controllers;
 
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
+import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.domain.certificate.CertificateConverterService;
 import nl.tudelft.sem.project.users.exceptions.CertificateNotFoundException;
@@ -27,6 +29,8 @@ public class UserController {
     transient UserService userService;
     @Autowired
     transient UserConverterService userConverterService;
+    @Autowired
+    transient CertificateRepository certificateRepository;
 
     @Autowired
     transient CertificateConverterService certificateConverterService;
@@ -60,6 +64,18 @@ public class UserController {
     }
 
     /**
+     * Gets a userDTO by the username.
+     *
+     * @param username the requested username.
+     * @return the userDTO.
+     */
+    @GetMapping("/get_user_by_username")
+    public ResponseEntity<UserDTO> getUserByUsername(@Valid @NotNull @RequestParam Username username) {
+        var user = userService.getUserByUsername(username);
+        return ResponseEntity.ok(userConverterService.toDTO(user));
+    }
+
+    /**
      * Changes the gender of the user to some other value.
      *
      * @param changeGenderUserModel the change gender model, it contains the user and the new gender.
@@ -70,6 +86,22 @@ public class UserController {
             @Valid @NotNull @RequestBody ChangeGenderUserModel changeGenderUserModel) {
         var realUser = userConverterService.toDatabaseEntity(changeGenderUserModel.getUser());
         realUser.setGender(changeGenderUserModel.getGender());
+        var savedUser = userRepository.save(realUser);
+        return ResponseEntity.ok(userConverterService.toDTO(savedUser));
+    }
+
+    /**
+     * Changes the skill level of the user.
+     * (Changes the boolean flag for isAmateur to being either true or false)
+     *
+     * @param changeAmateurUserModel the model that contains the user and the new value.
+     * @return the updated user dto.
+     */
+    @PutMapping("/change_amateur")
+    public ResponseEntity<UserDTO> changeAmateur(
+            @Valid @NotNull @RequestBody ChangeAmateurUserModel changeAmateurUserModel) {
+        var realUser = userConverterService.toDatabaseEntity(changeAmateurUserModel.getUser());
+        realUser.setAmateur(changeAmateurUserModel.isAmateur());
         var savedUser = userRepository.save(realUser);
         return ResponseEntity.ok(userConverterService.toDTO(savedUser));
     }
@@ -116,6 +148,12 @@ public class UserController {
     public ResponseEntity<UserDTO> addCertificate(
             @Valid @NotNull @RequestBody AddCertificateUserModel addCertificateUserModel)
             throws CertificateNotFoundException {
+        var certificate =
+                certificateRepository.findById(addCertificateUserModel.getCertificate().getId());
+        if (certificate.isEmpty()) {
+            throw new CertificateNotFoundException(addCertificateUserModel.getCertificate().getId());
+        }
+
         var realUser = userConverterService.toDatabaseEntity(addCertificateUserModel.getUser());
         realUser.addCertificate(
                 certificateConverterService.toDatabaseEntity(addCertificateUserModel.getCertificate()));
@@ -134,6 +172,12 @@ public class UserController {
     public ResponseEntity<UserDTO> removeCertificate(
             @Valid @NotNull @RequestBody RemoveCertificateUserModel removeCertificateUserModel)
             throws CertificateNotFoundException  {
+        var certificate =
+                certificateRepository.findById(removeCertificateUserModel.getCertificate().getId());
+        if (certificate.isEmpty()) {
+            throw new CertificateNotFoundException(removeCertificateUserModel.getCertificate().getId());
+        }
+
         var realUser = userConverterService.toDatabaseEntity(removeCertificateUserModel.getUser());
         realUser.removeCertificate(
                 certificateConverterService.toDatabaseEntity(removeCertificateUserModel.getCertificate()));

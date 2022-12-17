@@ -1,9 +1,10 @@
 package nl.tudelft.sem.project.users.domain.users;
 
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.exceptions.EmailInUseException;
 import nl.tudelft.sem.project.users.exceptions.UserNotFoundException;
-import nl.tudelft.sem.project.users.exceptions.UsernameInUseException;
+import nl.tudelft.sem.project.shared.UsernameInUseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
