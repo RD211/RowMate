@@ -1,9 +1,9 @@
 package nl.tudelft.sem.project.users.domain.users;
 
+import nl.tudelft.sem.project.users.UserEmail;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
 
 import static org.junit.jupiter.api.Assertions.*;
 

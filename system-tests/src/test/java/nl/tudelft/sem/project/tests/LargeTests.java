@@ -2,12 +2,10 @@ package nl.tudelft.sem.project.tests;
 
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
-import nl.tudelft.sem.project.gateway.AuthenticateUserModel;
-import nl.tudelft.sem.project.gateway.CreateUserModel;
-import nl.tudelft.sem.project.gateway.GatewayAuthenticationClient;
-import nl.tudelft.sem.project.gateway.GatewayUserClient;
+import nl.tudelft.sem.project.gateway.*;
 import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.shared.Organization;
+import nl.tudelft.sem.project.shared.Username;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,6 +33,9 @@ public class LargeTests {
 
     @Autowired
     GatewayUserClient gatewayUserClient;
+
+    @Autowired
+    GatewayAdminClient gatewayAdminClient;
 
     static List<ConfigurableApplicationContext> microservices;
     @BeforeAll
@@ -257,5 +258,79 @@ public class LargeTests {
         assertEquals(username, details.getUsername());
         assertEquals(email, details.getEmail());
         assertFalse(details.getBoatRoles().contains(BoatRole.Coach));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"te455432st5451,test44265@5346t1e3s4t.c4om,pass4ss3123", "tE4545s3341t2343,teste25522r134@gma35il4.com,p1assss", "a3ma43z3in42g_6n43am5e_here,w3o63w3@555wo52w.com,a4sdhjkdas"})
+    void deleteUserByUsername(String username, String email, String password) {
+        var userToken = gatewayAuthenticationClient.register(
+                CreateUserModel.builder()
+                        .username(username)
+                        .email(email)
+                        .password(password).build()
+        );
+
+        var adminToken = gatewayAuthenticationClient.authenticate(
+                AuthenticateUserModel.builder().username(
+                        "administrator"
+                ).password("administrator").build()
+        );
+
+        gatewayAdminClient.deleteUserByUsername(
+                "Bearer " + adminToken,
+                username
+        );
+
+        assertThrows(Exception.class, () -> gatewayUserClient.getDetailsOfUser(
+                "Bearer " + userToken));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"te455432st54fg51,test44265@5346t1e3s4t.c4gfom,pass4ss3123", "tE4545s3341gft2343,teste25522r134@ggfma35il4.com,p1assss", "a3ma43z3ing42g_6n43am5e_here,w3ofg63w3@555wo52w.com,a4sdhjkdas"})
+    void deleteUserByEmail(String username, String email, String password) {
+        var userToken = gatewayAuthenticationClient.register(
+                CreateUserModel.builder()
+                        .username(username)
+                        .email(email)
+                        .password(password).build()
+        );
+
+        var adminToken = gatewayAuthenticationClient.authenticate(
+                AuthenticateUserModel.builder().username(
+                        "administrator"
+                ).password("administrator").build()
+        );
+
+        gatewayAdminClient.deleteUserByEmail(
+                "Bearer " + adminToken,
+                email
+        );
+
+        assertThrows(Exception.class, () -> gatewayUserClient.getDetailsOfUser(
+                "Bearer " + userToken));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"te455432st54351,tes3t44265@5346t1e3s4t.c4om,pass4ss3123", "tE4545s33431t2343,teste25522r134@gma335il4.com,p1assss", "a3ma433z3in42g_6n43am5e_here,w3o63w3@5535wo52w.com,a4sdhjkdas"})
+    void deleteUserByUsernameNotAdmin(String username, String email, String password) {
+        var userToken = gatewayAuthenticationClient.register(
+                CreateUserModel.builder()
+                        .username(username)
+                        .email(email)
+                        .password(password).build()
+        );
+
+
+        assertThrows(Exception.class, () -> gatewayAdminClient.deleteUserByUsername(
+                "Bearer " + userToken,
+                username
+        ));
+
+
+        var user = gatewayUserClient.getDetailsOfUser(
+                "Bearer " + userToken);
+        assertEquals(username, user.getUsername());
+        assertEquals(email, user.getEmail());
+
     }
 }

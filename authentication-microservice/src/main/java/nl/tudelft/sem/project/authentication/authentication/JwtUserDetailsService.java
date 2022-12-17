@@ -1,9 +1,12 @@
 package nl.tudelft.sem.project.authentication.authentication;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import nl.tudelft.sem.project.authentication.domain.user.UserRepository;
 import nl.tudelft.sem.project.shared.Username;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -39,8 +42,9 @@ public class JwtUserDetailsService implements UserDetailsService {
         }
 
         var user = optionalUser.get();
-
         return new User(user.getUsername().getName(), user.getPassword().getHash(),
-                new ArrayList<>(){}); // no authorities/roles
+                user.isAdmin() ?  List.of(
+                        new SimpleGrantedAuthority("ADMIN")
+                ) : List.of());
     }
 }

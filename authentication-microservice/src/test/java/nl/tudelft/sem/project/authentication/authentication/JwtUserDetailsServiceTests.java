@@ -37,7 +37,7 @@ public class JwtUserDetailsServiceTests {
         final Username testUser = new Username("SomeUser");
         final HashedPassword testHashedPassword = new HashedPassword("password123Hash");
 
-        AppUser appUser = new AppUser(testUser, testHashedPassword);
+        AppUser appUser = new AppUser(testUser, testHashedPassword, false);
         userRepository.save(appUser);
 
         // Act
@@ -56,7 +56,7 @@ public class JwtUserDetailsServiceTests {
         final Username testUser = new Username("AnotherUser");
         final String testPasswordHash = "password123Hash";
 
-        AppUser appUser = new AppUser(testUser, new HashedPassword(testPasswordHash));
+        AppUser appUser = new AppUser(testUser, new HashedPassword(testPasswordHash), false);
         userRepository.save(appUser);
 
         // Act

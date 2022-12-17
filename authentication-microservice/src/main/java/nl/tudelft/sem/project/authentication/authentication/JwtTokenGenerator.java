@@ -5,10 +5,15 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import nl.tudelft.sem.project.authentication.domain.providers.TimeProvider;
 import nl.tudelft.sem.project.authentication.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +49,10 @@ public class JwtTokenGenerator {
      */
     public Token generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        Set<String> authorities = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+        claims.put("authorities", authorities);
         return new Token(Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(timeProvider.getCurrentTime().toEpochMilli()))
                 .setExpiration(new Date(timeProvider.getCurrentTime().toEpochMilli() + JWT_TOKEN_VALIDITY))
