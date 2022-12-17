@@ -17,7 +17,6 @@ import org.mockito.quality.Strictness;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
