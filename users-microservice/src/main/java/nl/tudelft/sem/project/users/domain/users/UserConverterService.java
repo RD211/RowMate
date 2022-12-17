@@ -3,8 +3,8 @@ package nl.tudelft.sem.project.users.domain.users;
 import nl.tudelft.sem.project.ConverterEntityDTO;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
+import nl.tudelft.sem.project.users.UserNotFoundException;
 import nl.tudelft.sem.project.users.domain.certificate.CertificateConverterService;
-import nl.tudelft.sem.project.users.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
