@@ -4,10 +4,12 @@ import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
+import nl.tudelft.sem.project.users.domain.certificate.CertificateConverterService;
 import nl.tudelft.sem.project.users.domain.users.*;
 import nl.tudelft.sem.project.users.models.*;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,9 @@ class UserControllerTest {
 
     @Mock
     transient UserConverterService userConverterService;
+
+    @Mock
+    transient CertificateConverterService certificateConverterService;
 
     @Mock
     transient CertificateRepository certificateRepository;
@@ -424,10 +429,23 @@ class UserControllerTest {
                 List.of(firstCert, certToAdd)
         );
 
+        when(certificateConverterService.toDTO(firstCert))
+                .thenReturn(CertificateDTO.builder()
+                        .id(firstCert.getId())
+                        .name(firstCert.getName().getValue())
+                        .build());
+        when(certificateConverterService.toDTO(certToAdd))
+                .thenReturn(CertificateDTO.builder()
+                        .id(certToAdd.getId())
+                        .name(certToAdd.getName().getValue())
+                        .build());
+
+        var uuid = UUID.randomUUID();
         var userDTO = UserDTO.builder()
                 .email("user@user.com")
                 .username("user")
-                .certificates(initialCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))
+                .certificates(initialCerts.stream()
+                        .map(c -> certificateConverterService.toDTO(c)).collect(Collectors.toSet()))
                 .build();
 
         var user =
@@ -446,12 +464,13 @@ class UserControllerTest {
         var savedUserDTO = UserDTO.builder()
                 .email("user@user.com")
                 .username("user")
-                .certificates(newCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))
+                .certificates(newCerts.stream()
+                        .map(c -> certificateConverterService.toDTO(c)).collect(Collectors.toSet()))
                 .build();
 
         final var addCertificateUserModel = new AddCertificateUserModel(
                 userDTO,
-                certToAdd.toDTO()
+                certificateConverterService.toDTO(certToAdd)
         );
 
         when(userConverterService.toDatabaseEntity(userDTO)).thenReturn(user);
@@ -481,10 +500,23 @@ class UserControllerTest {
                 List.of(otherCert)
         );
 
+        when(certificateConverterService.toDTO(certToRemove))
+                .thenReturn(CertificateDTO.builder()
+                        .id(certToRemove.getId())
+                        .name(certToRemove.getName().getValue())
+                        .build());
+        when(certificateConverterService.toDTO(otherCert))
+                .thenReturn(CertificateDTO.builder()
+                        .id(otherCert.getId())
+                        .name(otherCert.getName().getValue())
+                        .build());
+
+        var uuid = UUID.randomUUID();
         var userDTO = UserDTO.builder()
                 .email("user@user.com")
                 .username("user")
-                .certificates(initialCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))
+                .certificates(initialCerts.stream()
+                        .map(c -> certificateConverterService.toDTO(c)).collect(Collectors.toSet()))
                 .build();
 
         var user =
@@ -503,12 +535,13 @@ class UserControllerTest {
         var savedUserDTO = UserDTO.builder()
                 .email("user@user.com")
                 .username("user")
-                .certificates(newCerts.stream().map(Certificate::toDTO).collect(Collectors.toSet()))
+                .certificates(newCerts.stream()
+                        .map(c -> certificateConverterService.toDTO(c)).collect(Collectors.toSet()))
                 .build();
 
         final var removeCertificateUserModel = new RemoveCertificateUserModel(
                 userDTO,
-                certToRemove.toDTO()
+                certificateConverterService.toDTO(certToRemove)
         );
 
         when(userConverterService.toDatabaseEntity(userDTO)).thenReturn(user);

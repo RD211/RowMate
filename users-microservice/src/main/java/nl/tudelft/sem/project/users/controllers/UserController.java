@@ -4,8 +4,8 @@ import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
-import nl.tudelft.sem.project.users.domain.certificate.Certificate;
-import nl.tudelft.sem.project.users.domain.certificate.CertificateNotFoundException;
+import nl.tudelft.sem.project.users.domain.certificate.CertificateConverterService;
+import nl.tudelft.sem.project.users.exceptions.CertificateNotFoundException;
 import nl.tudelft.sem.project.users.domain.users.*;
 import nl.tudelft.sem.project.users.models.*;
 import nl.tudelft.sem.project.utils.Fictional;
@@ -30,6 +30,10 @@ public class UserController {
     transient UserConverterService userConverterService;
     @Autowired
     transient CertificateRepository certificateRepository;
+
+    @Autowired
+    transient CertificateConverterService certificateConverterService;
+
 
 
     /**
@@ -152,7 +156,8 @@ public class UserController {
         }
 
         var realUser = userConverterService.toDatabaseEntity(addCertificateUserModel.getUser());
-        realUser.addCertificate(certificate.get());
+        realUser.addCertificate(
+                certificateConverterService.toDatabaseEntity(addCertificateUserModel.getCertificate()));
         var updatedUser = userRepository.save(realUser);
         return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
     }
@@ -175,7 +180,8 @@ public class UserController {
         }
 
         var realUser = userConverterService.toDatabaseEntity(removeCertificateUserModel.getUser());
-        realUser.removeCertificate(certificate.get());
+        realUser.removeCertificate(
+                certificateConverterService.toDatabaseEntity(removeCertificateUserModel.getCertificate()));
         var updatedUser = userRepository.save(realUser);
         return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
     }
