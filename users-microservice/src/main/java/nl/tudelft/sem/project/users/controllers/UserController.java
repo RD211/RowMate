@@ -2,7 +2,6 @@ package nl.tudelft.sem.project.users.controllers;
 
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
-import nl.tudelft.sem.project.users.domain.certificate.Certificate;
 import nl.tudelft.sem.project.users.domain.certificate.CertificateConverterService;
 import nl.tudelft.sem.project.users.exceptions.CertificateNotFoundException;
 import nl.tudelft.sem.project.users.domain.users.*;

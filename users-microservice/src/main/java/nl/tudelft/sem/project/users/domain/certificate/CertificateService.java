@@ -96,10 +96,11 @@ public class CertificateService {
      * The found certificate's fields will be updated according to the fields in the parameter.
      *
      * @param certificate The new certificate's field values.
+     * @return The updated certificate.
      * @throws CertificateNotFoundException Is throws when the certificate could not be found in the repository
      *                                      by its id.
      */
-    public void updateCertificate(@NonNull Certificate certificate)
+    public Certificate updateCertificate(@NonNull Certificate certificate)
             throws CertificateNotFoundException {
 
         Certificate saved = getCertificateById(certificate.getId());
@@ -107,7 +108,7 @@ public class CertificateService {
         saved.setName(certificate.getName());
         saved.setSuperseded(certificate.getSuperseded().orElse(null));
 
-        certificateRepository.save(saved);
+        return certificateRepository.save(saved);
     }
 
     /**
