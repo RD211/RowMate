@@ -2,6 +2,7 @@ package nl.tudelft.sem.project.users.domain.users;
 
 import lombok.NonNull;
 import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserEmail;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.EmailInUseException;
 import nl.tudelft.sem.project.users.UserNotFoundException;

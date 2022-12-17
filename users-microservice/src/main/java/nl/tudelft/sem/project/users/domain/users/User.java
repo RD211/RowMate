@@ -7,6 +7,8 @@ import nl.tudelft.sem.project.shared.OrganizationAttributeConverter;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserEmail;
+import nl.tudelft.sem.project.users.UserEmailAttributeConverter;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
 
 import javax.persistence.*;

@@ -2,9 +2,9 @@ package nl.tudelft.sem.project.users.controllers;
 
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
+import nl.tudelft.sem.project.users.UserEmail;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
-import nl.tudelft.sem.project.users.domain.certificate.Certificate;
 import nl.tudelft.sem.project.users.domain.certificate.CertificateNotFoundException;
 import nl.tudelft.sem.project.users.domain.users.*;
 import nl.tudelft.sem.project.users.models.*;
@@ -195,7 +195,7 @@ public class UserController {
     }
 
     /**
-     * Removes a role from the users collection.
+     * Removes a role from the users' collection.
      *
      * @param removeRoleUserModel the model that contains the user and the role to remove.
      * @return the updated user.
@@ -209,4 +209,33 @@ public class UserController {
         return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
     }
 
+
+    /**
+     * Delete a user by the username.
+     * This is an admin endpoint.
+     *
+     * @param username the username of the user to delete.
+     * @return the deleted user before the action.
+     */
+    @DeleteMapping("/delete_user_by_username")
+    public ResponseEntity deleteUserByUsername(
+            @Valid @NotNull @RequestBody Username username) {
+        userService.deleteUserByUsername(username);
+        return ResponseEntity.ok().build();
+    }
+
+
+    /**
+     * Delete a user by the email.
+     * This is an admin endpoint.
+     *
+     * @param email the email of the user to delete.
+     * @return the deleted user before the action.
+     */
+    @DeleteMapping("/delete_user_by_email")
+    public ResponseEntity deleteUserByEmail(
+            @Valid @NotNull @RequestBody UserEmail email) {
+        userService.deleteUserByEmail(email);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -76,7 +76,7 @@ public class AuthenticationController {
      */
     @PostMapping("/register")
     public ResponseEntity register(@Valid @RequestBody AppUserModel appUserModel) throws Exception {
-        registrationService.registerUser(appUserModel.getUsername(), appUserModel.getPassword());
+        registrationService.registerUser(appUserModel.getUsername(), appUserModel.getPassword(), false);
         return ResponseEntity.ok().build();
     }
 }

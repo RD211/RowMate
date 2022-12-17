@@ -31,6 +31,8 @@ public class RequestAuthenticationConfig extends WebSecurityConfigurerAdapter {
                         "/swagger-ui/**",
                         "/api/authentication/**")
                 .permitAll()
+                .antMatchers("/api/admin/**")
+                .hasAnyAuthority("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()
