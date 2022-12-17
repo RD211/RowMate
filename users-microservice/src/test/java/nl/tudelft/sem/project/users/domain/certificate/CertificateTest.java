@@ -1,151 +1,99 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
-import nl.tudelft.sem.project.users.CertificateDTO;
-import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.mockito.Mockito;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CertificateTest {
 
     @Test
-    void testCertificateChainOne() {
+    void certificateChainWithOne() {
         var cert1 = new Certificate("certificate1");
 
-        assertEquals(cert1.getAllFromCertificateChain(), List.of(cert1));
-        assertTrue(cert1.hasInChain(cert1));
+        assertThat(cert1.getAllFromCertificateChain()).containsExactly(cert1);
+        assertThat(cert1.hasInChain(cert1)).isTrue();
     }
 
     @Test
-    void testCertificateChainMany() {
+    void certificateChainWithMany() {
         var cert3 = new Certificate("certificate3");
         var cert1 = new Certificate("certificate1", cert3);
         var cert2 = new Certificate("certificate2", cert1);
 
-        assertEquals(cert1.getAllFromCertificateChain(), List.of(cert1, cert3));
-        assertEquals(cert2.getAllFromCertificateChain(), List.of(cert2, cert1, cert3));
+        assertThat(cert1.getAllFromCertificateChain()).containsExactly(cert1, cert3);
+        assertThat(cert2.getAllFromCertificateChain()).containsExactly(cert2, cert1, cert3);
 
-        assertTrue(cert1.hasInChain(cert3));
-        assertTrue(cert2.hasInChain(cert3));
-        assertFalse(cert3.hasInChain(cert1));
+        assertThat(cert1.hasInChain(cert3)).isTrue();
+        assertThat(cert2.hasInChain(cert3)).isTrue();
+        assertThat(cert3.hasInChain(cert1)).isFalse();
     }
 
     @Test
-    @Timeout(value = 50, unit = TimeUnit.MILLISECONDS)
-    void testCertificateChainCircular() {
+    @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
+    void certificateChainWithCircularSupersedence() {
         var cert1 = new Certificate("certificate1");
         var cert2 = new Certificate("certificate2", cert1);
 
         cert1.setSuperseded(cert2);
 
-        assertEquals(cert1.getAllFromCertificateChain(), List.of(cert1, cert2));
-        assertTrue(cert1.hasInChain(cert2));
-        assertFalse(cert1.hasInChain(new Certificate("Some other")));
+        assertThat(cert1.getAllFromCertificateChain()).containsExactly(cert1, cert2);
+        assertThat(cert1.hasInChain(cert2)).isTrue();
+        assertThat(cert1.hasInChain(new Certificate("Some other"))).isFalse();
     }
 
     @Test
-    void testEqualsSameObject() {
+    void certificateIsEqualToItself() {
         var cert1 = new Certificate("certificate1");
-        assertEquals(cert1, cert1);
+        assertThat(cert1).isEqualTo(cert1);
     }
 
     @Test
-    void testEqualsUsesOnlyId() {
+    void certificatesWithTheSameIdAreAlwaysEqual() {
         var cert1 = new Certificate("certificate");
         var cert2 = new Certificate("other certificate");
 
         cert2.setId(cert1.getId());
 
-        assertEquals(cert1, cert2);
+        assertThat(cert1).isEqualTo(cert2);
     }
 
     @Test
-    void testEqualsDifferent() {
+    void certificatesWithDifferentIdsAreNotEqual() {
         var cert1 = new Certificate("certificate");
-        var cert2 = new Certificate("other certificate");
+        var cert2 = new Certificate("certificate");
 
-        assertNotEquals(cert1, cert2);
+        assertThat(cert1).isNotEqualTo(cert2);
     }
 
     @Test
-    void testHashCodeUsesOnlyId() {
+    void hashCodeUsesOnlyIds() {
         var cert1 = new Certificate("certificate");
         var cert2 = new Certificate("other certificate");
 
         cert2.setId(cert1.getId());
 
-        assertEquals(cert1.hashCode(), cert2.hashCode());
+        assertThat(cert1).hasSameHashCodeAs(cert2);
     }
 
     @Test
-    void testSetSupersededDoesNotAllowNulls() {
-        var cert = new Certificate("certificate");
-
-        assertThrows(NullPointerException.class, () -> cert.setSuperseded(null));
+    void constructorWithNullSupersedingShouldThrow() {
+        assertThatThrownBy(() -> new Certificate("A name", null)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
-    void testNoNullCertificateAllowed() {
-        assertThrows(NullPointerException.class, () -> new Certificate("cert", null));
-    }
+    void getSuperseding() {
+        var cert1 = new Certificate("Cert1");
+        var cert2 = new Certificate("Cert2");
 
-    @Test
-    void testToDTOWithSuperseding() {
-        var other = new Certificate("other");
-        var cert = new Certificate("cert", other);
+        assertThat(cert2.getSuperseded()).isEmpty();
 
-        var dto = cert.toDTO();
-        assertTrue(dto.getSupersededId().isPresent());
-        assertEquals(dto.getSupersededId().get(), other.getId());
-    }
+        cert2.setSuperseded(cert1);
 
-    @Test
-    void testToDTOWithoutSuperseding() {
-        var cert = new Certificate("cert");
-
-        var dto = cert.toDTO();
-        assertTrue(dto.getSupersededId().isEmpty());
-    }
-
-    @Test
-    void testFromDTOWithoutSuperseding() throws CertificateNotFoundException {
-        var dto = new CertificateDTO(UUID.randomUUID(), "cert_name", Optional.empty());
-        var certFromDTO = new Certificate(dto, null);
-        var cert = new Certificate("cert_name");
-
-        assertEquals(certFromDTO.getName(), cert.getName());
-        assertEquals(certFromDTO.getSuperseded(), cert.getSuperseded());
-    }
-
-    @Test
-    void testFromDTOWithSupersedingPresent() throws CertificateNotFoundException {
-        CertificateRepository repo = Mockito.mock(CertificateRepository.class);
-        var supersededCertificate = new Certificate("superseded_cert");
-        Mockito.when(repo.findById(supersededCertificate.getId())).thenReturn(Optional.of(supersededCertificate));
-
-        var dto = new CertificateDTO(UUID.randomUUID(), "cert_name", Optional.of(supersededCertificate.getId()));
-        var certFromDTO = new Certificate(dto, repo);
-
-        assertTrue(certFromDTO.getSuperseded().isPresent());
-        assertEquals(certFromDTO.getSuperseded().get(), supersededCertificate);
-    }
-
-    @Test
-    void testFromDTOWithSupersedingMissing() {
-        CertificateRepository repo = Mockito.mock(CertificateRepository.class);
-        UUID nonexistentCertId = UUID.randomUUID();
-        Mockito.when(repo.findById(nonexistentCertId)).thenReturn(Optional.empty());
-
-        var dto = new CertificateDTO(UUID.randomUUID(), "cert_name", Optional.of(nonexistentCertId));
-
-        assertThrows(CertificateNotFoundException.class, () -> new Certificate(dto, repo));
-
+        assertThat(cert2.getSuperseded()).hasValue(cert1);
     }
 }

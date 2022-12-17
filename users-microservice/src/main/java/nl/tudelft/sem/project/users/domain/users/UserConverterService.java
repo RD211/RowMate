@@ -4,8 +4,8 @@ import nl.tudelft.sem.project.ConverterEntityDTO;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UserEmail;
-import nl.tudelft.sem.project.users.domain.certificate.Certificate;
 import nl.tudelft.sem.project.users.UserNotFoundException;
+import nl.tudelft.sem.project.users.domain.certificate.CertificateConverterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +18,8 @@ public class UserConverterService implements ConverterEntityDTO<UserDTO, User> {
 
     @Autowired
     transient UserService userService;
+    @Autowired
+    transient CertificateConverterService certificateConverterService;
 
     @Override
     public UserDTO toDTO(User user) {
@@ -30,9 +32,10 @@ public class UserConverterService implements ConverterEntityDTO<UserDTO, User> {
                         .gender(user.getGender())
                                 .organization(user.getOrganization())
                 .availableTime(user.getAvailableTime())
-                .certificates(user.getCertificates() == null ? null : user.getCertificates().stream().map(
-                        Certificate::toDTO
-                ).collect(Collectors.toSet()))
+                .certificates(user.getCertificates() == null ? null : user.getCertificates().stream()
+                        .map(c -> certificateConverterService.toDTO(c))
+                        .collect(Collectors.toSet())
+                )
                 .build();
     }
 
@@ -47,9 +50,9 @@ public class UserConverterService implements ConverterEntityDTO<UserDTO, User> {
                 .boatRoles(dto.getBoatRoles())
                 .isAmateur(dto.isAmateur())
                 .certificates(dto.getCertificates() == null ? null :
-                        dto.getCertificates().stream().map(x ->
-                                 new Certificate(x, null)
-                        ).collect(Collectors.toSet()))
+                        dto.getCertificates().stream()
+                                .map(x -> certificateConverterService.toEntity(x))
+                                .collect(Collectors.toSet()))
                 .build();
     }
 
