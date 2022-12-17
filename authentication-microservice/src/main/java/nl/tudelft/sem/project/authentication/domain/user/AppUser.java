@@ -24,6 +24,7 @@ public class AppUser {
 
     /**
      * Constructor for app user.
+     *
      * @param username the username.
      * @param password the password.
      * @param isAdmin the flag for admin.

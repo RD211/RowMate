@@ -74,10 +74,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         var claims = jwtTokenVerifier.getClaims(token);
                         var authenticationToken = new UsernamePasswordAuthenticationToken(
                                 netId,
-                                null, (Collection<? extends GrantedAuthority>)
+                                null, claims != null ? (Collection<? extends GrantedAuthority>)
                                 claims.get("authorities", ArrayList.class)
                                 .stream().map(o -> new SimpleGrantedAuthority(o.toString()))
-                                .collect(Collectors.toSet())
+                                .collect(Collectors.toSet()) : null
                         );
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource()
                                 .buildDetails(request));
