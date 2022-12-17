@@ -2,12 +2,7 @@ package nl.tudelft.sem.project.authentication.domain.user;
 
 import lombok.*;
 import nl.tudelft.sem.project.shared.Username;
-import nl.tudelft.sem.project.shared.UsernameAttributeConverter;
-import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
-import java.util.UUID;
-
 
 @Entity
 @NoArgsConstructor
@@ -16,14 +11,8 @@ import java.util.UUID;
 @ToString
 public class AppUser {
 
-    @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", updatable = false, nullable = false)
-    protected UUID id;
-
     @Column(nullable = false, unique = true)
-    @Convert(converter = UsernameAttributeConverter.class)
+    @EmbeddedId
     protected Username username;
 
     @Column(nullable = false)

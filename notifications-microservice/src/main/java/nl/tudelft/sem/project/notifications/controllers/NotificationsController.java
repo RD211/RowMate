@@ -66,8 +66,7 @@ public class NotificationsController {
             NotificationDTO notificationDTO = NotificationDTO.builder()
                     .userDTO(UserDTO.builder()
                     .email(email)
-                    .username("none")
-                    .id(UUID.randomUUID()).build())
+                    .username("none").build())
                     .eventType(EventType.TEST)
                     .activityDTO(new TrainingDTO())
                     .build();

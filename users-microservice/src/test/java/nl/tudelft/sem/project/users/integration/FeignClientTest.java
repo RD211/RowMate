@@ -43,7 +43,6 @@ public class FeignClientTest {
                 UserDTO.builder().email(email).username(username).build()
         );
 
-        assertNotNull(response.getId());
         assertEquals(username, response.getUsername());
         assertEquals(email, response.getEmail());
     }
@@ -76,7 +75,7 @@ public class FeignClientTest {
                 UserDTO.builder().email(email).username(username).build()
         );
 
-        var newResponse = usersClient.getUserById(response.getId());
+        var newResponse = usersClient.getUserByUsername(new Username(response.getUsername()));
 
         assertEquals(response, newResponse);
     }

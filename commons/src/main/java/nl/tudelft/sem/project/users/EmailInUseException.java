@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project.users.exceptions;
+package nl.tudelft.sem.project.users;
 
 /**
  * Exception thrown when an email is already used by another user.

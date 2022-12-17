@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -50,19 +49,6 @@ public class UserController {
         return ResponseEntity.ok(userConverterService.toDTO(savedUser));
     }
 
-
-    /**
-     * Gets a userDTO by the id.
-     *
-     * @param userId the requested id.
-     * @return the userDTO.
-     */
-    @GetMapping("/get_user_by_id")
-    public ResponseEntity<UserDTO> getUserById(@Valid @NotNull @RequestParam  UUID userId) {
-        var user = userService.getUserById(userId);
-        return ResponseEntity.ok(userConverterService.toDTO(user));
-    }
-
     /**
      * Gets a userDTO by the username.
      *
@@ -86,6 +72,21 @@ public class UserController {
             @Valid @NotNull @RequestBody ChangeGenderUserModel changeGenderUserModel) {
         var realUser = userConverterService.toDatabaseEntity(changeGenderUserModel.getUser());
         realUser.setGender(changeGenderUserModel.getGender());
+        var savedUser = userRepository.save(realUser);
+        return ResponseEntity.ok(userConverterService.toDTO(savedUser));
+    }
+
+    /**
+     * Changes the organization of the user to some other value.
+     *
+     * @param changeOrganizationUserModel the change organization model, it contains the user and the new organization.
+     * @return the updated userDTO.
+     */
+    @PutMapping("/change_organization")
+    public ResponseEntity<UserDTO> changeOrganization(
+            @Valid @NotNull @RequestBody ChangeOrganizationUserModel changeOrganizationUserModel) {
+        var realUser = userConverterService.toDatabaseEntity(changeOrganizationUserModel.getUser());
+        realUser.setOrganization(changeOrganizationUserModel.getOrganization());
         var savedUser = userRepository.save(realUser);
         return ResponseEntity.ok(userConverterService.toDTO(savedUser));
     }
@@ -162,7 +163,7 @@ public class UserController {
     }
 
     /**
-     * Removes a certificate from the users collection.
+     * Removes a certificate from the users' collection.
      *
      * @param removeCertificateUserModel the model that contains the user and the certificate to remove.
      * @return the updated user.
