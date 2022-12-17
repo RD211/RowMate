@@ -21,7 +21,7 @@ import java.util.UUID;
 public class UserService {
 
     @Autowired
-    private transient UserRepository userRepository;
+    transient UserRepository userRepository;
 
     /**
      * Adds a user to the database.
@@ -37,7 +37,7 @@ public class UserService {
             throw new EmailInUseException("Email is already being used by somebody else.");
         }
 
-        boolean existsUsername = this.existsUsername(user.getUsername());
+        boolean existsUsername = this.existsByUsername(user.getUsername());
         if (existsUsername) {
             throw new UsernameInUseException("Username is already being used by somebody else.");
         }
@@ -131,7 +131,7 @@ public class UserService {
      * @param username the username given.
      * @return a boolean indicating if the username exists already.
      */
-    public boolean existsUsername(@NonNull Username username) {
+    public boolean existsByUsername(@NonNull Username username) {
         return userRepository.existsByUsername(username);
     }
 

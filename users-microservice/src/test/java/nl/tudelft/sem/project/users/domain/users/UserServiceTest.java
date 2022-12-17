@@ -205,12 +205,12 @@ class UserServiceTest {
 
     @Test
     void existsByUsernameTrue() {
-        assertTrue(userService.existsUsername(joe.getUsername()));
+        assertTrue(userService.existsByUsername(joe.getUsername()));
     }
 
     @Test
     void existsByUsernameFalse() {
-        assertFalse(userService.existsUsername(susMichael.getUsername()));
+        assertFalse(userService.existsByUsername(susMichael.getUsername()));
     }
 
     @Test
