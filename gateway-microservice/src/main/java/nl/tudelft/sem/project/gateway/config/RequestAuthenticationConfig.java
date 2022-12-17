@@ -28,7 +28,8 @@ public class RequestAuthenticationConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(
                         "/v3/api-docs/**",
-                        "/swagger-ui/**")
+                        "/swagger-ui/**",
+                        "/api/authentication/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
