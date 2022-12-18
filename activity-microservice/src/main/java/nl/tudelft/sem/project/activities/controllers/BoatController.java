@@ -2,6 +2,7 @@ package nl.tudelft.sem.project.activities.controllers;
 
 import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.activities.database.entities.Boat;
+import nl.tudelft.sem.project.activities.database.entities.BoatConverterService;
 import nl.tudelft.sem.project.activities.database.entities.BoatService;
 import nl.tudelft.sem.project.activities.database.repository.BoatRepository;
 import nl.tudelft.sem.project.enums.BoatRole;
@@ -37,6 +38,9 @@ public class BoatController {
     @Autowired
     transient BoatService boatService;
 
+    @Autowired
+    transient BoatConverterService boatConverterService;
+
     /**
      * The add boat endpoint. There should be no ID in the request added.
      *
@@ -47,8 +51,8 @@ public class BoatController {
     public ResponseEntity<BoatDTO> addBoat(
             @Valid @Validated(Fictional.class) @RequestBody BoatDTO boatDTO
     ) {
-        Boat boat = boatService.addBoat(new Boat(boatDTO));
-        return ResponseEntity.ok(boat.toDTO());
+        Boat boat = boatService.addBoat(boatConverterService.toEntity(boatDTO));
+        return ResponseEntity.ok(boatConverterService.toDTO(boat));
     }
 
     /**
@@ -63,12 +67,19 @@ public class BoatController {
             @Valid @NotNull @RequestParam UUID boatId
     ) {
         Boat boat = boatService.getBoatById(boatId);
-        return ResponseEntity.ok(boat.toDTO());
+        return ResponseEntity.ok(boatConverterService.toDTO(boat));
     }
 
+    /**
+     * The get all boats endpoint.
+     * This endpoint gets all the boats.
+     *
+     * @return the list of boats.
+     */
     @GetMapping("/get_boats")
     public ResponseEntity<List<BoatDTO>> getBoats() {
-        var boats = boatService.getAllBoats().stream().map(Boat::toDTO).collect(Collectors.toList());
+        var boats = boatService.getAllBoats()
+                .stream().map(boatConverterService::toDTO).collect(Collectors.toList());
         return ResponseEntity.ok(boats);
     }
 
@@ -86,7 +97,7 @@ public class BoatController {
             @Valid @NotNull @RequestParam String newName
     ) {
         Boat boat = boatService.renameBoat(boatId, newName);
-        return ResponseEntity.ok(boat.toDTO());
+        return ResponseEntity.ok(boatConverterService.toDTO(boat));
     }
 
     /**
@@ -118,7 +129,7 @@ public class BoatController {
             @Valid @NotNull @RequestParam BoatRole newPosition
     ) {
         Boat boat = boatService.addAvailablePositionToBoat(boatId, newPosition);
-        return ResponseEntity.ok(boat.toDTO());
+        return ResponseEntity.ok(boatConverterService.toDTO(boat));
     }
 
     /**
@@ -136,7 +147,7 @@ public class BoatController {
             @Valid @NotNull @RequestParam BoatRole removedPosition
     ) {
         Boat boat = boatService.removeAvailablePositionFromBoat(boatId, removedPosition);
-        return ResponseEntity.ok(boat.toDTO());
+        return ResponseEntity.ok(boatConverterService.toDTO(boat));
     }
 
     /**
@@ -153,7 +164,7 @@ public class BoatController {
             @Valid @NotNull @RequestParam UUID newCertificateId
     ) {
         Boat boat = boatService.changeCoxCertificate(boatId, newCertificateId);
-        return ResponseEntity.ok(boat.toDTO());
+        return ResponseEntity.ok(boatConverterService.toDTO(boat));
     }
 
 }
