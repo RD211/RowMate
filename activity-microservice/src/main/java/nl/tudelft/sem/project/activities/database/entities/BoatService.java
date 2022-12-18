@@ -118,4 +118,8 @@ public class BoatService {
         boat.setCoxCertificateId(newCertificateID);
         return boatRepository.save(boat);
     }
+
+    public List<Boat> getAllBoats() {
+        return boatRepository.findAll();
+    }
 }

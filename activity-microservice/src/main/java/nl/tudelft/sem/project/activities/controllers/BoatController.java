@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Controller for Boat mappings.
@@ -62,6 +64,12 @@ public class BoatController {
     ) {
         Boat boat = boatService.getBoatById(boatId);
         return ResponseEntity.ok(boat.toDTO());
+    }
+
+    @GetMapping("/get_boats")
+    public ResponseEntity<List<BoatDTO>> getBoats() {
+        var boats = boatService.getAllBoats().stream().map(Boat::toDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(boats);
     }
 
     /**
