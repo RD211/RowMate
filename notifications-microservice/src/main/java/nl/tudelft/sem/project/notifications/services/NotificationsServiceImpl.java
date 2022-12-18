@@ -5,6 +5,7 @@ import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.notifications.mailTemplates.*;
 import nl.tudelft.sem.project.notifications.exceptions.MailNotSentException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
@@ -17,6 +18,9 @@ public class NotificationsServiceImpl implements NotificationsService {
 
     @Autowired
     private transient HashMap<EventType, MailTemplate> messageTemplates;
+
+    @Value("${spring.mail.test-mode}")
+    private boolean testMode;
 
     /* TODO Finish method (properly adding activity details) once
     ActivityDTO has been completely implemented. */
@@ -31,7 +35,7 @@ public class NotificationsServiceImpl implements NotificationsService {
      *                        activity, if applicable
      * @throws Exception if any issues are encountered regarding the sending of the notification
      */
-    public void sendNotification(NotificationDTO notificationDTO) throws MailNotSentException {
+    public SimpleMailMessage sendNotification(NotificationDTO notificationDTO) throws MailNotSentException {
         SimpleMailMessage message = new SimpleMailMessage();
         String activityDetails;
 
@@ -51,10 +55,13 @@ public class NotificationsServiceImpl implements NotificationsService {
         } else {
             message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage());
         }
-        try {
-            mailSender.send(message);
-        } catch (Exception e) {
-            throw new MailNotSentException(e.getMessage());
+        if (!testMode) {
+            try {
+                mailSender.send(message);
+            } catch (Exception e) {
+                throw new MailNotSentException(e.getMessage());
+            }
         }
+        return message;
     }
 }
