@@ -1,27 +1,28 @@
 package nl.tudelft.sem.project.activities.controllers;
 
-import com.google.gson.Gson;
 import nl.tudelft.sem.project.activities.BoatDTO;
+import nl.tudelft.sem.project.activities.database.entities.Boat;
+import nl.tudelft.sem.project.activities.database.entities.BoatService;
+import nl.tudelft.sem.project.activities.database.repository.BoatRepository;
+import nl.tudelft.sem.project.activities.exceptions.BoatNotFoundException;
 import nl.tudelft.sem.project.enums.BoatRole;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -29,73 +30,175 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class BoatControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Mock
+    BoatRepository boatRepository;
 
-    private static Gson gson;
+    @Mock
+    BoatService boatService;
 
-    @BeforeAll
-    public static void setUp() {
-        gson = new Gson();
-    }
+    @InjectMocks
+    BoatController boatController;
 
     @Test
-    public void addBoat() throws Exception {
-        var boat = BoatDTO.builder()
+    void testAddBoat() {
+
+        BoatDTO boatDTO = BoatDTO.builder()
+                .boatId(UUID.randomUUID())
                 .name("Test Boat")
-                .availablePositions(List.of(BoatRole.Coach, BoatRole.ScullingRower))
+                .availablePositions(List.of(BoatRole.Cox))
                 .build();
-        var boatJson = gson.toJson(boat);
 
-        ResultActions result = mockMvc.perform(post("/add_boat")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(boatJson));
-
-        result.andExpect(status().isOk());
-
-        BoatDTO response = gson.fromJson(result.andReturn().getResponse().getContentAsString(), BoatDTO.class);
-
-        assertThat(response.getBoatId()).isNotNull();
-        assertThat(response.getName()).isEqualTo(boat.getName());
-        assertThat(response.getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.Coach, BoatRole.ScullingRower);
-    }
-
-    @Test
-    public void getBoatFail() throws Exception {
-
-        ResultActions result = mockMvc.perform(get("/get_boat")
-                .queryParam("boatId", UUID.randomUUID().toString()));
-
-        result.andExpect(status().is4xxClientError());
-        assertThat(result.andReturn().getResponse().getStatus()).isEqualTo(404);
-    }
-
-    @Test
-    public void getBoatSuccess() throws Exception {
-
-        var boat = BoatDTO.builder()
+        UUID retId = UUID.randomUUID();
+        Boat retBoat = Boat.builder()
+                .id(retId)
                 .name("Test Boat")
-                .availablePositions(List.of(BoatRole.Coach, BoatRole.ScullingRower))
+                .availablePositions(List.of(BoatRole.Cox))
                 .build();
-        var boatJson = gson.toJson(boat);
 
-        ResultActions postResult = mockMvc.perform(post("/add_boat")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(boatJson));
+        when(boatService.addBoat(argThat(x -> x.getName().equals("Test Boat")))).thenReturn(retBoat);
 
-        postResult.andExpect(status().isOk());
+        var ret = boatController.addBoat(boatDTO);
+        verify(boatService, times(1)).addBoat(argThat(x -> x.getName().equals("Test Boat")));
+        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(ret.getBody().getName()).isEqualTo("Test Boat");
+        assertThat(ret.getBody().getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.Cox);
+        assertThat(ret.getBody().getBoatId()).isEqualTo(retId);
+    }
 
-        BoatDTO boatResponse = gson.fromJson(postResult.andReturn().getResponse().getContentAsString(), BoatDTO.class);
+    @Test
+    void getBoatNormal() {
+        UUID boatId = UUID.randomUUID();
+        Boat boat = Boat.builder()
+                .id(boatId)
+                .name("Epic Boat")
+                .availablePositions(List.of(BoatRole.PortSideRower))
+                .build();
 
-        ResultActions getResult = mockMvc.perform(get("/get_boat")
-                .queryParam("boatId", boatResponse.getBoatId().toString()));
+        when(boatService.getBoatById(boatId)).thenReturn(boat);
+        var ret = boatController.getBoat(boatId);
+        verify(boatService, times(1)).getBoatById(boatId);
+        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(ret.getBody().getName()).isEqualTo("Epic Boat");
+        assertThat(ret.getBody().getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.PortSideRower);
+        assertThat(ret.getBody().getBoatId()).isEqualTo(boatId);
+    }
 
-        getResult.andExpect(status().isOk());
+    @Test
+    void getBoatNotFound() {
+        UUID boatId = UUID.randomUUID();
+        Boat boat = Boat.builder()
+                .id(boatId)
+                .name("Epic Boat")
+                .availablePositions(List.of(BoatRole.PortSideRower))
+                .build();
 
-        BoatDTO response = gson.fromJson(getResult.andReturn().getResponse().getContentAsString(), BoatDTO.class);
+        when(boatService.getBoatById(boatId)).thenThrow(BoatNotFoundException.class);
 
-        assertThat(response.getBoatId()).isEqualTo(boatResponse.getBoatId());
-        assertThat(response.getName()).isEqualTo(boatResponse.getName());
-        assertThat(response.getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.Coach, BoatRole.ScullingRower);
+        assertThatThrownBy(() -> boatController.getBoat(boatId)).isInstanceOf(BoatNotFoundException.class);
+        verify(boatService, times(1)).getBoatById(boatId);
+    }
+
+    @Test
+    void renameBoatNormal() {
+        UUID boatId = UUID.randomUUID();
+        Boat newBoat = Boat.builder()
+                .id(boatId)
+                .name("New Name Boat")
+                .availablePositions(List.of(BoatRole.PortSideRower))
+                .build();
+
+        when(boatService.renameBoat(boatId, "New Name Boat")).thenReturn(newBoat);
+        var ret = boatController.renameBoat(boatId, "New Name Boat");
+        verify(boatService, times(1)).renameBoat(boatId, "New Name Boat");
+        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(ret.getBody().getName()).isEqualTo("New Name Boat");
+        assertThat(ret.getBody().getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.PortSideRower);
+        assertThat(ret.getBody().getBoatId()).isEqualTo(boatId);
+    }
+
+    @Test
+    void renameBoatNotFound() {
+        UUID boatId = UUID.randomUUID();
+        Boat boat = Boat.builder()
+                .id(boatId)
+                .name("Le Boat")
+                .availablePositions(List.of(BoatRole.PortSideRower))
+                .build();
+
+        when(boatService.renameBoat(boatId, "New Name")).thenThrow(BoatNotFoundException.class);
+        assertThatThrownBy(() -> boatController.renameBoat(boatId, "New Name")).isInstanceOf(BoatNotFoundException.class);
+        verify(boatService, times(1)).renameBoat(boatId, "New Name");
+
+    }
+
+    @Test
+    void deleteBoatNormal() {
+        UUID boatId = UUID.randomUUID();
+        doNothing().when(boatService).deleteBoatById(boatId);
+        var ret = boatController.deleteBoat(boatId);
+        verify(boatService, times(1)).deleteBoatById(boatId);
+        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void deleteBoatNotFound() {
+        UUID boatId = UUID.randomUUID();
+        doThrow(BoatNotFoundException.class).when(boatService).deleteBoatById(boatId);
+        assertThatThrownBy(() -> boatController.deleteBoat(boatId)).isInstanceOf(BoatNotFoundException.class);
+        verify(boatService, times(1)).deleteBoatById(boatId);
+    }
+
+    @Test
+    void addPositionToBoat() {
+        UUID boatId = UUID.randomUUID();
+        Boat boat = Boat.builder()
+                .id(boatId)
+                .name("Added Boat")
+                .availablePositions(List.of(BoatRole.Cox))
+                .build();
+        when(boatService.addAvailablePositionToBoat(boatId, BoatRole.Cox)).thenReturn(boat);
+        var ret = boatController.addPositionToBoat(boatId, BoatRole.Cox);
+        verify(boatService, times(1)).addAvailablePositionToBoat(boatId, BoatRole.Cox);
+        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(ret.getBody().getBoatId()).isEqualTo(boatId);
+        assertThat(ret.getBody().getName()).isEqualTo("Added Boat");
+        assertThat(ret.getBody().getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.Cox);
+    }
+
+    @Test
+    void removePositionFromBoat() {
+        UUID boatId = UUID.randomUUID();
+        Boat boat = Boat.builder()
+                .id(boatId)
+                .name("Remove Boat")
+                .availablePositions(List.of(BoatRole.Cox))
+                .build();
+        when(boatService.removeAvailablePositionFromBoat(boatId, BoatRole.Coach)).thenReturn(boat);
+        var ret = boatController.removePositionFromBoat(boatId, BoatRole.Coach);
+        verify(boatService, times(1)).removeAvailablePositionFromBoat(boatId, BoatRole.Coach);
+        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(ret.getBody().getBoatId()).isEqualTo(boatId);
+        assertThat(ret.getBody().getName()).isEqualTo("Remove Boat");
+        assertThat(ret.getBody().getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.Cox);
+    }
+
+    @Test
+    void changeCoxCertificate() {
+        UUID boatId = UUID.randomUUID();
+        UUID newCertId = UUID.randomUUID();
+        Boat boat = Boat.builder()
+                .id(boatId)
+                .name("Remove Boat")
+                .availablePositions(List.of(BoatRole.Cox))
+                .coxCertificateId(newCertId)
+                .build();
+        when(boatService.changeCoxCertificate(boatId, newCertId)).thenReturn(boat);
+        var ret = boatController.changeCoxCertificate(boatId, newCertId);
+        verify(boatService, times(1)).changeCoxCertificate(boatId, newCertId);
+        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(ret.getBody().getBoatId()).isEqualTo(boatId);
+        assertThat(ret.getBody().getName()).isEqualTo("Remove Boat");
+        assertThat(ret.getBody().getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.Cox);
+        assertThat(ret.getBody().getCoxCertificateId()).isEqualTo(newCertId);
     }
 }

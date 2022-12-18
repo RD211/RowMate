@@ -1,20 +1,26 @@
 package nl.tudelft.sem.project.activities.controllers;
 
-import nl.tudelft.sem.project.activities.database.entities.Boat;
-import nl.tudelft.sem.project.activities.database.repository.BoatRepository;
 import nl.tudelft.sem.project.activities.BoatDTO;
+import nl.tudelft.sem.project.activities.database.entities.Boat;
+import nl.tudelft.sem.project.activities.database.entities.BoatService;
+import nl.tudelft.sem.project.activities.database.repository.BoatRepository;
+import nl.tudelft.sem.project.enums.BoatRole;
+import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 /**
  * Controller for Boat mappings.
  */
 @RestController
+@RequestMapping("/api/boats")
 public class BoatController {
 
     /**
@@ -24,15 +30,10 @@ public class BoatController {
     transient BoatRepository boatRepository;
 
     /**
-     * A testing mapping to make sure everything works.
-     *
-     * @return True
+     * The boat service.
      */
-    @PostMapping("/test")
-    public ResponseEntity<String> testMapping(BoatDTO boatDTO) {
-
-        return ResponseEntity.ok(boatDTO.getName());
-    }
+    @Autowired
+    transient BoatService boatService;
 
     /**
      * The add boat endpoint. There should be no ID in the request added.
@@ -41,8 +42,10 @@ public class BoatController {
      * @return The updated DTO of the object, now containing an ID.
      */
     @PostMapping("/add_boat")
-    public ResponseEntity<BoatDTO> addBoat(@RequestBody BoatDTO boatDTO) {
-        var boat = boatRepository.save(new Boat(boatDTO));
+    public ResponseEntity<BoatDTO> addBoat(
+            @Valid @Validated(Fictional.class) @RequestBody BoatDTO boatDTO
+    ) {
+        Boat boat = boatService.addBoat(new Boat(boatDTO));
         return ResponseEntity.ok(boat.toDTO());
     }
 
@@ -54,12 +57,95 @@ public class BoatController {
      * @return The boat if it exists.
      */
     @GetMapping("/get_boat")
-    public ResponseEntity<BoatDTO> getBoat(@RequestParam UUID boatId) {
-        Optional<Boat> boat = boatRepository.findById(boatId);
-        if (boat.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } else {
-            return ResponseEntity.ok(boat.get().toDTO());
-        }
+    public ResponseEntity<BoatDTO> getBoat(
+            @Valid @NotNull @RequestParam UUID boatId
+    ) {
+        Boat boat = boatService.getBoatById(boatId);
+        return ResponseEntity.ok(boat.toDTO());
     }
+
+    /**
+     * Renames a boat in the repository.
+     *
+     * @param boatId The ID of the boat to rename.
+     * @param newName The new name for the boat.
+     * @return A boat DTO object if the boat was successfully renamed. If there
+     *         was no such boat, then {@link HttpStatus#NOT_FOUND} is returned.
+     */
+    @PutMapping("/rename_boat")
+    public ResponseEntity<BoatDTO> renameBoat(
+            @Valid @NotNull @RequestBody UUID boatId,
+            @Valid @NotNull @RequestParam String newName
+    ) {
+        Boat boat = boatService.renameBoat(boatId, newName);
+        return ResponseEntity.ok(boat.toDTO());
+    }
+
+    /**
+     * Deletes a boat by a given ID.
+     *
+     * @param boatId The ID of the boat.
+     * @return {@link HttpStatus#OK} status if the boat was successfully removed.
+     *         If there was no such boat, then {@link HttpStatus#NOT_FOUND} is returned.
+     */
+    @DeleteMapping("/delete_boat")
+    public ResponseEntity<Void> deleteBoat(
+            @Valid @NotNull @RequestParam UUID boatId
+    ) {
+        boatService.deleteBoatById(boatId);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Adds a new available position to the boat.
+     *
+     * @param boatId The id of the boat.
+     * @param newPosition The new position to add.
+     * @return A boat DTO object if a position was successfully added. If there
+     *         was no such boat, then {@link HttpStatus#NOT_FOUND} is returned.
+     */
+    @PostMapping("/add_position_to_boat")
+    public ResponseEntity<BoatDTO> addPositionToBoat(
+            @Valid @NotNull @RequestBody UUID boatId,
+            @Valid @NotNull @RequestParam BoatRole newPosition
+    ) {
+        Boat boat = boatService.addAvailablePositionToBoat(boatId, newPosition);
+        return ResponseEntity.ok(boat.toDTO());
+    }
+
+    /**
+     * Removes an available position from the boat.
+     *
+     * @param boatId The id of the boat.
+     * @param removedPosition The position to remove.
+     * @return A baot DTO object if a position was successfully removed. If there
+     *         was no such boat, then {@link HttpStatus#NOT_FOUND} is returned. If there
+     *         was no such position, then {@link HttpStatus#CONFLICT} is returned.
+     */
+    @DeleteMapping("/remove_position_from_boat")
+    public ResponseEntity<BoatDTO> removePositionFromBoat(
+            @Valid @NotNull @RequestBody UUID boatId,
+            @Valid @NotNull @RequestParam BoatRole removedPosition
+    ) {
+        Boat boat = boatService.removeAvailablePositionFromBoat(boatId, removedPosition);
+        return ResponseEntity.ok(boat.toDTO());
+    }
+
+    /**
+     * Changes the certificate required by the cox for the boat.
+     *
+     * @param boatId The id of the boat.
+     * @param newCertificateId The id of the new certificate.
+     * @return A boat DTO object with the updated Boat upon success. If either
+     *         the boatId or certificateId is not found, then {@link HttpStatus#NOT_FOUND}.
+     */
+    @PutMapping("/change_cox_certificate")
+    public ResponseEntity<BoatDTO> changeCoxCertificate(
+            @Valid @NotNull @RequestParam UUID boatId,
+            @Valid @NotNull @RequestParam UUID newCertificateId
+    ) {
+        Boat boat = boatService.changeCoxCertificate(boatId, newCertificateId);
+        return ResponseEntity.ok(boat.toDTO());
+    }
+
 }
