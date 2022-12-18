@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 @Builder
-public class Boat implements DTOable<BoatDTO> {
+public class Boat {
 
     /**
      * Unique boat ID.
@@ -50,25 +50,4 @@ public class Boat implements DTOable<BoatDTO> {
      */
     @Column(nullable = false)
     public UUID coxCertificateId;
-
-    /**
-     * Creates a boat object from a DTO.
-     *
-     * @param dto DTO to create from.
-     */
-    public Boat(BoatDTO dto) {
-        this.id = dto.getBoatId();
-        this.name = dto.getName();
-        this.availablePositions = new ArrayList<>(dto.getAvailablePositions());
-        this.coxCertificateId = dto.getCoxCertificateId();
-    }
-
-    @Override
-    public BoatDTO toDTO() {
-        return new BoatDTO(
-                this.id,
-                this.name,
-                new ArrayList<>(this.availablePositions),
-                this.coxCertificateId);
-    }
 }
