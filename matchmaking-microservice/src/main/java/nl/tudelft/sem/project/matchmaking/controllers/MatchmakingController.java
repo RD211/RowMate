@@ -4,8 +4,10 @@ import nl.tudelft.sem.project.entities.activities.ActivityDTO;
 import nl.tudelft.sem.project.entities.utils.ActivityDeregisterRequestDTO;
 import nl.tudelft.sem.project.entities.utils.ActivityRegistrationRequestDTO;
 import nl.tudelft.sem.project.entities.utils.ActivityRequestDTO;
+import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.matchmaking.services.MatchmakingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,11 +30,28 @@ public class MatchmakingController {
      * @param dto the DTO containing all the data needed by the endpoint.
      * @return a list of activities, represing the activities the user can take part in.
      */
-    @PostMapping("find")
+    @PostMapping("list")
     public ResponseEntity<List<ActivityDTO>> findActivities(@RequestBody ActivityRequestDTO dto) {
-        return matchmakingService.findActivities(dto);
+        return new ResponseEntity<>(matchmakingService.findActivities(dto), HttpStatus.OK);
     }
 
+    /**
+     * Given a user, the time interval and a list of preferred roles,
+     * this endpoint finds an activity for the user automatically.
+     *
+     * @param strategy the strategy that the matchmaker should use. right now,
+     *        1 will find the user the earliest available strategy
+     *        and 2 will just assign the user to a random one.
+     * @param dto the dto containing the data
+     * @return a response string, informing the user of the activity he was assigned to.
+     */
+    @PostMapping("/find/{strategy}")
+    public ResponseEntity<String> autoFindActivity(
+            @PathVariable("strategy") MatchmakingStrategy strategy,
+            @RequestBody ActivityRequestDTO dto
+    ) {
+        return ResponseEntity.ok(matchmakingService.autoFindActivity(strategy, dto));
+    }
 
     /**
      * Registers a user to an activity, on the specified boat and role.

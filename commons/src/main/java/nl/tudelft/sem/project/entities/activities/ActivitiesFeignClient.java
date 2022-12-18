@@ -5,12 +5,17 @@ import org.springframework.cloud.openfeign.FeignClient;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.UUID;
 
 @FeignClient(name="activities-microservice", url="http://localhost:8085")
 public interface ActivitiesFeignClient {
 
     @PostMapping(value="/activity/find")
     List<ActivityDTO> findActivitiesFromFilter(@RequestBody ActivityFilterDTO dto);
+
+    @PostMapping(value = "/get_boat")
+    BoatDTO getBoatByUUID(@RequestParam UUID boatId);
 }

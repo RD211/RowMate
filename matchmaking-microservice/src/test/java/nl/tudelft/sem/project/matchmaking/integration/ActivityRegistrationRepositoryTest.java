@@ -1,16 +1,15 @@
 package nl.tudelft.sem.project.matchmaking.integration;
 
 
-import nl.tudelft.sem.project.entities.utils.ActivityRegistrationRequestDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
-import nl.tudelft.sem.project.matchmaking.domain.*;
+import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;
+import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistrationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-import java.util.List;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 

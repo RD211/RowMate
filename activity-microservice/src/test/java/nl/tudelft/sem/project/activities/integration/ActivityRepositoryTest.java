@@ -27,6 +27,7 @@ public class ActivityRepositoryTest {
     private ActivityRepository repo;
 
     protected UUID setUUID =  UUID.fromString("0000-00-00-00-000000");
+
     @BeforeEach
     void setUp() {
         Activity activity = Training.builder()
@@ -36,7 +37,6 @@ public class ActivityRepositoryTest {
                 .endTime(LocalDateTime.of(2022, 12, 18, 10, 50))
                 .boats(List.of(setUUID))
                 .build();
-
 
         entityManager.persist(activity);
     }

@@ -13,6 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ActivityRequestDTO {
 
-    protected UUID userId;
+    protected String userName;
     protected ActivityFilterDTO activityFilter;
 }

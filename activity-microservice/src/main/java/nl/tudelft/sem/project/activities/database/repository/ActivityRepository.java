@@ -16,7 +16,7 @@ public interface ActivityRepository extends JpaRepository<Activity, UUID> {
      * Finds the activities that are placed within the specified time slot.
      *
      * @param activityStartTime the minimum start time of the activity
-     * @param activityEndTime the maxium end time of the activity
+     * @param activityEndTime the maximum end time of the activity
      * @return a list of the activities that will happen inside the time interval
      */
     @Query(value = timeSlotQuery, nativeQuery = true)
