@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import nl.tudelft.sem.project.authentication.domain.providers.TimeProvider;
 import nl.tudelft.sem.project.authentication.Token;
+import nl.tudelft.sem.project.shared.Username;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -56,6 +57,11 @@ public class JwtTokenGenerator {
         return new Token(Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(timeProvider.getCurrentTime().toEpochMilli()))
                 .setExpiration(new Date(timeProvider.getCurrentTime().toEpochMilli() + JWT_TOKEN_VALIDITY))
+                .signWith(SignatureAlgorithm.HS512, jwtSecret).compact());
+    }
+
+    public Token generateTokenForResetPassword(Username username) {
+        return new Token(Jwts.builder().setSubject(username.getName())
                 .signWith(SignatureAlgorithm.HS512, jwtSecret).compact());
     }
 }
