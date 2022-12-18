@@ -96,13 +96,6 @@ public class MatchmakingService {
         return feasibleActivities;
     }
 
-    /**
-     * s.
-     *
-     * @param dto s
-     * @param activity  d
-     * @param feasibleActivities d
-     */
     private void determineFeasibility(
             ActivityRequestDTO dto,
             ActivityDTO activity,
@@ -216,6 +209,4 @@ public class MatchmakingService {
         activityRegistrationRepository.delete(registration.get());
         return true;
     }
-
-
 }
