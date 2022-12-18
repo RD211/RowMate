@@ -4,8 +4,6 @@ import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.activities.database.entities.Boat;
 import nl.tudelft.sem.project.activities.database.entities.BoatService;
 import nl.tudelft.sem.project.activities.database.repository.BoatRepository;
-import nl.tudelft.sem.project.activities.exceptions.BoatNotFoundException;
-import nl.tudelft.sem.project.activities.exceptions.RoleNotFoundException;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,12 +60,8 @@ public class BoatController {
     public ResponseEntity<BoatDTO> getBoat(
             @Valid @NotNull @RequestParam UUID boatId
     ) {
-        try {
-            Boat boat = boatService.getBoatById(boatId);
-            return ResponseEntity.ok(boat.toDTO());
-        } catch (BoatNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Boat boat = boatService.getBoatById(boatId);
+        return ResponseEntity.ok(boat.toDTO());
     }
 
     /**
@@ -78,17 +72,13 @@ public class BoatController {
      * @return A boat DTO object if the boat was successfully renamed. If there
      *         was no such boat, then {@link HttpStatus#NOT_FOUND} is returned.
      */
-    @PostMapping("/rename_boat")
+    @PutMapping("/rename_boat")
     public ResponseEntity<BoatDTO> renameBoat(
             @Valid @NotNull @RequestBody UUID boatId,
             @Valid @NotNull @RequestParam String newName
     ) {
-        try {
-            Boat boat = boatService.renameBoat(boatId, newName);
-            return ResponseEntity.ok(boat.toDTO());
-        } catch (BoatNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Boat boat = boatService.renameBoat(boatId, newName);
+        return ResponseEntity.ok(boat.toDTO());
     }
 
     /**
@@ -102,12 +92,8 @@ public class BoatController {
     public ResponseEntity<Void> deleteBoat(
             @Valid @NotNull @RequestParam UUID boatId
     ) {
-        try {
-            boatService.deleteBoatById(boatId);
-            return ResponseEntity.ok().build();
-        } catch (BoatNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        boatService.deleteBoatById(boatId);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -123,12 +109,8 @@ public class BoatController {
             @Valid @NotNull @RequestBody UUID boatId,
             @Valid @NotNull @RequestParam BoatRole newPosition
     ) {
-        try {
-            Boat boat = boatService.addAvailablePositionToBoat(boatId, newPosition);
-            return ResponseEntity.ok(boat.toDTO());
-        } catch (BoatNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Boat boat = boatService.addAvailablePositionToBoat(boatId, newPosition);
+        return ResponseEntity.ok(boat.toDTO());
     }
 
     /**
@@ -145,14 +127,25 @@ public class BoatController {
             @Valid @NotNull @RequestBody UUID boatId,
             @Valid @NotNull @RequestParam BoatRole removedPosition
     ) {
-        try {
-            Boat boat = boatService.removeAvailablePositionFromBoat(boatId, removedPosition);
-            return ResponseEntity.ok(boat.toDTO());
-        } catch (BoatNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (RoleNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        Boat boat = boatService.removeAvailablePositionFromBoat(boatId, removedPosition);
+        return ResponseEntity.ok(boat.toDTO());
+    }
+
+    /**
+     * Changes the certificate required by the cox for the boat.
+     *
+     * @param boatId The id of the boat.
+     * @param newCertificateId The id of the new certificate.
+     * @return A boat DTO object with the updated Boat upon success. If either
+     *         the boatId or certificateId is not found, then {@link HttpStatus#NOT_FOUND}.
+     */
+    @PutMapping("/change_cox_certificate")
+    public ResponseEntity<BoatDTO> changeCoxCertificate(
+            @Valid @NotNull @RequestParam UUID boatId,
+            @Valid @NotNull @RequestParam UUID newCertificateId
+    ) {
+        Boat boat = boatService.changeCoxCertificate(boatId, newCertificateId);
+        return ResponseEntity.ok(boat.toDTO());
     }
 
 }

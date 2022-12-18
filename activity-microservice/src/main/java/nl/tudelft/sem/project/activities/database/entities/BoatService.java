@@ -95,13 +95,27 @@ public class BoatService {
      * @param id The id of the boat to change.
      * @param role Role to add.
      * @return The boat with a position added.
-     * @throws BoatNotFoundException Thron if there is no such boat.
+     * @throws BoatNotFoundException Thrown if there is no such boat.
      */
     public Boat addAvailablePositionToBoat(UUID id, BoatRole role) throws BoatNotFoundException {
         var boat = this.getBoatById(id);
         List<BoatRole> rolesMutable = new ArrayList<>(boat.getAvailablePositions());
         rolesMutable.add(role);
         boat.setAvailablePositions(rolesMutable);
+        return boatRepository.save(boat);
+    }
+
+    /**
+     * Changes the required certificate for the boat.
+     *
+     * @param boatID The id of the boat to edit.
+     * @param newCertificateID The id of the new certificate to require.
+     * @return The boat with the certificate changed.
+     * @throws BoatNotFoundException Thrown if there is no such boat.
+     */
+    public Boat changeCoxCertificate(UUID boatID, UUID newCertificateID) throws BoatNotFoundException {
+        var boat = this.getBoatById(boatID);
+        boat.setCoxCertificateId(newCertificateID);
         return boatRepository.save(boat);
     }
 }

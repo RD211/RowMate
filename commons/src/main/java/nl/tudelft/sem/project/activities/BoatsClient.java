@@ -4,10 +4,7 @@ import feign.FeignException;
 import feign.Headers;
 import nl.tudelft.sem.project.enums.BoatRole;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -22,7 +19,7 @@ public interface BoatsClient {
     @Headers("Content-Type: application/json")
     BoatDTO getBoat(@PathVariable(value = "boatId") UUID boatId) throws FeignException;
 
-    @PostMapping("/rename_boat?newName={newName}")
+    @PutMapping("/rename_boat?newName={newName}")
     @Headers("Content-Type: application/json")
     BoatDTO renameBoat(UUID boatId, @PathVariable(value = "newName") String newName) throws FeignException;
 
@@ -37,4 +34,8 @@ public interface BoatsClient {
     @DeleteMapping("/delete_position_from_boat?removePosition={removedPosition}")
     @Headers("Content-Type: application/json")
     BoatDTO removePositionFromBoat(UUID boatId, @PathVariable(value = "removedPosition") BoatRole removedPosition) throws FeignException;
+
+    @PutMapping("/change_cox_certificate?boatId={boatId}&newCertificateId={newCertificateId}")
+    @Headers("Content-Type: application/json")
+    BoatDTO changeCoxCertificate(@PathVariable(value = "boatId") UUID boatId, @PathVariable(value = "newCertificateId") UUID newCertificateId);
 }

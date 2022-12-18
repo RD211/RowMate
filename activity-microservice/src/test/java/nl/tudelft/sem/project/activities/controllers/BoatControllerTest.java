@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
@@ -92,11 +93,9 @@ class BoatControllerTest {
                 .build();
 
         when(boatService.getBoatById(boatId)).thenThrow(BoatNotFoundException.class);
-        var ret = boatController.getBoat(boatId);
+
+        assertThatThrownBy(() -> boatController.getBoat(boatId)).isInstanceOf(BoatNotFoundException.class);
         verify(boatService, times(1)).getBoatById(boatId);
-        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        //assertThat(ret.getBody()).isNotNull();
-        //assertThat(ret.getBody().toString()).isNotEmpty();
     }
 
     @Test
@@ -127,11 +126,9 @@ class BoatControllerTest {
                 .build();
 
         when(boatService.renameBoat(boatId, "New Name")).thenThrow(BoatNotFoundException.class);
-        var ret = boatController.renameBoat(boatId, "New Name");
+        assertThatThrownBy(() -> boatController.renameBoat(boatId, "New Name")).isInstanceOf(BoatNotFoundException.class);
         verify(boatService, times(1)).renameBoat(boatId, "New Name");
-        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        //assertThat(ret.getBody()).isNotNull();
-        //assertThat(ret.getBody().toString()).isNotEmpty();
+
     }
 
     @Test
@@ -147,9 +144,8 @@ class BoatControllerTest {
     void deleteBoatNotFound() {
         UUID boatId = UUID.randomUUID();
         doThrow(BoatNotFoundException.class).when(boatService).deleteBoatById(boatId);
-        var ret = boatController.deleteBoat(boatId);
+        assertThatThrownBy(() -> boatController.deleteBoat(boatId)).isInstanceOf(BoatNotFoundException.class);
         verify(boatService, times(1)).deleteBoatById(boatId);
-        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -184,5 +180,25 @@ class BoatControllerTest {
         assertThat(ret.getBody().getBoatId()).isEqualTo(boatId);
         assertThat(ret.getBody().getName()).isEqualTo("Remove Boat");
         assertThat(ret.getBody().getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.Cox);
+    }
+
+    @Test
+    void changeCoxCertificate() {
+        UUID boatId = UUID.randomUUID();
+        UUID newCertId = UUID.randomUUID();
+        Boat boat = Boat.builder()
+                .id(boatId)
+                .name("Remove Boat")
+                .availablePositions(List.of(BoatRole.Cox))
+                .coxCertificateId(newCertId)
+                .build();
+        when(boatService.changeCoxCertificate(boatId, newCertId)).thenReturn(boat);
+        var ret = boatController.changeCoxCertificate(boatId, newCertId);
+        verify(boatService, times(1)).changeCoxCertificate(boatId, newCertId);
+        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(ret.getBody().getBoatId()).isEqualTo(boatId);
+        assertThat(ret.getBody().getName()).isEqualTo("Remove Boat");
+        assertThat(ret.getBody().getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.Cox);
+        assertThat(ret.getBody().getCoxCertificateId()).isEqualTo(newCertId);
     }
 }
