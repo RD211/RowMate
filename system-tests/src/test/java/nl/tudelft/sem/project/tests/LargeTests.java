@@ -1,5 +1,11 @@
 package nl.tudelft.sem.project.tests;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import nl.tudelft.sem.project.authentication.AppUserModel;
+import nl.tudelft.sem.project.authentication.Password;
+import nl.tudelft.sem.project.authentication.ResetPasswordModel;
+import nl.tudelft.sem.project.authentication.Token;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.gateway.*;
@@ -8,6 +14,7 @@ import nl.tudelft.sem.project.shared.Organization;
 import nl.tudelft.sem.project.shared.Username;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -332,5 +339,80 @@ public class LargeTests {
         assertEquals(username, user.getUsername());
         assertEquals(email, user.getEmail());
 
+    }
+
+    @Test
+    void changePasswordWithPreviousTest() {
+        var username = "daviddavid";
+        var password = "daviddavid";
+        var newPassword = "daviddavid2";
+        var email = "daviddavid@daviddavid.daviddavid";
+        gatewayAuthenticationClient.register(
+                CreateUserModel.builder()
+                        .username(username)
+                        .email(email)
+                        .password(password).build()
+        );
+
+        gatewayAuthenticationClient.resetPasswordWithPrevious(
+                new ResetPasswordModel(
+                        new AppUserModel(
+                                new Username(username),
+                                new Password(password)
+                        ),
+                        new Password(newPassword)
+                )
+        );
+        var newToken = gatewayAuthenticationClient.authenticate(
+                AuthenticateUserModel.builder()
+                        .username(username)
+                        .password(newPassword).build()
+        );
+        assertNotNull(newToken);
+    }
+
+    @Test
+    void getResetPasswordTokenTest() {
+        var username = "daviddavid3";
+        var password = "daviddavid3";
+        var email = "daviddavid@daviddavid3.daviddavid";
+        gatewayAuthenticationClient.register(
+                CreateUserModel.builder()
+                        .username(username)
+                        .email(email)
+                        .password(password).build()
+        );
+
+        assertDoesNotThrow(()->gatewayAuthenticationClient.resetPasswordWithEmail(
+                new Username("daviddavid3")
+        ));
+    }
+
+    @Test
+    void resetPasswordWithTokenTest() {
+        var username = "daviddavid4";
+        var password = "daviddavid4";
+        var newPassword = "daviddavid5";
+        var email = "daviddavid4@daviddavid4.daviddavid4";
+        gatewayAuthenticationClient.register(
+                CreateUserModel.builder()
+                        .username(username)
+                        .email(email)
+                        .password(password).build()
+        );
+
+        assertDoesNotThrow(()->gatewayAuthenticationClient.resetPasswordWithEmail(
+                new Username("daviddavid4")
+        ));
+        var token = Jwts.builder().setSubject(username)
+                .signWith(SignatureAlgorithm.HS512, "exampleSecret").compact();
+        gatewayAuthenticationClient.resetPassword(token, newPassword);
+
+        var newToken = gatewayAuthenticationClient.authenticate(
+                AuthenticateUserModel.builder()
+                        .username(username)
+                        .password(newPassword).build()
+        );
+        assertNotNull(newToken);
     }
 }
