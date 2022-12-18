@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@FeignClient(url = "http://localhost:8085/api/boats")
+@FeignClient(url = "http://localhost:8085/api/boats", name = "boatsClient")
 public interface BoatsClient {
 
     @PostMapping("/add_boat")
