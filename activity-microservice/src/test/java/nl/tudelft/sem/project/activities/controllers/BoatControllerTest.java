@@ -2,6 +2,7 @@ package nl.tudelft.sem.project.activities.controllers;
 
 import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.activities.database.entities.Boat;
+import nl.tudelft.sem.project.activities.database.entities.BoatConverterService;
 import nl.tudelft.sem.project.activities.database.entities.BoatService;
 import nl.tudelft.sem.project.activities.database.repository.BoatRepository;
 import nl.tudelft.sem.project.activities.exceptions.BoatNotFoundException;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -36,6 +38,9 @@ class BoatControllerTest {
     @Mock
     BoatService boatService;
 
+    @Mock
+    BoatConverterService boatConverterService;
+
     @InjectMocks
     BoatController boatController;
 
@@ -54,6 +59,9 @@ class BoatControllerTest {
                 .name("Test Boat")
                 .availablePositions(List.of(BoatRole.Cox))
                 .build();
+
+        when(boatConverterService.toEntity(boatDTO)).thenReturn(retBoat);
+        when(boatConverterService.toDTO(retBoat)).thenReturn(boatDTO.withBoatId(retId));
 
         when(boatService.addBoat(argThat(x -> x.getName().equals("Test Boat")))).thenReturn(retBoat);
 
@@ -75,6 +83,13 @@ class BoatControllerTest {
                 .build();
 
         when(boatService.getBoatById(boatId)).thenReturn(boat);
+
+        when(boatConverterService.toDTO(boat)).thenReturn(
+                BoatDTO.builder().boatId(boat.getId())
+                        .availablePositions(boat.getAvailablePositions())
+                        .name(boat.getName()).build()
+        );
+
         var ret = boatController.getBoat(boatId);
         verify(boatService, times(1)).getBoatById(boatId);
         assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -91,7 +106,11 @@ class BoatControllerTest {
                 .name("Epic Boat")
                 .availablePositions(List.of(BoatRole.PortSideRower))
                 .build();
-
+        when(boatConverterService.toDTO(boat)).thenReturn(
+                BoatDTO.builder().boatId(boat.getId())
+                        .availablePositions(boat.getAvailablePositions())
+                        .name(boat.getName()).build()
+        );
         when(boatService.getBoatById(boatId)).thenThrow(BoatNotFoundException.class);
 
         assertThatThrownBy(() -> boatController.getBoat(boatId)).isInstanceOf(BoatNotFoundException.class);
@@ -107,6 +126,11 @@ class BoatControllerTest {
                 .availablePositions(List.of(BoatRole.PortSideRower))
                 .build();
 
+        when(boatConverterService.toDTO(newBoat)).thenReturn(
+                BoatDTO.builder().boatId(newBoat.getId())
+                        .availablePositions(newBoat.getAvailablePositions())
+                        .name(newBoat.getName()).build()
+        );
         when(boatService.renameBoat(boatId, "New Name Boat")).thenReturn(newBoat);
         var ret = boatController.renameBoat(boatId, "New Name Boat");
         verify(boatService, times(1)).renameBoat(boatId, "New Name Boat");
@@ -156,6 +180,11 @@ class BoatControllerTest {
                 .name("Added Boat")
                 .availablePositions(List.of(BoatRole.Cox))
                 .build();
+        when(boatConverterService.toDTO(boat)).thenReturn(
+                BoatDTO.builder().boatId(boat.getId())
+                        .availablePositions(boat.getAvailablePositions())
+                        .name(boat.getName()).build()
+        );
         when(boatService.addAvailablePositionToBoat(boatId, BoatRole.Cox)).thenReturn(boat);
         var ret = boatController.addPositionToBoat(boatId, BoatRole.Cox);
         verify(boatService, times(1)).addAvailablePositionToBoat(boatId, BoatRole.Cox);
@@ -173,6 +202,11 @@ class BoatControllerTest {
                 .name("Remove Boat")
                 .availablePositions(List.of(BoatRole.Cox))
                 .build();
+        when(boatConverterService.toDTO(boat)).thenReturn(
+                BoatDTO.builder().boatId(boat.getId())
+                        .availablePositions(boat.getAvailablePositions())
+                        .name(boat.getName()).build()
+        );
         when(boatService.removeAvailablePositionFromBoat(boatId, BoatRole.Coach)).thenReturn(boat);
         var ret = boatController.removePositionFromBoat(boatId, BoatRole.Coach);
         verify(boatService, times(1)).removeAvailablePositionFromBoat(boatId, BoatRole.Coach);
@@ -192,6 +226,12 @@ class BoatControllerTest {
                 .availablePositions(List.of(BoatRole.Cox))
                 .coxCertificateId(newCertId)
                 .build();
+        when(boatConverterService.toDTO(boat)).thenReturn(
+                BoatDTO.builder().boatId(boat.getId())
+                        .availablePositions(boat.getAvailablePositions())
+                        .name(boat.getName()).build()
+                        .withCoxCertificateId(boat.getCoxCertificateId())
+        );
         when(boatService.changeCoxCertificate(boatId, newCertId)).thenReturn(boat);
         var ret = boatController.changeCoxCertificate(boatId, newCertId);
         verify(boatService, times(1)).changeCoxCertificate(boatId, newCertId);
