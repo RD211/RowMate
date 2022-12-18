@@ -45,6 +45,13 @@ public class Boat implements DTOable<BoatDTO> {
     protected List<BoatRole> availablePositions;
 
     /**
+     * Id of the certificate that is required for a cox to be able to operate
+     * the boat.
+     */
+    @Column(nullable = false)
+    public UUID coxCertificateId;
+
+    /**
      * Creates a boat object from a DTO.
      *
      * @param dto DTO to create from.
@@ -53,6 +60,7 @@ public class Boat implements DTOable<BoatDTO> {
         this.id = dto.getBoatId();
         this.name = dto.getName();
         this.availablePositions = new ArrayList<>(dto.getAvailablePositions());
+        this.coxCertificateId = dto.getCoxCertificateId();
     }
 
     @Override
@@ -60,6 +68,7 @@ public class Boat implements DTOable<BoatDTO> {
         return new BoatDTO(
                 this.id,
                 this.name,
-                new ArrayList<>(this.availablePositions));
+                new ArrayList<>(this.availablePositions),
+                this.coxCertificateId);
     }
 }
