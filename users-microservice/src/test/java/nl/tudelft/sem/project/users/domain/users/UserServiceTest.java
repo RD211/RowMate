@@ -1,9 +1,10 @@
 package nl.tudelft.sem.project.users.domain.users;
 
 import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserEmail;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
-import nl.tudelft.sem.project.users.exceptions.EmailInUseException;
-import nl.tudelft.sem.project.users.exceptions.UserNotFoundException;
+import nl.tudelft.sem.project.users.EmailInUseException;
+import nl.tudelft.sem.project.users.UserNotFoundException;
 import nl.tudelft.sem.project.shared.UsernameInUseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -41,32 +41,26 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         joe = User.builder()
-                .id(UUID.randomUUID())
                 .username(new Username("Joey"))
                 .email(new UserEmail("Joe@joe.joe"))
                 .build();
         susJoe = User.builder()
-                .id(UUID.randomUUID())
                 .username(new Username("Joey"))
                 .email(new UserEmail("Joe2@joe.joe"))
                 .build();
         michael = User.builder()
-                .id(UUID.randomUUID())
                 .username(new Username("Michael"))
                 .email(new UserEmail("mike@mike.com"))
                 .build();
         susMichael = User.builder()
-                .id(UUID.randomUUID())
                 .username(new Username("Michaele"))
                 .email(new UserEmail("mike@mike.com"))
                 .build();
         richard = User.builder()
-                .id(UUID.randomUUID())
                 .username(new Username("Rich"))
                 .email(new UserEmail("rich@rich.rich"))
                 .build();
         otherRichard = User.builder()
-                .id(UUID.randomUUID())
                 .username(new Username("Richy"))
                 .email(new UserEmail("richy@richy.com"))
                 .build();
@@ -75,13 +69,13 @@ class UserServiceTest {
         when(userRepository.findByEmail(michael.getEmail())).thenReturn(Optional.ofNullable(michael));
         when(userRepository.findByEmail(richard.getEmail())).thenReturn(Optional.ofNullable(richard));
 
-        when(userRepository.findById(joe.getId())).thenReturn(Optional.ofNullable(joe));
-        when(userRepository.findById(michael.getId())).thenReturn(Optional.ofNullable(michael));
-        when(userRepository.findById(richard.getId())).thenReturn(Optional.ofNullable(richard));
+        when(userRepository.findByUsername(joe.getUsername())).thenReturn(Optional.ofNullable(joe));
+        when(userRepository.findByUsername(michael.getUsername())).thenReturn(Optional.ofNullable(michael));
+        when(userRepository.findByUsername(richard.getUsername())).thenReturn(Optional.ofNullable(richard));
 
-        when(userRepository.findById(susJoe.getId())).thenReturn(Optional.empty());
-        when(userRepository.findById(susMichael.getId())).thenReturn(Optional.empty());
-        when(userRepository.findById(otherRichard.getId())).thenReturn(Optional.empty());
+        when(userRepository.findByUsername(susJoe.getUsername())).thenReturn(Optional.empty());
+        when(userRepository.findByUsername(susMichael.getUsername())).thenReturn(Optional.empty());
+        when(userRepository.findByUsername(otherRichard.getUsername())).thenReturn(Optional.empty());
 
         when(userRepository.findByUsername(joe.getUsername())).thenReturn(Optional.ofNullable(joe));
         when(userRepository.findByUsername(michael.getUsername())).thenReturn(Optional.ofNullable(michael));
@@ -134,17 +128,6 @@ class UserServiceTest {
         verify(userRepository, times(0)).save(any(User.class));
     }
 
-    @Test
-    void deleteUserByIdValid() {
-        assertDoesNotThrow(() -> userService.deleteUserById(joe.getId()));
-        verify(userRepository, times(1)).delete(joe);
-    }
-
-    @Test
-    void deleteUserByIdInvalid() {
-        assertThrows(UserNotFoundException.class, () -> userService.deleteUserById(susJoe.getId()));
-        verify(userRepository, times(0)).delete(any(User.class));
-    }
 
     @Test
     void deleteUserByEmailValid() {
@@ -170,16 +153,6 @@ class UserServiceTest {
         verify(userRepository, times(0)).delete(any(User.class));
     }
 
-    @Test
-    void getUserByIdValid() {
-        assertEquals(joe, userService.getUserById(joe.getId()));
-        verify(userRepository, times(1)).findById(joe.getId());
-    }
-
-    @Test
-    void getUserByIdInvalid() {
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById(susJoe.getId()));
-    }
 
     @Test
     void getUserByUsernameValid() {
@@ -205,12 +178,12 @@ class UserServiceTest {
 
     @Test
     void existsByUsernameTrue() {
-        assertTrue(userService.existsUsername(joe.getUsername()));
+        assertTrue(userService.existsByUsername(joe.getUsername()));
     }
 
     @Test
     void existsByUsernameFalse() {
-        assertFalse(userService.existsUsername(susMichael.getUsername()));
+        assertFalse(userService.existsByUsername(susMichael.getUsername()));
     }
 
     @Test

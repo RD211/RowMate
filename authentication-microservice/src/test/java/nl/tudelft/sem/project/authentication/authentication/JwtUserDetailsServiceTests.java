@@ -1,8 +1,5 @@
 package nl.tudelft.sem.project.authentication.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 import nl.tudelft.sem.project.authentication.domain.user.AppUser;
 import nl.tudelft.sem.project.authentication.domain.user.HashedPassword;
 import nl.tudelft.sem.project.authentication.domain.user.UserRepository;
@@ -17,6 +14,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -37,7 +37,7 @@ public class JwtUserDetailsServiceTests {
         final Username testUser = new Username("SomeUser");
         final HashedPassword testHashedPassword = new HashedPassword("password123Hash");
 
-        AppUser appUser = new AppUser(testUser, testHashedPassword);
+        AppUser appUser = new AppUser(testUser, testHashedPassword, false);
         userRepository.save(appUser);
 
         // Act
@@ -56,7 +56,7 @@ public class JwtUserDetailsServiceTests {
         final Username testUser = new Username("AnotherUser");
         final String testPasswordHash = "password123Hash";
 
-        AppUser appUser = new AppUser(testUser, new HashedPassword(testPasswordHash));
+        AppUser appUser = new AppUser(testUser, new HashedPassword(testPasswordHash), false);
         userRepository.save(appUser);
 
         // Act

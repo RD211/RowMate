@@ -35,14 +35,15 @@ public class RegistrationService {
      * @return the appUser that was created.
      * @throws Exception if the operation had a failure.
      */
-    public AppUser registerUser(@NonNull Username username, @NonNull Password password) throws Exception {
+    public AppUser registerUser(@NonNull Username username, @NonNull Password password, boolean isAdmin) throws Exception {
 
         if (checkUsernameIsUnique(username)) {
             // Hash password
             HashedPassword hashedPassword = passwordHashingService.hash(password);
 
             // Create new account
-            AppUser user = new AppUser(username, hashedPassword);
+            AppUser user = new AppUser(username, hashedPassword, isAdmin);
+
             userRepository.save(user);
 
             return user;
