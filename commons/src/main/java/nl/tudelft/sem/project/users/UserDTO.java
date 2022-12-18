@@ -2,7 +2,7 @@ package nl.tudelft.sem.project.users;
 
 import lombok.*;
 import nl.tudelft.sem.project.DTO;
-import nl.tudelft.sem.project.DateInterval;
+import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.shared.Organization;
@@ -21,18 +21,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@With
 public class UserDTO implements DTO {
-    /**
-     * The user's ID.
-     */
-    @NotNull(groups = {Existing.class})
-    protected UUID id;
-
     /**
      * User's name.
      */
-    @NotNull(groups = {Fictional.class})
-    @Size(min = 4, max = 50, message = "Name must be between 4 and 50 characters.", groups={Fictional.class})
+    @NotNull(groups = {Existing.class})
+    @Size(min = 4, max = 50, message = "Name must be between 4 and 50 characters.", groups = {Existing.class})
     protected String username;
 
     /**

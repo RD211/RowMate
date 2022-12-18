@@ -1,5 +1,9 @@
 package nl.tudelft.sem.project.authentication.domain.user;
 
+import lombok.NonNull;
+import nl.tudelft.sem.project.authentication.Password;
+import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.shared.UsernameInUseException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -7,44 +11,48 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RegistrationService {
-    private final transient UserRepository userRepository;
-    private final transient PasswordHashingService passwordHashingService;
+
+    transient UserRepository userRepository;
+    transient PasswordHashingService passwordHashingService;
 
     /**
-     * Instantiates a new UserService.
+     * Registration service constructor.
      *
-     * @param userRepository  the user repository
-     * @param passwordHashingService the password encoder
+     * @param userRepository the user repository.
+     * @param passwordHashingService the service used to hash passwords.
      */
     public RegistrationService(UserRepository userRepository, PasswordHashingService passwordHashingService) {
         this.userRepository = userRepository;
         this.passwordHashingService = passwordHashingService;
     }
 
-    /**
-     * Register a new user.
-     *
-     * @param netId    The NetID of the user
-     * @param password The password of the user
-     * @throws Exception if the user already exists
-     */
-    public AppUser registerUser(NetId netId, Password password) throws Exception {
 
-        if (checkNetIdIsUnique(netId)) {
+    /**
+     * Registers a user.
+     *
+     * @param username the username of the user. must be non-null.
+     * @param password the password of the user. Must be non-null.
+     * @return the appUser that was created.
+     * @throws Exception if the operation had a failure.
+     */
+    public AppUser registerUser(@NonNull Username username, @NonNull Password password, boolean isAdmin) throws Exception {
+
+        if (checkUsernameIsUnique(username)) {
             // Hash password
             HashedPassword hashedPassword = passwordHashingService.hash(password);
 
             // Create new account
-            AppUser user = new AppUser(netId, hashedPassword);
+            AppUser user = new AppUser(username, hashedPassword, isAdmin);
+
             userRepository.save(user);
 
             return user;
         }
 
-        throw new NetIdAlreadyInUseException(netId);
+        throw new UsernameInUseException("Username is in use. Try a different one.");
     }
 
-    public boolean checkNetIdIsUnique(NetId netId) {
-        return !userRepository.existsByNetId(netId);
+    public boolean checkUsernameIsUnique(Username username) {
+        return !userRepository.existsByUsername(username);
     }
 }

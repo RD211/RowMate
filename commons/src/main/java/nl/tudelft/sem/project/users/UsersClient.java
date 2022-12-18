@@ -2,11 +2,11 @@ package nl.tudelft.sem.project.users;
 
 import feign.FeignException;
 import feign.Headers;
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.models.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 
 @FeignClient(url = "http://localhost:8084/api/users", name = "usersClient")
 public interface UsersClient {
@@ -14,13 +14,17 @@ public interface UsersClient {
     @Headers("Content-Type: application/json")
     UserDTO addUser(UserDTO owner) throws FeignException;
 
-    @GetMapping("/get_user_by_id?userId={userId}")
+    @GetMapping("/get_user_by_username?username={username}")
     @Headers("Content-Type: application/json")
-    UserDTO getUserById(@PathVariable(value = "userId") UUID userId) throws FeignException;
+    UserDTO getUserByUsername(@PathVariable(value = "username") Username username) throws FeignException;
 
     @PutMapping("/change_gender")
     @Headers("Content-Type: application/json")
     UserDTO changeGenderOfUser(ChangeGenderUserModel changeGenderUserModel) throws FeignException;
+
+    @PutMapping("/change_organization")
+    @Headers("Content-Type: application/json")
+    UserDTO changeOrganizationOfUser(ChangeOrganizationUserModel changeOrganizationUserModel) throws FeignException;
 
     @PutMapping("/change_amateur")
     @Headers("Content-Type: application/json")
@@ -29,7 +33,6 @@ public interface UsersClient {
     @PostMapping("/add_availability")
     @Headers("Content-Type: application/json")
     UserDTO addAvailabilityToUser(AddAvailabilityUserModel addAvailabilityUserModel) throws FeignException;
-
 
     @DeleteMapping("/remove_availability")
     @Headers("Content-Type: application/json")
@@ -52,4 +55,12 @@ public interface UsersClient {
     @DeleteMapping("/remove_certificate")
     @Headers("Content-Type: application/json")
     UserDTO removeCertificateFromUser(RemoveCertificateUserModel removeCertificateUserModel) throws FeignException;
+
+    @DeleteMapping("/delete_user_by_username")
+    @Headers("Content-Type: application/json")
+    void deleteUserByUsername(Username username) throws FeignException;
+
+    @DeleteMapping("/delete_user_by_email")
+    @Headers("Content-Type: application/json")
+    void deleteUserByEmail(UserEmail email) throws FeignException;
 }

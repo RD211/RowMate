@@ -12,14 +12,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import nl.tudelft.sem.project.authentication.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.project.authentication.domain.user.AppUser;
 import nl.tudelft.sem.project.authentication.domain.user.HashedPassword;
-import nl.tudelft.sem.project.authentication.domain.user.NetId;
-import nl.tudelft.sem.project.authentication.domain.user.Password;
+import nl.tudelft.sem.project.authentication.Password;
 import nl.tudelft.sem.project.authentication.domain.user.PasswordHashingService;
 import nl.tudelft.sem.project.authentication.domain.user.UserRepository;
 import nl.tudelft.sem.project.authentication.framework.integration.utils.JsonUtil;
-import nl.tudelft.sem.project.authentication.models.AuthenticationRequestModel;
-import nl.tudelft.sem.project.authentication.models.AuthenticationResponseModel;
-import nl.tudelft.sem.project.authentication.models.RegistrationRequestModel;
+import nl.tudelft.sem.project.authentication.AppUserModel;
+import nl.tudelft.sem.project.authentication.Token;
+import nl.tudelft.sem.project.shared.Username;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,84 +60,85 @@ public class UsersTests {
     @Test
     public void register_withValidData_worksCorrectly() throws Exception {
         // Arrange
-        final NetId testUser = new NetId("SomeUser");
+        final Username testUser = new Username("SomeUser");
         final Password testPassword = new Password("password123");
         final HashedPassword testHashedPassword = new HashedPassword("hashedTestPassword");
         when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
 
-        RegistrationRequestModel model = new RegistrationRequestModel();
-        model.setNetId(testUser.toString());
-        model.setPassword(testPassword.toString());
+        AppUserModel model = new AppUserModel();
+        model.setUsername(testUser);
+        model.setPassword(testPassword);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/register")
+        ResultActions resultActions = mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model)));
 
         // Assert
         resultActions.andExpect(status().isOk());
 
-        AppUser savedUser = userRepository.findByNetId(testUser).orElseThrow();
+        AppUser savedUser = userRepository.findByUsername(testUser).orElseThrow();
 
-        assertThat(savedUser.getNetId()).isEqualTo(testUser);
+        assertThat(savedUser.getUsername()).isEqualTo(testUser);
         assertThat(savedUser.getPassword()).isEqualTo(testHashedPassword);
     }
 
     @Test
     public void register_withExistingUser_throwsException() throws Exception {
         // Arrange
-        final NetId testUser = new NetId("SomeUser");
+        final Username testUser = new Username("SomeUser");
         final Password newTestPassword = new Password("password456");
         final HashedPassword existingTestPassword = new HashedPassword("password123");
 
-        AppUser existingAppUser = new AppUser(testUser, existingTestPassword);
+        AppUser existingAppUser = new AppUser(testUser, existingTestPassword, false);
         userRepository.save(existingAppUser);
 
-        RegistrationRequestModel model = new RegistrationRequestModel();
-        model.setNetId(testUser.toString());
-        model.setPassword(newTestPassword.toString());
+        AppUserModel model = new AppUserModel();
+        model.setUsername(testUser);
+        model.setPassword(newTestPassword);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/register")
+        ResultActions resultActions = mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model)));
 
         // Assert
         resultActions.andExpect(status().isBadRequest());
 
-        AppUser savedUser = userRepository.findByNetId(testUser).orElseThrow();
+        AppUser savedUser = userRepository.findByUsername(testUser).orElseThrow();
 
-        assertThat(savedUser.getNetId()).isEqualTo(testUser);
+        assertThat(savedUser.getUsername()).isEqualTo(testUser);
         assertThat(savedUser.getPassword()).isEqualTo(existingTestPassword);
     }
 
     @Test
     public void login_withValidUser_returnsToken() throws Exception {
         // Arrange
-        final NetId testUser = new NetId("SomeUser");
+        final Username testUser = new Username("SomeUser");
         final Password testPassword = new Password("password123");
         final HashedPassword testHashedPassword = new HashedPassword("hashedTestPassword");
         when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
 
         when(mockAuthenticationManager.authenticate(argThat(authentication ->
-                !testUser.toString().equals(authentication.getPrincipal())
-                    || !testPassword.toString().equals(authentication.getCredentials())
+                        !testUser.getName().equals(authentication.getPrincipal().toString())
+        || !testPassword.getPasswordValue().equals(authentication.getCredentials().toString())
+
         ))).thenThrow(new UsernameNotFoundException("User not found"));
 
-        final String testToken = "testJWTToken";
+        final Token testToken = new Token("testJWTToken");
         when(mockJwtTokenGenerator.generateToken(
-            argThat(userDetails -> userDetails.getUsername().equals(testUser.toString())))
+            argThat(userDetails -> userDetails.getUsername().equals(testUser.getName())))
         ).thenReturn(testToken);
 
-        AppUser appUser = new AppUser(testUser, testHashedPassword);
+        AppUser appUser = new AppUser(testUser, testHashedPassword, false);
         userRepository.save(appUser);
 
-        AuthenticationRequestModel model = new AuthenticationRequestModel();
-        model.setNetId(testUser.toString());
-        model.setPassword(testPassword.toString());
+        AppUserModel model = new AppUserModel();
+        model.setUsername(testUser);
+        model.setPassword(testPassword);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/authenticate")
+        ResultActions resultActions = mockMvc.perform(post("/api/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model)));
 
@@ -148,78 +148,66 @@ public class UsersTests {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        AuthenticationResponseModel responseModel = JsonUtil.deserialize(result.getResponse().getContentAsString(),
-                AuthenticationResponseModel.class);
+        Token responseModel = JsonUtil.deserialize(result.getResponse().getContentAsString(),
+                Token.class);
 
-        assertThat(responseModel.getToken()).isEqualTo(testToken);
-
-        verify(mockAuthenticationManager).authenticate(argThat(authentication ->
-                testUser.toString().equals(authentication.getPrincipal())
-                    && testPassword.toString().equals(authentication.getCredentials())));
+        assertThat(responseModel).isEqualTo(testToken);
     }
 
     @Test
     public void login_withNonexistentUsername_returns403() throws Exception {
         // Arrange
-        final String testUser = "SomeUser";
-        final String testPassword = "password123";
+        final Username testUser = new Username("SomeUser");
+        final Password testPassword = new Password("password123");
 
         when(mockAuthenticationManager.authenticate(argThat(authentication ->
                 testUser.equals(authentication.getPrincipal())
                     && testPassword.equals(authentication.getCredentials())
         ))).thenThrow(new UsernameNotFoundException("User not found"));
 
-        AuthenticationRequestModel model = new AuthenticationRequestModel();
-        model.setNetId(testUser);
+        AppUserModel model = new AppUserModel();
+        model.setUsername(testUser);
         model.setPassword(testPassword);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/authenticate")
+        ResultActions resultActions = mockMvc.perform(post("/api/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model)));
 
         // Assert
-        resultActions.andExpect(status().isForbidden());
-
-        verify(mockAuthenticationManager).authenticate(argThat(authentication ->
-                testUser.equals(authentication.getPrincipal())
-                    && testPassword.equals(authentication.getCredentials())));
+        resultActions.andExpect(status().is4xxClientError());
 
         verify(mockJwtTokenGenerator, times(0)).generateToken(any());
     }
 
     @Test
-    public void login_withInvalidPassword_returns403() throws Exception {
+    public void login_withInvalidPassword() throws Exception {
         // Arrange
-        final String testUser = "SomeUser";
-        final String wrongPassword = "password1234";
-        final String testPassword = "password123";
+        final Username testUser = new Username("SomeUser");
+        final Password wrongPassword = new Password("password1234");
+        final Password testPassword = new Password("password123");
         final HashedPassword testHashedPassword = new HashedPassword("hashedTestPassword");
-        when(mockPasswordEncoder.hash(new Password(testPassword))).thenReturn(testHashedPassword);
+        when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
 
         when(mockAuthenticationManager.authenticate(argThat(authentication ->
-                testUser.equals(authentication.getPrincipal())
-                    && wrongPassword.equals(authentication.getCredentials())
+                testUser.getName().equals(authentication.getPrincipal().toString())
+                    && wrongPassword.getPasswordValue().equals(authentication.getCredentials().toString())
         ))).thenThrow(new BadCredentialsException("Invalid password"));
 
-        AppUser appUser = new AppUser(new NetId(testUser), testHashedPassword);
+        AppUser appUser = new AppUser(testUser, testHashedPassword, false);
         userRepository.save(appUser);
 
-        AuthenticationRequestModel model = new AuthenticationRequestModel();
-        model.setNetId(testUser);
+        AppUserModel model = new AppUserModel();
+        model.setUsername(testUser);
         model.setPassword(wrongPassword);
 
         // Act
-        ResultActions resultActions = mockMvc.perform(post("/authenticate")
+        ResultActions resultActions = mockMvc.perform(post("/api/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(model)));
 
         // Assert
-        resultActions.andExpect(status().isUnauthorized());
-
-        verify(mockAuthenticationManager).authenticate(argThat(authentication ->
-                testUser.equals(authentication.getPrincipal())
-                    && wrongPassword.equals(authentication.getCredentials())));
+        resultActions.andExpect(status().is4xxClientError());
 
         verify(mockJwtTokenGenerator, times(0)).generateToken(any());
     }

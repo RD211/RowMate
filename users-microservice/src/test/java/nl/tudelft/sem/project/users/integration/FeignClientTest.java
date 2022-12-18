@@ -1,10 +1,12 @@
 package nl.tudelft.sem.project.users.integration;
 
 import feign.FeignException;
-import nl.tudelft.sem.project.DateInterval;
+import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
+import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
+import nl.tudelft.sem.project.users.UserEmail;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.users.models.*;
 import org.junit.jupiter.api.Test;
@@ -42,7 +44,6 @@ public class FeignClientTest {
                 UserDTO.builder().email(email).username(username).build()
         );
 
-        assertNotNull(response.getId());
         assertEquals(username, response.getUsername());
         assertEquals(email, response.getEmail());
     }
@@ -75,7 +76,19 @@ public class FeignClientTest {
                 UserDTO.builder().email(email).username(username).build()
         );
 
-        var newResponse = usersClient.getUserById(response.getId());
+        var newResponse = usersClient.getUserByUsername(new Username(response.getUsername()));
+
+        assertEquals(response, newResponse);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"testidu,test@testidu.com", "tEstidu,tester@gmailuid.com", "amazing_name_heureid,wuow@woidw.com"})
+    void getUserByUsernameTest(String username, String email) {
+        var response = usersClient.addUser(
+                UserDTO.builder().email(email).username(username).build()
+        );
+
+        var newResponse = usersClient.getUserByUsername(new Username(response.getUsername()));
 
         assertEquals(response, newResponse);
     }
@@ -228,5 +241,37 @@ public class FeignClientTest {
         );
 
         assertTrue(response.getBoatRoles().isEmpty());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"testsdfsd,test@tdsfgest.com", "tEstdhj,tessadfter@dsfgmail.com",
+            "amazidfng_name_hegfre,wodfgw@wowasd.cdom"})
+    void deleteUserByUsernameTest(String username, String email) {
+        var response = usersClient.addUser(
+                UserDTO.builder().email(email).username(username).build()
+        );
+
+        assertEquals(username, response.getUsername());
+        assertEquals(email, response.getEmail());
+
+        usersClient.deleteUserByUsername(new Username(username));
+
+        assertThrows(FeignException.class, () -> usersClient.getUserByUsername(new Username(username)));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"testgfhsdfsd,tgfhest@tdssdffgest.com", "tEsdfstdhj,tessadfsdfter@dsfgmaifsl.cofm",
+            "amazidfffng_name_hegfre,wodfgddw@wowasd.cdaom"})
+    void deleteUserByEmailTest(String username, String email) {
+        var response = usersClient.addUser(
+                UserDTO.builder().email(email).username(username).build()
+        );
+
+        assertEquals(username, response.getUsername());
+        assertEquals(email, response.getEmail());
+
+        usersClient.deleteUserByEmail(new UserEmail(email));
+
+        assertThrows(FeignException.class, () -> usersClient.getUserByUsername(new Username(username)));
     }
 }

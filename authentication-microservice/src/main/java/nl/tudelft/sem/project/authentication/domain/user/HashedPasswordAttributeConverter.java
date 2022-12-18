@@ -11,7 +11,7 @@ public class HashedPasswordAttributeConverter implements AttributeConverter<Hash
 
     @Override
     public String convertToDatabaseColumn(HashedPassword attribute) {
-        return attribute.toString();
+        return attribute.getHash();
     }
 
     @Override

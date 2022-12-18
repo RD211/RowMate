@@ -8,11 +8,17 @@ import static org.mockito.Mockito.when;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import io.jsonwebtoken.impl.DefaultClaims;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,7 +65,7 @@ public class JwtRequestFilterTests {
         String user = "user123";
         when(mockRequest.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(mockJwtTokenVerifier.validateToken(token)).thenReturn(true);
-        when(mockJwtTokenVerifier.getNetIdFromToken(token)).thenReturn(user);
+        when(mockJwtTokenVerifier.getUsernameFromToken(token)).thenReturn(user);
 
         // Act
         jwtRequestFilter.doFilterInternal(mockRequest, mockResponse, mockFilterChain);
@@ -76,7 +82,7 @@ public class JwtRequestFilterTests {
         String user = "user123";
         when(mockRequest.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(mockJwtTokenVerifier.validateToken(token)).thenReturn(false);
-        when(mockJwtTokenVerifier.getNetIdFromToken(token)).thenReturn(user);
+        when(mockJwtTokenVerifier.getUsernameFromToken(token)).thenReturn(user);
 
         // Act
         jwtRequestFilter.doFilterInternal(mockRequest, mockResponse, mockFilterChain);
@@ -100,7 +106,7 @@ public class JwtRequestFilterTests {
         String user = "user123";
         when(mockRequest.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(mockJwtTokenVerifier.validateToken(token)).thenThrow(throwable);
-        when(mockJwtTokenVerifier.getNetIdFromToken(token)).thenReturn(user);
+        when(mockJwtTokenVerifier.getUsernameFromToken(token)).thenReturn(user);
 
         // Act
         jwtRequestFilter.doFilterInternal(mockRequest, mockResponse, mockFilterChain);
@@ -139,7 +145,7 @@ public class JwtRequestFilterTests {
         String user = "user123";
         when(mockRequest.getHeader("Authorization")).thenReturn("Bearer1 " + token);
         when(mockJwtTokenVerifier.validateToken(token)).thenReturn(true);
-        when(mockJwtTokenVerifier.getNetIdFromToken(token)).thenReturn(user);
+        when(mockJwtTokenVerifier.getUsernameFromToken(token)).thenReturn(user);
 
         // Act
         jwtRequestFilter.doFilterInternal(mockRequest, mockResponse, mockFilterChain);
@@ -156,7 +162,7 @@ public class JwtRequestFilterTests {
         String user = "user123";
         when(mockRequest.getHeader("Authorization")).thenReturn(token);
         when(mockJwtTokenVerifier.validateToken(token)).thenReturn(true);
-        when(mockJwtTokenVerifier.getNetIdFromToken(token)).thenReturn(user);
+        when(mockJwtTokenVerifier.getUsernameFromToken(token)).thenReturn(user);
 
         // Act
         jwtRequestFilter.doFilterInternal(mockRequest, mockResponse, mockFilterChain);

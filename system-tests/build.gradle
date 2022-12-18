@@ -1,0 +1,74 @@
+buildscript {
+	repositories {
+		mavenCentral()
+		//Needed only for SNAPSHOT versions
+		//maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+	}
+}
+
+plugins {
+	id 'org.springframework.boot' version '2.3.5.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+	id 'java'
+	// Test coverage
+	id 'jacoco'
+}
+
+group = 'nl.tudelft.cse.sem.project'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation project(":commons")
+	implementation project(":gateway-microservice")
+	implementation project(":users-microservice")
+	implementation project(":authentication-microservice")
+	implementation project(":matchmaking-microservice")
+	implementation project(":notifications-microservice")
+	implementation project(":activity-microservice")
+
+
+	// gson
+	implementation 'com.google.code.gson:gson:2.10'
+
+	// feign
+	implementation 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.RELEASE'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.5.RELEASE'
+	implementation 'io.github.openfeign:feign-gson:10.11'
+
+	// validation
+
+	compileOnly 'org.projectlombok:lombok:1.18.24'
+	annotationProcessor 'org.projectlombok:lombok:1.18.24'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation('org.junit.jupiter:junit-jupiter:5.8.2')
+	testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.12.4'
+	testImplementation('org.assertj:assertj-core:3.23.1')
+
+}
+
+repositories {
+	mavenCentral()
+}
+test {
+	useJUnitPlatform()
+	jacoco {
+		enabled = false
+		includes = ['nl.tudelft.sem.project.tests.*']
+		excludes = []
+	}
+}

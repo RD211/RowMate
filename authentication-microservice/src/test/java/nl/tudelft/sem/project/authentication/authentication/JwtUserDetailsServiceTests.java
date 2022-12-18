@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import nl.tudelft.sem.project.authentication.domain.user.AppUser;
 import nl.tudelft.sem.project.authentication.domain.user.HashedPassword;
-import nl.tudelft.sem.project.authentication.domain.user.NetId;
 import nl.tudelft.sem.project.authentication.domain.user.UserRepository;
+import nl.tudelft.sem.project.shared.Username;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,18 +34,18 @@ public class JwtUserDetailsServiceTests {
     @Test
     public void loadUserByUsername_withValidUser_returnsCorrectUser() {
         // Arrange
-        final NetId testUser = new NetId("SomeUser");
+        final Username testUser = new Username("SomeUser");
         final HashedPassword testHashedPassword = new HashedPassword("password123Hash");
 
-        AppUser appUser = new AppUser(testUser, testHashedPassword);
+        AppUser appUser = new AppUser(testUser, testHashedPassword, false);
         userRepository.save(appUser);
 
         // Act
-        UserDetails actual = jwtUserDetailsService.loadUserByUsername(testUser.toString());
+        UserDetails actual = jwtUserDetailsService.loadUserByUsername(testUser.getName());
 
         // Assert
-        assertThat(actual.getUsername()).isEqualTo(testUser.toString());
-        assertThat(actual.getPassword()).isEqualTo(testHashedPassword.toString());
+        assertThat(actual.getUsername()).isEqualTo(testUser.getName());
+        assertThat(actual.getPassword()).isEqualTo(testHashedPassword.getHash());
     }
 
     @Test
@@ -53,10 +53,10 @@ public class JwtUserDetailsServiceTests {
         // Arrange
         final String testNonexistentUser = "SomeUser";
 
-        final NetId testUser = new NetId("AnotherUser");
+        final Username testUser = new Username("AnotherUser");
         final String testPasswordHash = "password123Hash";
 
-        AppUser appUser = new AppUser(testUser, new HashedPassword(testPasswordHash));
+        AppUser appUser = new AppUser(testUser, new HashedPassword(testPasswordHash), false);
         userRepository.save(appUser);
 
         // Act
