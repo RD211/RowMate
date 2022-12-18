@@ -28,7 +28,10 @@ dependencies {
 	// feign
 	implementation 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.RELEASE'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.5.RELEASE'
+	implementation 'io.github.openfeign:feign-gson:10.11'
 
+	// validation
+	implementation 'org.hibernate:hibernate-validator:5.3.2.Final'
 }
 
 repositories {

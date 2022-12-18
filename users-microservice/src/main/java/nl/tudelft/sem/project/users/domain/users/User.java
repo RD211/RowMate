@@ -1,19 +1,18 @@
 package nl.tudelft.sem.project.users.domain.users;
 
 import lombok.*;
-import nl.tudelft.sem.project.entities.DTOable;
-import nl.tudelft.sem.project.entities.shared.Organization;
-import nl.tudelft.sem.project.entities.shared.OrganizationAttributeConverter;
-import nl.tudelft.sem.project.entities.users.UserDTO;
+import nl.tudelft.sem.project.shared.DateInterval;
+import nl.tudelft.sem.project.shared.Organization;
+import nl.tudelft.sem.project.shared.OrganizationAttributeConverter;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
+import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserEmail;
+import nl.tudelft.sem.project.users.UserEmailAttributeConverter;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 /**
@@ -29,16 +28,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 @Builder
-public class User implements DTOable<UserDTO> {
-
-    @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", updatable = false, nullable = false)
-    protected UUID id;
+public class User {
 
     @Column(nullable = false, unique = true)
-    @Convert(converter = UsernameAttributeConverter.class)
+    @EmbeddedId
     protected Username username;
 
     @Column(nullable = false, unique = true)
@@ -49,41 +42,102 @@ public class User implements DTOable<UserDTO> {
     @Enumerated(EnumType.STRING)
     protected Gender gender;
 
+    @Column(nullable = false)
+    @Builder.Default
+    protected boolean isAmateur = true;
+
     @Column(nullable = true)
     @Convert(converter = OrganizationAttributeConverter.class)
     protected Organization organization;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
+    @Column(nullable = false)
     @ElementCollection
-    protected List<BoatRole> boatRoles;
+    @Builder.Default
+    protected Set<BoatRole> boatRoles = new HashSet<>();
 
     @ElementCollection
-    protected List<DateInterval> availableTime;
+    @Column(nullable = false)
+    @Builder.Default
+    protected Set<DateInterval> availableTime = new HashSet<>();
 
     @OneToMany
     @EqualsAndHashCode.Exclude
-    protected List<Certificate> certificates;
+    @ToString.Exclude
+    @Column(nullable = false)
+    @Builder.Default
+    protected Set<Certificate> certificates = new HashSet<>();
 
-    @Override
-    public UserDTO toDTO() {
-        return new UserDTO(
-                this.id,
-                this.username.toString(),
-                this.email.toString()
-        );
+    /**
+     * Adds an available time interval to the user set.
+     *
+     * @param dateInterval the new interval to be added.
+     */
+    public void addAvailableTime(DateInterval dateInterval) {
+        if (this.availableTime == null) {
+            this.availableTime = new HashSet<>();
+        }
+        this.availableTime.add(dateInterval);
     }
 
     /**
-     * The user constructor given the dto.
+     * Removes an interval from the user interval collection.
      *
-     * @param dto the user dto.
+     * @param dateInterval the interval to be removed.
      */
-    public User(UserDTO dto) {
-        this.id = dto.getId();
-        this.username = new Username(dto.getUsername());
-        this.email = new UserEmail(dto.getEmail());
-        this.boatRoles = new ArrayList<>();
-        availableTime = new ArrayList<>();
+    public void removeAvailableTime(DateInterval dateInterval) {
+        if (this.availableTime == null) {
+            this.availableTime = new HashSet<>();
+        }
+        this.availableTime.remove(dateInterval);
+    }
+
+    /**
+     * Adds a certificate to the user collection.
+     *
+     * @param certificate the certificate to be added.
+     */
+    public void addCertificate(Certificate certificate) {
+        if (this.certificates == null) {
+            this.certificates = new HashSet<>();
+        }
+        this.certificates.add(certificate);
+    }
+
+
+    /**
+     * Removes a certificate from the user collection.
+     *
+     * @param certificate the certificate to be removed.
+     */
+    public void removeCertificate(Certificate certificate) {
+        if (this.certificates == null) {
+            this.certificates = new HashSet<>();
+        }
+        this.certificates.remove(certificate);
+    }
+
+    /**
+     * Adds a boat role to the user collection.
+     *
+     * @param boatRole the role to be added.
+     */
+    public void addBoatRole(BoatRole boatRole) {
+        if (this.boatRoles == null) {
+            this.boatRoles = new HashSet<>();
+        }
+        this.boatRoles.add(boatRole);
+    }
+
+    /**
+     * Removes a boat role from the user.
+     *
+     * @param boatRole the role to be removed.
+     */
+    public void removeBoatRole(BoatRole boatRole) {
+        if (this.boatRoles == null) {
+            this.boatRoles = new HashSet<>();
+        }
+        this.boatRoles.remove(boatRole);
     }
 }

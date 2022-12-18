@@ -48,8 +48,13 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+	// Feign
+	implementation 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.RELEASE'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.5.RELEASE'
 
 
 	// Local test database (in-memory)
@@ -117,4 +122,11 @@ pitest {
 	threads = 4
 	outputFormats = ['XML', 'HTML']
 	timestampedReports = false
+}
+jar {
+	enabled = true
+}
+
+bootJar {
+	enabled = false
 }
