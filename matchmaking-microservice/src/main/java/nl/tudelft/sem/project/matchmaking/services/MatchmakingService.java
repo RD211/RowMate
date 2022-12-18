@@ -29,6 +29,8 @@ public class MatchmakingService {
     transient ActivitiesFeignClient activitiesClient;
     transient ActivityRegistrationRepository activityRegistrationRepository;
 
+    public static final String autoFindErrorMessage = "Unfortunately, we could not find any activity matching your request. Please try again!";
+
     @Autowired
     public MatchmakingService(
             ActivitiesFeignClient activitiesClient,
@@ -72,7 +74,7 @@ public class MatchmakingService {
             return "You were successfully registered. You can go to "
                     +  activity.getLocation() + " at " + activity.getStartTime();
         }
-        return "Unfortunately, we could not find any activity matching your request. Please try again!";
+        return autoFindErrorMessage;
     }
 
     /**
