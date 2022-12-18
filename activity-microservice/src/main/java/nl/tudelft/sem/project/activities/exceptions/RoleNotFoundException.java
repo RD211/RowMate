@@ -11,7 +11,7 @@ public class RoleNotFoundException extends RuntimeException {
      * Default constructor.
      */
     public RoleNotFoundException() {
-        super();
+        super("There was no such role.");
     }
 
     /**
