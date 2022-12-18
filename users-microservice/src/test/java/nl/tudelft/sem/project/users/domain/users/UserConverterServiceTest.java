@@ -2,6 +2,7 @@ package nl.tudelft.sem.project.users.domain.users;
 
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
+import nl.tudelft.sem.project.users.UserEmail;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,14 +29,13 @@ class UserConverterServiceTest {
     @Test
     void toDTO() {
         var uuid = UUID.randomUUID();
-        var user = User.builder().id(uuid)
+        var user = User.builder()
                 .email(new UserEmail("test@test.com"))
                 .username(new Username("tester"))
                 .build();
         var dto = userConverterService.toDTO(user);
 
         assertNotNull(dto);
-        assertEquals(uuid, dto.getId());
         assertEquals("test@test.com", dto.getEmail());
         assertEquals("tester", dto.getUsername());
     }
@@ -43,39 +43,34 @@ class UserConverterServiceTest {
     @Test
     void toEntity() {
         var uuid = UUID.randomUUID();
-        var dto = UserDTO.builder().id(uuid)
+        var dto = UserDTO.builder()
                 .email("test@test.com")
                 .username("tester")
                 .build();
         var user = userConverterService.toEntity(dto);
 
         assertNotNull(user);
-        assertEquals(uuid, user.getId());
         assertEquals("test@test.com", user.getEmail().getEmail());
         assertEquals("tester", user.getUsername().getName());
     }
 
     @Test
     void toDatabaseEntity() {
-
-        var uuid = UUID.randomUUID();
-        when(userService.getUserById(uuid)).thenReturn(
+        when(userService.getUserByUsername(new Username("tester"))).thenReturn(
                 User.builder()
-                        .id(uuid)
                         .email(new UserEmail("test@test.com"))
                         .username(new Username("tester"))
                         .build()
         );
 
         var dto = UserDTO
-                .builder().id(uuid)
+                .builder().username("tester")
                 .build();
         var user = userConverterService.toDatabaseEntity(dto);
 
-        verify(userService, times(1)).getUserById(uuid);
+        verify(userService, times(1)).getUserByUsername(new Username("tester"));
 
         assertNotNull(user);
-        assertEquals(uuid, user.getId());
         assertEquals("test@test.com", user.getEmail().getEmail());
         assertEquals("tester", user.getUsername().getName());
     }

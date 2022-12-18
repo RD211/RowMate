@@ -130,3 +130,10 @@ pitest {
 	outputFormats = ['XML', 'HTML']
 	timestampedReports = false
 }
+jar {
+	enabled = true
+}
+
+bootJar {
+	enabled = false
+}

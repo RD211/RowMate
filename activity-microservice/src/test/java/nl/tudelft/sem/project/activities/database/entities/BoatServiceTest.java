@@ -35,6 +35,9 @@ class BoatServiceTest {
     private Boat duplicateRoles;
     private UUID missingId;
 
+    private UUID oldCertId;
+    private UUID newCertId;
+
     @BeforeEach
     void setUp() {
         missingId = UUID.randomUUID();
@@ -43,6 +46,7 @@ class BoatServiceTest {
                 .id(UUID.randomUUID())
                 .name("Normal Boat")
                 .availablePositions(List.of(BoatRole.Cox, BoatRole.Coach))
+                .coxCertificateId(oldCertId)
                 .build();
         when(boatRepository.findById(normalBoat.getId())).thenReturn(Optional.ofNullable(normalBoat));
         when(boatRepository.save(normalBoat)).thenReturn(normalBoat);
@@ -51,6 +55,7 @@ class BoatServiceTest {
                 .id(UUID.randomUUID())
                 .name("Duplicates Boat")
                 .availablePositions(List.of(BoatRole.ScullingRower, BoatRole.ScullingRower, BoatRole.Cox))
+                .coxCertificateId(oldCertId)
                 .build();
         when(boatRepository.findById(duplicateRoles.getId())).thenReturn(Optional.ofNullable(duplicateRoles));
         when(boatRepository.save(duplicateRoles)).thenReturn(duplicateRoles);
@@ -160,4 +165,21 @@ class BoatServiceTest {
         assertThat(ret.getAvailablePositions())
                 .containsExactlyInAnyOrder(BoatRole.Cox, BoatRole.Coach, BoatRole.Coach);
     }
+
+    @Test
+    void changeCoxCertificateNormal() {
+        Boat ret1 = boatService.addBoat(normalBoat);
+        Boat ret = boatService.changeCoxCertificate(ret1.getId(), newCertId);
+        verify(boatRepository, times(2)).save(any());
+        assertThat(ret.getCoxCertificateId()).isEqualTo(newCertId);
+    }
+
+    @Test
+    void changeCoxCertificateMissing() {
+        assertThrows(BoatNotFoundException.class, () ->
+                boatService.changeCoxCertificate(missingId, newCertId));
+        verify(boatRepository, never()).save(any());
+    }
+
+    //TODO add a test case for certificate verification when there is a certificate missing exception
 }
