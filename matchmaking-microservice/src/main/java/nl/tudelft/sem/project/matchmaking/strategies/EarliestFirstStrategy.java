@@ -4,6 +4,7 @@ import nl.tudelft.sem.project.matchmaking.models.AvailableActivityModel;
 import nl.tudelft.sem.project.matchmaking.models.FoundActivityModel;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 public class EarliestFirstStrategy extends MatchingStrategy {
@@ -22,8 +23,12 @@ public class EarliestFirstStrategy extends MatchingStrategy {
         AvailableActivityModel earliest = activities.get(0);
 
         for (AvailableActivityModel activity : activities) {
-            LocalDateTime crtTime = earliest.getActivityDTO().getStartTime();
-            LocalDateTime candidateTime = activity.getActivityDTO().getStartTime();
+            LocalDateTime crtTime = earliest.getActivityDTO().getStartTime().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+            LocalDateTime candidateTime = activity.getActivityDTO().getStartTime().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
             if (candidateTime.isBefore(crtTime)) {
                 earliest = activity;
             }

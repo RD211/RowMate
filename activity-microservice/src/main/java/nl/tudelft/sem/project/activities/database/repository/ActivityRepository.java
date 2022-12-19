@@ -1,11 +1,13 @@
 package nl.tudelft.sem.project.activities.database.repository;
 
+import lombok.NonNull;
 import nl.tudelft.sem.project.activities.database.entities.Activity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ActivityRepository extends JpaRepository<Activity, UUID> {
@@ -21,4 +23,8 @@ public interface ActivityRepository extends JpaRepository<Activity, UUID> {
      */
     @Query(value = timeSlotQuery, nativeQuery = true)
     List<Activity> findWithinTimeSlot(LocalDateTime activityStartTime, LocalDateTime activityEndTime);
+
+    @Override
+    @NonNull
+    Optional<Activity> findById(@NonNull UUID uuid);
 }

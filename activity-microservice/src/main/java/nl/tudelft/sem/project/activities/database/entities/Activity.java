@@ -1,8 +1,6 @@
 package nl.tudelft.sem.project.activities.database.entities;
 
 import lombok.*;
-import nl.tudelft.sem.project.DTOable;
-import nl.tudelft.sem.project.activities.ActivityDTO;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -30,7 +28,7 @@ import java.util.UUID;
 @Table(name = "activities")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "activity_type")
-public class Activity implements DTOable<ActivityDTO> {
+public class Activity {
     /**
      * The unique identifier of the training.
      */
@@ -43,41 +41,28 @@ public class Activity implements DTOable<ActivityDTO> {
     /**
      * The location of the activity.
      */
+    @Column(nullable = false)
     String location;
 
     /**
      * The username of the activity owner.
      */
+    @Column(nullable = false)
     String owner;
 
     /**
      * Start and end times of the activity.
      */
-    @Column(name = "start_time", columnDefinition = "TIMESTAMP")
+    @Column(name = "start_time", columnDefinition = "TIMESTAMP", nullable = false)
     protected LocalDateTime startTime;
 
-    @Column(name = "end_time", columnDefinition = "TIMESTAMP")
+    @Column(name = "end_time", columnDefinition = "TIMESTAMP", nullable = false)
     protected LocalDateTime endTime;
 
     /**
      * List of boats available for the activity.
      */
     @Column(nullable = false)
-    @ElementCollection
-    protected List<UUID> boats;
-
-    /**
-     * Creates an activity entity from a DTO.
-     *
-     * @param dto the DTO to create the entity from.
-     */
-    public Activity(ActivityDTO dto) {
-        this(dto.getId(), dto.getLocation(), dto.getOwner(), dto.getStartTime(), dto.getEndTime(), dto.getBoats());
-    }
-
-
-    @Override
-    public ActivityDTO toDTO() {
-        return new ActivityDTO(this.id, this.location, this.owner, this.startTime, this.endTime, this.boats);
-    }
+    @OneToMany
+    protected List<Boat> boats;
 }

@@ -1,8 +1,9 @@
 package nl.tudelft.sem.project.matchmaking.services;
 
-import nl.tudelft.sem.project.activities.ActivitiesFeignClient;
+import nl.tudelft.sem.project.activities.ActivitiesClient;
 import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.activities.BoatDTO;
+import nl.tudelft.sem.project.activities.BoatsClient;
 import nl.tudelft.sem.project.utils.ActivityDeregisterRequestDTO;
 import nl.tudelft.sem.project.utils.ActivityRegistrationRequestDTO;
 import nl.tudelft.sem.project.utils.ActivityRequestDTO;
@@ -26,19 +27,30 @@ import java.util.stream.Collectors;
 @Service
 public class MatchmakingService {
 
-    transient ActivitiesFeignClient activitiesClient;
+    transient ActivitiesClient activitiesClient;
+    transient BoatsClient boatsClient;
+
     transient ActivityRegistrationRepository activityRegistrationRepository;
 
     public static final String autoFindErrorMessage =
         "Unfortunately, we could not find any activity matching your request. Please try again!";
 
+    /**
+     * The autowired constructor for the service.
+     *
+     * @param activitiesClient the activities' client.
+     * @param activityRegistrationRepository the activity register repo.
+     * @param boatsClient the boats client.
+     */
     @Autowired
     public MatchmakingService(
-            ActivitiesFeignClient activitiesClient,
-            ActivityRegistrationRepository activityRegistrationRepository
+            ActivitiesClient activitiesClient,
+            ActivityRegistrationRepository activityRegistrationRepository,
+            BoatsClient boatsClient
     ) {
         this.activitiesClient = activitiesClient;
         this.activityRegistrationRepository = activityRegistrationRepository;
+        this.boatsClient = boatsClient;
     }
 
     public List<ActivityDTO> findActivities(ActivityRequestDTO dto) {
@@ -108,8 +120,8 @@ public class MatchmakingService {
                 = activityRegistrationRepository.findAllByActivityId(activity.getId());
 
         int idx = 0;
-        for (UUID boatId : activity.getBoats()) {
-            BoatDTO boat = activitiesClient.getBoatByUUID(boatId);
+        for (BoatDTO boatId : activity.getBoats()) {
+            BoatDTO boat = boatsClient.getBoat(boatId.getBoatId());
 
             checkBoatAvailability(dto, activity, feasibleActivities, registrations, boat, idx++);
         }

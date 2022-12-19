@@ -3,34 +3,31 @@ package nl.tudelft.sem.project.activities;
 import lombok.*;
 import nl.tudelft.sem.project.DTO;
 import nl.tudelft.sem.project.enums.Gender;
+import nl.tudelft.sem.project.utils.Fictional;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@Validated
 public class CompetitionDTO extends TrainingDTO {
 
-    @NonNull
     protected Boolean allowsAmateurs;
 
-    @NonNull
     protected String requiredOrganization;
-
-    @NonNull
     protected Gender requiredGender;
 
-
-    public CompetitionDTO(UUID id, String location, LocalDateTime startTime, LocalDateTime endTime, List<UUID> boats, Boolean allowsAmateurs, String requiredOrganization, Gender requiredGender) {
-        this.id = id;
-        this.location = location;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.boats = boats;
+    public CompetitionDTO(UUID id, String location, String owner, Date startTime, Date endTime, List<BoatDTO> boats, Boolean allowsAmateurs, String requiredOrganization, Gender requiredGender) {
+        super(id, location, owner, startTime, endTime, boats);
         this.allowsAmateurs = allowsAmateurs;
         this.requiredOrganization = requiredOrganization;
         this.requiredGender = requiredGender;
     }
-
 }

@@ -1,8 +1,10 @@
 package nl.tudelft.sem.project.activities.integration;
 
 import nl.tudelft.sem.project.activities.database.entities.Activity;
+import nl.tudelft.sem.project.activities.database.entities.Boat;
 import nl.tudelft.sem.project.activities.database.entities.Training;
 import nl.tudelft.sem.project.activities.database.repository.ActivityRepository;
+import nl.tudelft.sem.project.enums.BoatRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +32,18 @@ public class ActivityRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        Boat boat = new Boat();
+        boat.setName("test boat");
+        boat.setAvailablePositions(List.of(BoatRole.Coach));
+        boat.setCoxCertificateId(UUID.randomUUID());
+        boat = entityManager.persist(boat);
+
         Activity activity = Training.builder()
                 .location("test")
                 .owner("userOne")
                 .startTime(LocalDateTime.of(2022, 12, 18, 10, 0))
                 .endTime(LocalDateTime.of(2022, 12, 18, 10, 50))
-                .boats(List.of(setUUID))
+                .boats(List.of(boat))
                 .build();
 
         entityManager.persist(activity);
