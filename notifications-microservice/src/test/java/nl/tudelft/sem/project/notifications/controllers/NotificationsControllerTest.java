@@ -21,6 +21,8 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,13 +72,15 @@ class NotificationsControllerTest {
 
     @Test
     public void sendMailCompetition() throws Exception {
+        Date date = new Date(0);
         CompetitionDTO activityDTO = new CompetitionDTO(UUID.randomUUID(),
-                "location",
-                LocalDateTime.MIN,
-                LocalDateTime.MAX,
+                "Location",
+                "Owner",
+                date,
+                date,
                 new ArrayList<>(),
                 false,
-                "Test organization",
+                "Organization",
                 Gender.Male);
         UserDTO userDTO = UserDTO.builder()
                 .username("testificate")
