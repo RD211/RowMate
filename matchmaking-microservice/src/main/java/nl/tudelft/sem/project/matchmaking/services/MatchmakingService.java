@@ -240,6 +240,12 @@ public class MatchmakingService {
             return false;
         }
 
+        if(registration.get().isAccepted()) {
+            ActivityDTO activity = activitiesClient.getActivity(dto.getActivityId());
+            UserDTO owner = usersClient.getUserByUsername(new Username(activity.getOwner()));
+            sendNotification(activity, owner, EventType.USER_LEFT);
+        }
+
         activityRegistrationRepository.delete(registration.get());
         return true;
     }
