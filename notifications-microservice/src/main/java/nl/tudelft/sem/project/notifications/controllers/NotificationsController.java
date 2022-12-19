@@ -24,16 +24,6 @@ public class NotificationsController {
     private transient NotificationsService notificationsService;
 
     /**
-     * The default test endpoint for the Notifications microservice.
-     *
-     * @return String
-     */
-    @GetMapping("/notifications")
-    public ResponseEntity<String> notificationDefault() {
-        return ResponseEntity.ok("[ENDPOINT] Notifications Microservice - WIP");
-    }
-
-    /**
      * The endpoint to be used for sending notifications
      * about a specific activity through mail to a user.
      *

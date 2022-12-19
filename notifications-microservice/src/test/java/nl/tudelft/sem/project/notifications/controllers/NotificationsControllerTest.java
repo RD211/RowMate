@@ -89,4 +89,17 @@ class NotificationsControllerTest {
 
         assertThat(response).isEqualTo("Notification sent to testificate.");
     }
+
+    @Test
+    public void sendMailManual() throws Exception {
+        ResultActions res = mockMvc.perform(post("/sendNotifManual")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("TEST@TEST.TEST"));
+
+        res.andExpect(status().isOk());
+
+        String response = res.andReturn().getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Notification sent to TEST@TEST.TEST.");
+    }
 }
