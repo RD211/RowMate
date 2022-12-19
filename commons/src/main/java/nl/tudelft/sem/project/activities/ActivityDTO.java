@@ -6,8 +6,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import nl.tudelft.sem.project.DTO;
+import nl.tudelft.sem.project.utils.Existing;
+import nl.tudelft.sem.project.utils.Fictional;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,25 +25,25 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CompetitionDTO.class, name = "CompetitionDTO") })
 @Data
 @NoArgsConstructor
-@RequiredArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 public class ActivityDTO implements DTO {
 
+    @NotNull(groups={Existing.class})
     protected UUID id;
 
-    @NonNull
+    @NotNull(groups={Fictional.class})
     protected String location;
 
-    @NonNull
+    @NotNull(groups={Fictional.class})
     protected String owner;
 
-    @NonNull
-    protected LocalDateTime startTime;
+    @NotNull(groups={Fictional.class})
+    protected Date startTime;
 
-    @NonNull
-    protected LocalDateTime endTime;
+    @NotNull(groups={Fictional.class})
+    protected Date endTime;
 
-    @NonNull
-    protected List<UUID> boats;
+    @NotNull(groups={Fictional.class})
+    protected List<BoatDTO> boats;
 }

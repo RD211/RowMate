@@ -23,9 +23,12 @@ public class ActivityRegistration {
     @Column(name = "activity_id", nullable = false)
     protected UUID activityId;
 
-
     protected int boat;
 
     @Enumerated(EnumType.STRING)
     protected BoatRole role;
+
+    @Column
+    @Builder.Default
+    protected boolean accepted = false;
 }
