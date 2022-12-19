@@ -7,6 +7,7 @@ import nl.tudelft.sem.project.users.CertificateDTO;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -15,6 +16,6 @@ import java.util.UUID;
 public class ChangeCertificateSupersededModel {
     @Valid @NotNull
     private CertificateDTO certificateDTO;
-    @Valid
-    private UUID newSupersededId;
+    @Valid @NotNull
+    private Optional<UUID> newSupersededId;
 }

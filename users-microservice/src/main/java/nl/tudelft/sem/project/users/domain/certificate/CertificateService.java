@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 /**
@@ -91,28 +88,48 @@ public class CertificateService {
     }
 
     /**
-     * Used to update a certificate's data.
-     * The certificate should contain the id of the certificate to be changed.
-     * The found certificate's fields will be updated according to the fields in the parameter.
+     * Used to update a certificate's name.
+     *
+     * @param certificate The certificate to be updated.
+     * @param newName The new name to be changed.
+     * @return The updated certificate.
+     * @throws CertificateNotFoundException Is thrown when the certificate could not be found in the repository
+     *                                      by its id.
+     * @throws CertificateNameInUseException Is thrown when the name already exists.
+     */
+    public Certificate updateCertificateName(@NonNull Certificate certificate, @NonNull CertificateName newName)
+            throws CertificateNotFoundException, CertificateNameInUseException {
+
+        if (existsByName(newName)) {
+            throw new CertificateNameInUseException(newName);
+        }
+
+        Certificate realCertificate = getCertificateById(certificate.getId());
+        realCertificate.setName(newName);
+
+        return certificateRepository.save(realCertificate);
+    }
+
+    /**
+     * Used to update a certificate's superseded certificate.
      *
      * @param certificate The new certificate's field values.
+     * @param newSuperseded The new superseded certificate. Shall be Empty when there should be no superseding.
      * @return The updated certificate.
      * @throws CertificateNotFoundException Is throws when the certificate could not be found in the repository
      *                                      by its id.
      */
-    public Certificate updateCertificate(@NonNull Certificate certificate)
-            throws CertificateNotFoundException, CertificateNameInUseException {
+    public Certificate updateCertificateSuperseded(@NonNull Certificate certificate, @NonNull Optional<UUID> newSuperseded)
+            throws CertificateNotFoundException {
 
-        Certificate saved = getCertificateById(certificate.getId());
-
-        if (existsByName(certificate.getName())) {
-            throw new CertificateNameInUseException(certificate.getName());
+        if (newSuperseded.isPresent() && !existsById(newSuperseded.get())) {
+            throw new CertificateNotFoundException(newSuperseded.get());
         }
 
-        saved.setName(certificate.getName());
-        saved.setSuperseded(certificate.getSuperseded().orElse(null));
+        Certificate realCertificate = getCertificateById(certificate.getId());
+        realCertificate.setSuperseded(newSuperseded.map(id -> getCertificateById(id)).orElse(null));
 
-        return certificateRepository.save(saved);
+        return certificateRepository.save(realCertificate);
     }
 
     /**
