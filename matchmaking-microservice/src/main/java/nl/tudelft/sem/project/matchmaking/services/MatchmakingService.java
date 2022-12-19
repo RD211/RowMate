@@ -5,12 +5,9 @@ import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.activities.BoatsClient;
 import nl.tudelft.sem.project.gateway.SeatedUserModel;
-import nl.tudelft.sem.project.matchmaking.ActivityDeregisterRequestDTO;
-import nl.tudelft.sem.project.matchmaking.ActivityRegistrationRequestDTO;
-import nl.tudelft.sem.project.matchmaking.ActivityRequestDTO;
+import nl.tudelft.sem.project.matchmaking.*;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
-import nl.tudelft.sem.project.matchmaking.UserActivityApplication;
 import nl.tudelft.sem.project.matchmaking.models.FoundActivityModel;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistrationId;
@@ -19,6 +16,12 @@ import nl.tudelft.sem.project.matchmaking.models.AvailableActivityModel;
 import nl.tudelft.sem.project.matchmaking.strategies.EarliestFirstStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.MatchingStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.RandomStrategy;
+import nl.tudelft.sem.project.notifications.EventType;
+import nl.tudelft.sem.project.notifications.NotificationClient;
+import nl.tudelft.sem.project.notifications.NotificationDTO;
+import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserDTO;
+import nl.tudelft.sem.project.users.UsersClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +33,9 @@ import java.util.stream.Collectors;
 public class MatchmakingService {
 
     transient ActivitiesClient activitiesClient;
+    transient UsersClient usersClient;
     transient BoatsClient boatsClient;
+    transient NotificationClient notificationClient;
 
     transient ActivityRegistrationRepository activityRegistrationRepository;
 
@@ -47,10 +52,12 @@ public class MatchmakingService {
     @Autowired
     public MatchmakingService(
             ActivitiesClient activitiesClient,
+            UsersClient usersClient,
             ActivityRegistrationRepository activityRegistrationRepository,
             BoatsClient boatsClient
     ) {
         this.activitiesClient = activitiesClient;
+        this.usersClient = usersClient;
         this.activityRegistrationRepository = activityRegistrationRepository;
         this.boatsClient = boatsClient;
     }
@@ -85,11 +92,19 @@ public class MatchmakingService {
 
         if (pickedActivity != null) {
             registerUserInActivity(pickedActivity.getRegistrationRequestDTO());
+
             ActivityDTO activity = pickedActivity.getActivityDTO();
-            return "You were successfully registered. You can go to "
-                    +  activity.getLocation() + " at " + activity.getStartTime();
+            UserDTO owner = usersClient.getUserByUsername(new Username(activity.getOwner()));
+            sendNotification(activity, owner, EventType.USER_JOINED);
+
+            return "Your registration request has been sent to the activity owner. " +
+                    "You will get an email when the owner responds to your request.";
         }
         return autoFindErrorMessage;
+    }
+
+    private void sendNotification(ActivityDTO activity, UserDTO user, EventType eventType) {
+        notificationClient.sendNotification(new NotificationDTO(user, activity, eventType));
     }
 
     /**
@@ -226,6 +241,36 @@ public class MatchmakingService {
         }
 
         activityRegistrationRepository.delete(registration.get());
+        return true;
+    }
+
+    /**
+     * Responds to an activity registration request. If the request is accepted, the registration is marked as "accepted".
+     * The user will be notified about the response.
+     *
+     * @param dto a DTO containing the user name, activity id and response.
+     * @return true if the processing the response was successful, false otherwise.
+     */
+    @Transactional
+    public boolean respondToRegistration(ActivityRegistrationResponseDTO dto) {
+        Optional<ActivityRegistration> registration
+                = activityRegistrationRepository.findById(new ActivityRegistrationId(dto.getUserName(), dto.getActivityId()));
+        if (registration.isEmpty() || registration.get().isAccepted()) {
+            return false;
+        }
+
+        ActivityDTO activity = activitiesClient.getActivity(dto.getActivityId());
+        UserDTO user = usersClient.getUserByUsername(new Username(dto.getUserName()));
+
+        if(dto.isAccepted()) {
+            ActivityRegistration reg = registration.get();
+            reg.setAccepted(true);
+            activityRegistrationRepository.save(reg);
+            sendNotification(activity, user, EventType.JOINED_ACTIVITY);
+        } else {
+            activityRegistrationRepository.delete(registration.get());
+            sendNotification(activity, user, EventType.REJECT_REGISTRATION);
+        }
         return true;
     }
 
