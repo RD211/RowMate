@@ -14,6 +14,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 
 @RestController
@@ -52,9 +54,7 @@ public class ActivityController {
     public ResponseEntity<TrainingDTO> createTraining(@Valid @Validated(Fictional.class)
                                                           @RequestBody TrainingDTO trainingDTO) {
         var username = authManager.getUsername();
-        if (!username.equals(trainingDTO.getOwner())) {
-            throw new RuntimeException("You can't create an activity for somebody else");
-        }
+        trainingDTO.setOwner(username);
 
         return ResponseEntity.ok(activitiesClient.createTraining(trainingDTO));
     }
@@ -69,9 +69,7 @@ public class ActivityController {
     public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated(Fictional.class)
                                                       @RequestBody CompetitionDTO competitionDTO) {
         var username = authManager.getUsername();
-        if (!username.equals(competitionDTO.getOwner())) {
-            throw new RuntimeException("You can't create an activity for somebody else");
-        }
+        competitionDTO.setOwner(username);
 
         return ResponseEntity.ok(activitiesClient.createCompetition(competitionDTO));
     }

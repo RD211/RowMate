@@ -4,11 +4,13 @@ import nl.tudelft.sem.project.activities.ActivitiesClient;
 import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.activities.BoatsClient;
-import nl.tudelft.sem.project.utils.ActivityDeregisterRequestDTO;
-import nl.tudelft.sem.project.utils.ActivityRegistrationRequestDTO;
-import nl.tudelft.sem.project.utils.ActivityRequestDTO;
+import nl.tudelft.sem.project.gateway.SeatedUserModel;
+import nl.tudelft.sem.project.matchmaking.ActivityDeregisterRequestDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRegistrationRequestDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRequestDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
+import nl.tudelft.sem.project.matchmaking.UserActivityApplication;
 import nl.tudelft.sem.project.matchmaking.models.FoundActivityModel;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistrationId;
@@ -200,7 +202,8 @@ public class MatchmakingService {
                 dto.getUserName(),
                 dto.getActivityId(),
                 dto.getBoat(),
-                dto.getBoatRole()
+                dto.getBoatRole(),
+                false
             );
         activityRegistrationRepository.save(registration);
         return true;
@@ -224,5 +227,51 @@ public class MatchmakingService {
 
         activityRegistrationRepository.delete(registration.get());
         return true;
+    }
+
+    /**
+     * Gets a list of the activities that the user has applied to but has not yet been accepted.
+     *
+     * @param username the username of the user.
+     * @return the list of seatedUserModels
+     */
+    public List<UserActivityApplication> getAllActivitiesThatUserAppliedTo(String username) {
+        var seatedModels = activityRegistrationRepository
+                .findByUserNameAndAccepted(username, false)
+                .stream().map(x -> new SeatedUserModel(x.getActivityId(), x.getBoat(), x.getRole()))
+                .collect(Collectors.toList());
+        return seatedModels.stream().map(
+                x -> {
+                    var activity = activitiesClient.getActivity(x.getActivityId());
+                    return new UserActivityApplication(
+                            activity,
+                            activity.getBoats().get(x.getBoat()),
+                            x.getBoatRole()
+                    );
+                }
+        ).collect(Collectors.toList());
+    }
+
+    /**
+     * Gets a list of the activities that the user has been accepted to.
+     *
+     * @param username the username of the user.
+     * @return the list of seatedUserModels
+     */
+    public List<UserActivityApplication> getAllActivitiesThatUserIsPartOf(String username) {
+        var seatedModels = activityRegistrationRepository
+                .findByUserNameAndAccepted(username, true)
+                .stream().map(x -> new SeatedUserModel(x.getActivityId(), x.getBoat(), x.getRole()))
+                .collect(Collectors.toList());
+        return seatedModels.stream().map(
+                x -> {
+                    var activity = activitiesClient.getActivity(x.getActivityId());
+                    return new UserActivityApplication(
+                      activity,
+                            activity.getBoats().get(x.getBoat()),
+                            x.getBoatRole()
+                    );
+                }
+        ).collect(Collectors.toList());
     }
 }

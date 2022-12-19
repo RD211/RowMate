@@ -44,8 +44,8 @@ public class FeignClientTest {
                 null,
                 "bucharest",
                 "tester",
-                java.sql.Timestamp.valueOf(LocalDateTime.of(2022, 11, 1, 1, 1, 1, 1)),
-                java.sql.Timestamp.valueOf(LocalDateTime.of(2022, 12, 1, 1, 1, 1, 1)),
+                java.sql.Timestamp.valueOf(LocalDateTime.of(2026, 11, 1, 1, 1, 1, 1)),
+                java.sql.Timestamp.valueOf(LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
                 List.of(boatDTO)
         );
         trainingDTO = activitiesClient.createTraining(trainingDTO);
@@ -67,8 +67,8 @@ public class FeignClientTest {
                 null,
                 "bucharest",
                 "tester",
-                java.sql.Timestamp.valueOf(LocalDateTime.of(2022, 11, 1, 1, 1, 1, 1)),
-                java.sql.Timestamp.valueOf(LocalDateTime.of(2022, 12, 1, 1, 1, 1, 1)),
+                java.sql.Timestamp.valueOf(LocalDateTime.of(2026, 11, 1, 1, 1, 1, 1)),
+                java.sql.Timestamp.valueOf(LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
                 List.of(boatDTO),
                 false,
                 null,
