@@ -50,6 +50,10 @@ dependencies {
 	// Swagger UI
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.4'
 
+	// validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation:2.4.2'
+	implementation 'org.hibernate:hibernate-validator:5.3.2.Final'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
 	implementation 'org.springframework.boot:spring-boot-starter'
