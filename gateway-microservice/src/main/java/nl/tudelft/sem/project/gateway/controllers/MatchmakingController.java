@@ -106,6 +106,28 @@ public class MatchmakingController {
     }
 
     /**
+     * Responds to a request to join an activity. Only the owner of the activity can
+     * accept/reject a registration request.
+     *
+     * @param response a dto, containing the username of the user who wants to join the activity,
+     *                 the activity id, and a boolean indicating whether the request is accepted
+     *                 or not.
+     * @return a confirmation string.
+     */
+    @PostMapping("/respond")
+    public ResponseEntity<String> respondToRegistration(@RequestBody ActivityRegistrationResponseDTO response) {
+        var username = authManager.getUsername();
+
+        ActivityDTO activity = activitiesClient.getActivity(response.getActivityId());
+
+        if (!username.equals(activity.getOwner())) {
+            throw new IllegalArgumentException("You are not the owner of this activity!");
+        }
+
+        return ResponseEntity.ok(matchmakingClient.respondToRegistration(response));
+    }
+
+    /**
      * DeRegisters the user from an activity.
      *
      * @param activityId the id of the activity.

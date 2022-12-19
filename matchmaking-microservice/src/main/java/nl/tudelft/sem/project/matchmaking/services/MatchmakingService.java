@@ -97,8 +97,8 @@ public class MatchmakingService {
             UserDTO owner = usersClient.getUserByUsername(new Username(activity.getOwner()));
             sendNotification(activity, owner, EventType.USER_JOINED);
 
-            return "Your registration request has been sent to the activity owner. " +
-                    "You will get an email when the owner responds to your request.";
+            return "Your registration request has been sent to the activity owner. "
+                    + "You will get an email when the owner responds to your request.";
         }
         return autoFindErrorMessage;
     }
@@ -240,7 +240,7 @@ public class MatchmakingService {
             return false;
         }
 
-        if(registration.get().isAccepted()) {
+        if (registration.get().isAccepted()) {
             ActivityDTO activity = activitiesClient.getActivity(dto.getActivityId());
             UserDTO owner = usersClient.getUserByUsername(new Username(activity.getOwner()));
             sendNotification(activity, owner, EventType.USER_LEFT);
@@ -251,16 +251,17 @@ public class MatchmakingService {
     }
 
     /**
-     * Responds to an activity registration request. If the request is accepted, the registration is marked as "accepted".
+     * Responds to an activity registration request. If the request is accepted,
+     * the registration is marked as "accepted".
      * The user will be notified about the response.
      *
-     * @param dto a DTO containing the user name, activity id and response.
+     * @param dto a DTO containing the username, activity id and response.
      * @return true if the processing the response was successful, false otherwise.
      */
     @Transactional
     public boolean respondToRegistration(ActivityRegistrationResponseDTO dto) {
         Optional<ActivityRegistration> registration
-                = activityRegistrationRepository.findById(new ActivityRegistrationId(dto.getUserName(), dto.getActivityId()));
+            = activityRegistrationRepository.findById(new ActivityRegistrationId(dto.getUserName(), dto.getActivityId()));
         if (registration.isEmpty() || registration.get().isAccepted()) {
             return false;
         }
@@ -268,7 +269,7 @@ public class MatchmakingService {
         ActivityDTO activity = activitiesClient.getActivity(dto.getActivityId());
         UserDTO user = usersClient.getUserByUsername(new Username(dto.getUserName()));
 
-        if(dto.isAccepted()) {
+        if (dto.isAccepted()) {
             ActivityRegistration reg = registration.get();
             reg.setAccepted(true);
             activityRegistrationRepository.save(reg);
