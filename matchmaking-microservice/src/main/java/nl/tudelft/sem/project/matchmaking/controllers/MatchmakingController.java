@@ -98,7 +98,7 @@ public class MatchmakingController {
     public ResponseEntity<String> respondToRegistration(@RequestBody ActivityRegistrationResponseDTO dto) {
         boolean result = matchmakingService.respondToRegistration(dto);
 
-        if(result) {
+        if (result) {
             return ResponseEntity.ok("Your response has been processed and the user has been notified.");
         }
 
