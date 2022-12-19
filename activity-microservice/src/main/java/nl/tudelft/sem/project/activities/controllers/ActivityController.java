@@ -1,8 +1,8 @@
 package nl.tudelft.sem.project.activities.controllers;
 
 import nl.tudelft.sem.project.activities.services.ActivityService;
-import nl.tudelft.sem.project.entities.activities.ActivityDTO;
-import nl.tudelft.sem.project.entities.utils.ActivityFilterDTO;
+import nl.tudelft.sem.project.activities.ActivityDTO;
+import nl.tudelft.sem.project.utils.ActivityFilterDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

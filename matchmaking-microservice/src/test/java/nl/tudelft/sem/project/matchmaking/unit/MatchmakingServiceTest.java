@@ -1,10 +1,10 @@
 package nl.tudelft.sem.project.matchmaking.unit;
 
-import nl.tudelft.sem.project.entities.activities.ActivitiesFeignClient;
-import nl.tudelft.sem.project.entities.activities.ActivityDTO;
-import nl.tudelft.sem.project.entities.activities.BoatDTO;
-import nl.tudelft.sem.project.entities.utils.ActivityFilterDTO;
-import nl.tudelft.sem.project.entities.utils.ActivityRequestDTO;
+import nl.tudelft.sem.project.activities.ActivitiesFeignClient;
+import nl.tudelft.sem.project.activities.ActivityDTO;
+import nl.tudelft.sem.project.activities.BoatDTO;
+import nl.tudelft.sem.project.utils.ActivityFilterDTO;
+import nl.tudelft.sem.project.utils.ActivityRequestDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;

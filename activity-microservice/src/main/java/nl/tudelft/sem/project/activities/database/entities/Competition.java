@@ -1,7 +1,7 @@
 package nl.tudelft.sem.project.activities.database.entities;
 
 import lombok.*;
-import nl.tudelft.sem.project.entities.activities.CompetitionDTO;
+import nl.tudelft.sem.project.activities.CompetitionDTO;
 import nl.tudelft.sem.project.enums.Gender;
 import javax.persistence.*;
 

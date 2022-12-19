@@ -1,8 +1,8 @@
 package nl.tudelft.sem.project.matchmaking.models;
 
 import lombok.*;
-import nl.tudelft.sem.project.entities.activities.ActivityDTO;
-import nl.tudelft.sem.project.entities.utils.ActivityRegistrationRequestDTO;
+import nl.tudelft.sem.project.activities.ActivityDTO;
+import nl.tudelft.sem.project.utils.ActivityRegistrationRequestDTO;
 
 @Data
 @RequiredArgsConstructor

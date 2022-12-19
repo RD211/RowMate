@@ -2,7 +2,7 @@ package nl.tudelft.sem.project.activities.database.entities;
 
 import lombok.*;
 import nl.tudelft.sem.project.entities.DTOable;
-import nl.tudelft.sem.project.entities.activities.ActivityDTO;
+import nl.tudelft.sem.project.activities.ActivityDTO;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;

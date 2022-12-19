@@ -1,9 +1,7 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
 import lombok.*;
-import nl.tudelft.sem.project.entities.users.CertificateDTO;
 import org.hibernate.annotations.GenericGenerator;
-import nl.tudelft.sem.project.entities.DTOable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,12 +14,14 @@ import java.util.UUID;
  * Equality and hashcode based on id only.
  */
 @Entity
-@Setter()
+@Setter
 @Table(name = "certificates")
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
-public class Certificate implements DTOable<CertificateDTO> {
+@Builder
+public class Certificate {
 
     /**
      * Identifier for a certificate.
@@ -31,35 +31,21 @@ public class Certificate implements DTOable<CertificateDTO> {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false)
     @EqualsAndHashCode.Include
-    @Setter
     @Getter
     @NonNull
     private UUID id;
 
-    @Column(name = "name", nullable = false)
-    @Setter
+    @Column(name = "name", nullable = false, unique = true)
     @Getter
     @NonNull
-    private String name;
+    @Convert(converter = CertificateNameAttributeConverter.class)
+    private CertificateName name;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "supersedes")
+    @ToString.Exclude
     private Certificate superseded;
-
-    @Column(name = "for_boat")
-    @Getter
-    @Setter
-    private UUID forBoat;
-
-    /**
-     * Sets superseded certificate.
-     *
-     * @param superseded A non-null certificate
-     */
-    public void setSuperseded(@NonNull Certificate superseded) {
-        this.superseded = superseded;
-    }
 
     /**
      * Gets the certificate superseded by this one.
@@ -76,13 +62,11 @@ public class Certificate implements DTOable<CertificateDTO> {
      *
      * @param certificateName The certificate name
      * @param superseded The certificate that this certificate supersedes
-     * @param boatUUIDReference A UUID reference to a boat from the boats service
      */
-    public Certificate(String certificateName, @NonNull Certificate superseded, UUID boatUUIDReference) {
+    public Certificate(String certificateName, @NonNull Certificate superseded) {
         this.id = UUID.randomUUID();
-        this.name = certificateName;
+        this.name = new CertificateName(certificateName);
         this.superseded = superseded;
-        this.forBoat = boatUUIDReference;
     }
 
     /**
@@ -91,12 +75,10 @@ public class Certificate implements DTOable<CertificateDTO> {
      * The certificate will not supersede any other certificate.
      *
      * @param certificateName The certificate name
-     * @param boatUUIDReference A UUID reference to a boat from the boats service
      */
-    public Certificate(String certificateName, UUID boatUUIDReference) {
+    public Certificate(String certificateName) {
         this.id = UUID.randomUUID();
-        this.name = certificateName;
-        this.forBoat = boatUUIDReference;
+        this.name = new CertificateName(certificateName);
     }
 
     /**
@@ -118,26 +100,25 @@ public class Certificate implements DTOable<CertificateDTO> {
         return result;
     }
 
-    @Override
-    public CertificateDTO toDTO() {
-        var res = new CertificateDTO(
-                id,
-                name,
-                Optional.ofNullable(superseded).map(c -> c.getId()),
-                forBoat
-        );
-        return res;
+    /**
+     * Check whether other is contained in the supersedence chain of this.
+     *
+     * @param other Certificate to be looked for
+     * @return True if other could be found in chain of this
+     */
+    public boolean hasInChain(Certificate other) {
+        Certificate finger = this;
+        while (finger != null) {
+            if (other.equals(finger)) {
+                return true;
+            }
+            finger = finger.superseded;
+            // Stop if for some reason we have circular supersedence
+            if (this.equals(finger)) {
+                break;
+            }
+        }
+        return false;
     }
 
-    /**
-     * Creates a certificate entity from a dto.
-     *
-     * @param dto Data transfer object
-     */
-    public Certificate(CertificateDTO dto) {
-        this.id = dto.getId();
-        this.name = dto.getName();
-        // TODO should find the superseded certificate if any
-        this.forBoat = dto.getForBoat();
-    }
 }

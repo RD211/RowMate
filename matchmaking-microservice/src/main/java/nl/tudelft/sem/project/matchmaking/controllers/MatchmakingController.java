@@ -1,9 +1,9 @@
 package nl.tudelft.sem.project.matchmaking.controllers;
 
-import nl.tudelft.sem.project.entities.activities.ActivityDTO;
-import nl.tudelft.sem.project.entities.utils.ActivityDeregisterRequestDTO;
-import nl.tudelft.sem.project.entities.utils.ActivityRegistrationRequestDTO;
-import nl.tudelft.sem.project.entities.utils.ActivityRequestDTO;
+import nl.tudelft.sem.project.activities.ActivityDTO;
+import nl.tudelft.sem.project.utils.ActivityDeregisterRequestDTO;
+import nl.tudelft.sem.project.utils.ActivityRegistrationRequestDTO;
+import nl.tudelft.sem.project.utils.ActivityRequestDTO;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.matchmaking.services.MatchmakingService;
 import org.springframework.beans.factory.annotation.Autowired;

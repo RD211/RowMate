@@ -2,8 +2,8 @@ package nl.tudelft.sem.project.activities.services;
 
 import nl.tudelft.sem.project.activities.database.entities.Activity;
 import nl.tudelft.sem.project.activities.database.repository.ActivityRepository;
-import nl.tudelft.sem.project.entities.activities.ActivityDTO;
-import nl.tudelft.sem.project.entities.utils.ActivityFilterDTO;
+import nl.tudelft.sem.project.activities.ActivityDTO;
+import nl.tudelft.sem.project.utils.ActivityFilterDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

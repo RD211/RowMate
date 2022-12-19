@@ -1,11 +1,10 @@
 package nl.tudelft.sem.project.matchmaking.strategies;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import nl.tudelft.sem.project.entities.utils.ActivityRegistrationRequestDTO;
-import nl.tudelft.sem.project.entities.utils.ActivityRequestDTO;
+import nl.tudelft.sem.project.utils.ActivityRegistrationRequestDTO;
+import nl.tudelft.sem.project.utils.ActivityRequestDTO;
 import nl.tudelft.sem.project.matchmaking.models.AvailableActivityModel;
 import nl.tudelft.sem.project.matchmaking.models.FoundActivityModel;
 

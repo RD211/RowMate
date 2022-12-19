@@ -1,0 +1,20 @@
+image: gradle:6.7-jdk15
+
+stages:
+  - build
+  - staticAnalysis
+  - test
+
+variables:
+  # Disable the Gradle daemon to ensure isolated runs of the CI pipeline.
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+build-system-tests:
+  stage: build
+  script:
+    gradle system-tests:assemble system-tests:testClasses
+
+test-system-tests:
+  stage: test
+  script:
+    - gradle system-tests:test
