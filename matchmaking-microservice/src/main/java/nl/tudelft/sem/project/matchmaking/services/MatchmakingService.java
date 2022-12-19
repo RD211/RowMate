@@ -29,7 +29,8 @@ public class MatchmakingService {
     transient ActivitiesFeignClient activitiesClient;
     transient ActivityRegistrationRepository activityRegistrationRepository;
 
-    public static final String autoFindErrorMessage = "Unfortunately, we could not find any activity matching your request. Please try again!";
+    public static final String autoFindErrorMessage =
+        "Unfortunately, we could not find any activity matching your request. Please try again!";
 
     @Autowired
     public MatchmakingService(
