@@ -6,7 +6,6 @@ import nl.tudelft.sem.project.utils.Existing;
 import nl.tudelft.sem.project.utils.Fictional;
 
 import javax.validation.constraints.NotNull;
-import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -29,6 +28,5 @@ public class CertificateDTO implements DTO {
     /**
      * This field should specify which certificate (by id) is superseded by this one, if any.
      */
-    @NotNull(groups = {Fictional.class})
-    private Optional<UUID> supersededId;
+    private UUID supersededId;
 }

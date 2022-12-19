@@ -4,9 +4,17 @@ import feign.FeignException;
 import feign.Headers;
 import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
+import nl.tudelft.sem.project.users.CertificateDTO;
+import nl.tudelft.sem.project.users.models.ChangeCertificateNameModel;
+import nl.tudelft.sem.project.users.models.ChangeCertificateSupersededModel;
+import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @FeignClient(url = "http://localhost:8087/api/admin", name = "gatewayAdminClient")
@@ -25,21 +33,34 @@ public interface GatewayAdminClient {
 
     @PutMapping("/rename_boat?newName={newName}")
     @Headers("Content-Type: application/json")
-    BoatDTO renameBoat(@RequestHeader("Authorization") String bearerToken,UUID boatId, @PathVariable(value = "newName") String newName) throws FeignException;
+    BoatDTO renameBoat(@RequestHeader("Authorization") String bearerToken, UUID boatId, @PathVariable(value = "newName") String newName) throws FeignException;
 
     @DeleteMapping("/delete_boat?boatId={boatId}")
     @Headers("Content-Type: application/json")
-    void deleteBoat(@RequestHeader("Authorization") String bearerToken,@PathVariable(value = "boatId") UUID boatId) throws FeignException;
+    void deleteBoat(@RequestHeader("Authorization") String bearerToken, @PathVariable(value = "boatId") UUID boatId) throws FeignException;
 
     @PostMapping("/add_position_to_boat?newPosition={newPosition}")
     @Headers("Content-Type: application/json")
-    BoatDTO addPositionToBoat(@RequestHeader("Authorization") String bearerToken,UUID boatId, @PathVariable(value = "newPosition") BoatRole newPosition) throws FeignException;
+    BoatDTO addPositionToBoat(@RequestHeader("Authorization") String bearerToken, UUID boatId, @PathVariable(value = "newPosition") BoatRole newPosition) throws FeignException;
 
     @DeleteMapping("/delete_position_from_boat?removePosition={removedPosition}")
     @Headers("Content-Type: application/json")
-    BoatDTO removePositionFromBoat(@RequestHeader("Authorization") String bearerToken,UUID boatId, @PathVariable(value = "removedPosition") BoatRole removedPosition) throws FeignException;
+    BoatDTO removePositionFromBoat(@RequestHeader("Authorization") String bearerToken, UUID boatId, @PathVariable(value = "removedPosition") BoatRole removedPosition) throws FeignException;
 
     @PutMapping("/change_cox_certificate?boatId={boatId}&newCertificateId={newCertificateId}")
     @Headers("Content-Type: application/json")
-    BoatDTO changeCoxCertificate(@RequestHeader("Authorization") String bearerToken,@PathVariable(value = "boatId") UUID boatId, @PathVariable(value = "newCertificateId") UUID newCertificateId);
+    BoatDTO changeCoxCertificate(@RequestHeader("Authorization") String bearerToken, @PathVariable(value = "boatId") UUID boatId, @PathVariable(value = "newCertificateId") UUID newCertificateId);
+
+    @PutMapping("/change_certificate_name")
+    @Headers("Content-Type: application/json")
+    CertificateDTO changeCertificateName(@RequestHeader("Authorization") String bearerToken,
+                                          ChangeCertificateNameModel changeCertificateNameModel) throws FeignException;
+
+    @PutMapping("/change_certificate_superseded")
+    @Headers("Content-Type: application/json")
+    CertificateDTO changeCertificateSuperseded(@RequestHeader("Authorization") String bearerToken, ChangeCertificateSupersededModel changeCertificateSupersededModel) throws FeignException;
+
+    @PostMapping("/add_certificate")
+    @Headers("Content-Type: application/json")
+    CertificateDTO addCertificate(@RequestHeader("Authorization") String bearerToken, CertificateDTO certificateDTO) throws FeignException;
 }

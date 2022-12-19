@@ -5,28 +5,31 @@ import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.activities.BoatsClient;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.shared.Username;
-import nl.tudelft.sem.project.users.UserEmail;
-import nl.tudelft.sem.project.users.UsersClient;
+import nl.tudelft.sem.project.users.*;
+import nl.tudelft.sem.project.users.models.ChangeCertificateNameModel;
+import nl.tudelft.sem.project.users.models.ChangeCertificateSupersededModel;
+import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
 @RequestMapping("/api/admin")
 public class AdminController {
-    private final transient UsersClient usersClient;
-    private final transient BoatsClient boatsClient;
-
     @Autowired
-    public AdminController(UsersClient usersClient, BoatsClient boatsClient) {
-        this.usersClient = usersClient;
-        this.boatsClient = boatsClient;
-    }
+    private transient UsersClient usersClient;
+    @Autowired
+    private transient BoatsClient boatsClient;
+    @Autowired
+    private transient CertificatesClient certificatesClient;
 
     /**
      * Deletes a user by username.
@@ -100,5 +103,44 @@ public class AdminController {
                                                           @RequestParam("newCertificateId") UUID newCertificate) {
         var boatDTO = boatsClient.changeCoxCertificate(boatId, newCertificate);
         return ResponseEntity.ok(boatDTO);
+    }
+
+    /**
+     * Endpoint to update the certificate name.
+     *
+     * @param changeCertificateNameModel The model that specifies the certificate and its new name.
+     * @return The updated certificate.
+     */
+    @PutMapping("/change_certificate_name")
+    public ResponseEntity<CertificateDTO> changeCertificateName(
+            @Valid @NotNull @RequestBody ChangeCertificateNameModel changeCertificateNameModel) {
+        var changed = certificatesClient.changeCertificateName(changeCertificateNameModel);
+        return ResponseEntity.ok(changed);
+    }
+
+    /**
+     * Endpoint to update the certificate's superseded certificate.
+     *
+     * @param changeCertificateSupersededModel The model that specifies the certificate and its new superseded one.
+     * @return The updated certificate.
+     */
+    @PutMapping("/change_certificate_superseded")
+    public ResponseEntity<CertificateDTO> changeCertificateSuperseded(
+            @Valid @NotNull @RequestBody ChangeCertificateSupersededModel changeCertificateSupersededModel) {
+        var changed = certificatesClient.changeCertificateSuperseded(changeCertificateSupersededModel);
+        return ResponseEntity.ok(changed);
+    }
+
+    /**
+     * Endpoint to add new certificates to the system.
+     *
+     * @param certificateDTO The new certificate to be added to the system.
+     * @return The certificate that was added along with its new id.
+     */
+    @PostMapping("/add_certificate")
+    public ResponseEntity<CertificateDTO> addCertificate(
+            @Valid @Validated(Fictional.class) @RequestBody CertificateDTO certificateDTO) {
+        var saved = certificatesClient.addCertificate(certificateDTO);
+        return ResponseEntity.ok(saved);
     }
 }
