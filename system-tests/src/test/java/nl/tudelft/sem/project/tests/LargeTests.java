@@ -3,6 +3,8 @@ package nl.tudelft.sem.project.tests;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import nl.tudelft.sem.project.activities.BoatDTO;
+import nl.tudelft.sem.project.activities.CompetitionDTO;
+import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.authentication.AppUserModel;
 import nl.tudelft.sem.project.authentication.Password;
 import nl.tudelft.sem.project.authentication.ResetPasswordModel;
@@ -27,6 +29,7 @@ import org.springframework.context.Lifecycle;
 
 import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
@@ -48,6 +51,9 @@ public class LargeTests {
 
     @Autowired
     GatewayBoatsClient gatewayBoatsClient;
+
+    @Autowired
+    GatewayActivitiesClient gatewayActivitiesClient;
 
     static List<ConfigurableApplicationContext> microservices;
     @BeforeAll
@@ -72,6 +78,23 @@ public class LargeTests {
     static void shutdownEverything() {
         microservices.forEach(Lifecycle::stop);
     }
+
+    public BoatDTO addBoatToTheDatabase(BoatDTO dto) {
+        var adminToken = gatewayAuthenticationClient.authenticate(
+                AuthenticateUserModel.builder().username(
+                        "administrator"
+                ).password("administrator").build()
+        );
+
+        var boatDTO = gatewayAdminClient.addBoat("Bearer " + adminToken, dto);
+        assertEquals(boatDTO.getName(), dto.getName());
+        assertEquals(boatDTO.getAvailablePositions(), dto.getAvailablePositions());
+        assertEquals(boatDTO.getCoxCertificateId(), dto.getCoxCertificateId());
+        assertNotNull(boatDTO.getBoatId());
+        return boatDTO;
+    }
+
+
 
     @ParameterizedTest
     @CsvSource({"test,test@test.com,passss3123", "tEst,tester@gmail.com,passss", "amazing_name_here,wow@wow.com,asdhjkdas"})
@@ -639,5 +662,72 @@ public class LargeTests {
 
         assertEquals(queriedBoat.getCoxCertificateId(), newCertId);
         assertNotNull(queriedBoat.getBoatId());
+    }
+
+
+
+    @Test
+    void createTrainingTest() {
+        var boat = addBoatToTheDatabase(
+                BoatDTO.builder().name("bestest boat").availablePositions(
+                        List.of(BoatRole.Coach)
+                ).coxCertificateId(UUID.randomUUID())
+                        .build()
+        );
+        var createUserModel = CreateUserModel.builder()
+                .username("asdasdasda4sdas55d")
+                .email("adasd13a44s@gdgafm54co.3om")
+                .password("treyh4bd5tyr").build();
+        var userToken = gatewayAuthenticationClient.register(
+                createUserModel
+        );
+
+        var trainingDTO =
+                new TrainingDTO(null, "idk", createUserModel.getUsername(),
+                        java.sql.Timestamp.valueOf(
+                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
+                        java.sql.Timestamp.valueOf(
+                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
+                        List.of(boat));
+
+        trainingDTO = gatewayActivitiesClient.createTraining("Bearer " + userToken, trainingDTO);
+        var queriedDTO =
+                gatewayActivitiesClient.getTraining("Bearer " + userToken, trainingDTO.getId());
+        assertNotNull(trainingDTO);
+        assertEquals(queriedDTO, trainingDTO);
+    }
+
+    @Test
+    void createCompetitionTest() {
+        var boat = addBoatToTheDatabase(
+                BoatDTO.builder().name("bestest boat2").availablePositions(
+                                List.of(BoatRole.Coach)
+                        ).coxCertificateId(UUID.randomUUID())
+                        .build()
+        );
+        var createUserModel = CreateUserModel.builder()
+                .username("asda3sdasda4sdas55d")
+                .email("adasd133a44s@gdgafm54co.3om")
+                .password("treyh34bd5tyr").build();
+        var userToken = gatewayAuthenticationClient.register(
+                createUserModel
+        );
+
+        var competitionDTO =
+                new CompetitionDTO(null, "idk", createUserModel.getUsername(),
+                        java.sql.Timestamp.valueOf(
+                                LocalDateTime.of(2026, 11, 1, 1, 1, 1, 1)),
+                        java.sql.Timestamp.valueOf(
+                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
+                        List.of(boat),
+                        null,
+                        null,
+                        null);
+
+        competitionDTO = gatewayActivitiesClient.createCompetition("Bearer " + userToken, competitionDTO);
+        var queriedDTO =
+                gatewayActivitiesClient.getCompetition("Bearer " + userToken, competitionDTO.getId());
+        assertNotNull(competitionDTO);
+        assertEquals(queriedDTO, competitionDTO);
     }
 }

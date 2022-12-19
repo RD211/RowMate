@@ -1,13 +1,16 @@
 package nl.tudelft.sem.project.matchmaking.services;
 
-import nl.tudelft.sem.project.activities.ActivitiesFeignClient;
+import nl.tudelft.sem.project.activities.ActivitiesClient;
 import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.activities.BoatDTO;
-import nl.tudelft.sem.project.utils.ActivityDeregisterRequestDTO;
-import nl.tudelft.sem.project.utils.ActivityRegistrationRequestDTO;
-import nl.tudelft.sem.project.utils.ActivityRequestDTO;
+import nl.tudelft.sem.project.activities.BoatsClient;
+import nl.tudelft.sem.project.gateway.SeatedUserModel;
+import nl.tudelft.sem.project.matchmaking.ActivityDeregisterRequestDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRegistrationRequestDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRequestDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
+import nl.tudelft.sem.project.matchmaking.UserActivityApplication;
 import nl.tudelft.sem.project.matchmaking.models.FoundActivityModel;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistrationId;
@@ -26,19 +29,30 @@ import java.util.stream.Collectors;
 @Service
 public class MatchmakingService {
 
-    transient ActivitiesFeignClient activitiesClient;
+    transient ActivitiesClient activitiesClient;
+    transient BoatsClient boatsClient;
+
     transient ActivityRegistrationRepository activityRegistrationRepository;
 
     public static final String autoFindErrorMessage =
         "Unfortunately, we could not find any activity matching your request. Please try again!";
 
+    /**
+     * The autowired constructor for the service.
+     *
+     * @param activitiesClient the activities' client.
+     * @param activityRegistrationRepository the activity register repo.
+     * @param boatsClient the boats client.
+     */
     @Autowired
     public MatchmakingService(
-            ActivitiesFeignClient activitiesClient,
-            ActivityRegistrationRepository activityRegistrationRepository
+            ActivitiesClient activitiesClient,
+            ActivityRegistrationRepository activityRegistrationRepository,
+            BoatsClient boatsClient
     ) {
         this.activitiesClient = activitiesClient;
         this.activityRegistrationRepository = activityRegistrationRepository;
+        this.boatsClient = boatsClient;
     }
 
     public List<ActivityDTO> findActivities(ActivityRequestDTO dto) {
@@ -104,28 +118,29 @@ public class MatchmakingService {
             ActivityDTO activity,
             List<AvailableActivityModel> feasibleActivities
     ) {
-        List<ActivityRegistration> registrations
-                = activityRegistrationRepository.findAllByActivityId(activity.getId());
 
-        int idx = 0;
-        for (UUID boatId : activity.getBoats()) {
-            BoatDTO boat = activitiesClient.getBoatByUUID(boatId);
 
-            checkBoatAvailability(dto, activity, feasibleActivities, registrations, boat, idx++);
+        var boats = activity.getBoats();
+        for (int i = 0; i < boats.size(); i++) {
+
+            BoatDTO boat = boatsClient.getBoat(boats.get(i).getBoatId());
+            List<ActivityRegistration> registrations
+                    = activityRegistrationRepository.findAllByActivityId(activity.getId());
+            checkBoatAvailability(dto, activity, feasibleActivities, registrations, boat, i);
         }
     }
 
     private void checkBoatAvailability(
             ActivityRequestDTO dto,
             ActivityDTO activity,
-            List<AvailableActivityModel> feasibleActivities,
-            List<ActivityRegistration> registrations,
+            final List<AvailableActivityModel> feasibleActivities,
+            final List<ActivityRegistration> registrations,
             BoatDTO boat,
-            int idx
+            final int idx
     ) {
-        List<ActivityRegistration> forThisBoat = getRegistrationsForBoat(registrations, idx);
 
         for (BoatRole role : dto.getActivityFilter().getPreferredRoles()) {
+            List<ActivityRegistration> forThisBoat = getRegistrationsForBoat(registrations, idx);
             List<ActivityRegistration> registrationsForRole = getRegistrationsForRole(forThisBoat, role);
             List<BoatRole> availableSpotsForRole = getAvailableSpotForRole(boat, role);
 
@@ -187,7 +202,8 @@ public class MatchmakingService {
                 dto.getUserName(),
                 dto.getActivityId(),
                 dto.getBoat(),
-                dto.getBoatRole()
+                dto.getBoatRole(),
+                false
             );
         activityRegistrationRepository.save(registration);
         return true;
@@ -211,5 +227,51 @@ public class MatchmakingService {
 
         activityRegistrationRepository.delete(registration.get());
         return true;
+    }
+
+    /**
+     * Gets a list of the activities that the user has applied to but has not yet been accepted.
+     *
+     * @param username the username of the user.
+     * @return the list of seatedUserModels
+     */
+    public List<UserActivityApplication> getAllActivitiesThatUserAppliedTo(String username) {
+        var seatedModels = activityRegistrationRepository
+                .findByUserNameAndAccepted(username, false)
+                .stream().map(x -> new SeatedUserModel(x.getActivityId(), x.getBoat(), x.getRole()))
+                .collect(Collectors.toList());
+        return seatedModels.stream().map(
+                x -> {
+                    var activity = activitiesClient.getActivity(x.getActivityId());
+                    return new UserActivityApplication(
+                            activity,
+                            activity.getBoats().get(x.getBoat()),
+                            x.getBoatRole()
+                    );
+                }
+        ).collect(Collectors.toList());
+    }
+
+    /**
+     * Gets a list of the activities that the user has been accepted to.
+     *
+     * @param username the username of the user.
+     * @return the list of seatedUserModels
+     */
+    public List<UserActivityApplication> getAllActivitiesThatUserIsPartOf(String username) {
+        var seatedModels = activityRegistrationRepository
+                .findByUserNameAndAccepted(username, true)
+                .stream().map(x -> new SeatedUserModel(x.getActivityId(), x.getBoat(), x.getRole()))
+                .collect(Collectors.toList());
+        return seatedModels.stream().map(
+                x -> {
+                    var activity = activitiesClient.getActivity(x.getActivityId());
+                    return new UserActivityApplication(
+                      activity,
+                            activity.getBoats().get(x.getBoat()),
+                            x.getBoatRole()
+                    );
+                }
+        ).collect(Collectors.toList());
     }
 }

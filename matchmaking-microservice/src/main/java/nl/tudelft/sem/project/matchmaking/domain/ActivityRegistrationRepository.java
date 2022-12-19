@@ -40,4 +40,13 @@ public interface ActivityRegistrationRepository extends JpaRepository<ActivityRe
     List<ActivityRegistration> findAllByActivityId(
             @Param("activityId") UUID activityId
     );
+
+    @Query("select a from ActivityRegistration a where a.activityId = ?1 and a.accepted = ?2")
+    List<ActivityRegistration> findByActivityIdAndAccepted(UUID activityId, boolean accepted);
+
+    @Query("select a from ActivityRegistration a where a.userName = ?1 and a.accepted = ?2")
+    List<ActivityRegistration> findByUserNameAndAccepted(String userName, boolean accepted);
+
+
+
 }

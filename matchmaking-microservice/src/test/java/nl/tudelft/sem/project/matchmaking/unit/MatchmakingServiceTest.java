@@ -1,10 +1,11 @@
 package nl.tudelft.sem.project.matchmaking.unit;
 
-import nl.tudelft.sem.project.activities.ActivitiesFeignClient;
+import nl.tudelft.sem.project.activities.ActivitiesClient;
 import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.activities.BoatDTO;
-import nl.tudelft.sem.project.utils.ActivityFilterDTO;
-import nl.tudelft.sem.project.utils.ActivityRequestDTO;
+import nl.tudelft.sem.project.activities.BoatsClient;
+import nl.tudelft.sem.project.matchmaking.ActivityFilterDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRequestDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;
@@ -34,8 +35,10 @@ public class MatchmakingServiceTest {
     private MatchmakingService matchmakingService;
 
     @MockBean
-    private ActivitiesFeignClient activitiesClient;
+    private ActivitiesClient activitiesClient;
 
+    @MockBean
+    private BoatsClient boatsClient;
     @MockBean
     private ActivityRegistrationRepository activityRegistrationRepository;
 
@@ -49,8 +52,8 @@ public class MatchmakingServiceTest {
     void setUp() {
         filterDTO = ActivityFilterDTO
                     .builder()
-                    .startTime(LocalDateTime.now())
-                    .endTime(LocalDateTime.now())
+                    .startTime(java.sql.Timestamp.valueOf(LocalDateTime.now()))
+                    .endTime(java.sql.Timestamp.valueOf(LocalDateTime.now()))
                     .preferredRoles(List.of(BoatRole.Coach, BoatRole.Cox))
                     .build();
 
@@ -66,9 +69,9 @@ public class MatchmakingServiceTest {
                     .id(setUUID)
                     .location("somewhere")
                     .owner("someone")
-                    .startTime(LocalDateTime.now())
-                    .endTime(LocalDateTime.now())
-                    .boats(List.of(setUUID))
+                    .startTime(java.sql.Timestamp.valueOf(LocalDateTime.now()))
+                    .endTime(java.sql.Timestamp.valueOf(LocalDateTime.now()))
+                    .boats(List.of(BoatDTO.builder().boatId(setUUID).build()))
                     .build();
 
         boat =
@@ -94,7 +97,7 @@ public class MatchmakingServiceTest {
         Mockito.when(activitiesClient.findActivitiesFromFilter(any(ActivityFilterDTO.class)))
                 .thenReturn(List.of(activity));
 
-        Mockito.when(activitiesClient.getBoatByUUID(any(UUID.class)))
+        Mockito.when(boatsClient.getBoat(any(UUID.class)))
                 .thenReturn(boat);
 
         ActivityRegistration registration =
@@ -120,7 +123,7 @@ public class MatchmakingServiceTest {
 
         boat.setAvailablePositions(List.of(BoatRole.Other));
 
-        Mockito.when(activitiesClient.getBoatByUUID(any(UUID.class)))
+        Mockito.when(boatsClient.getBoat(any(UUID.class)))
                 .thenReturn(boat);
 
         Mockito.when(activityRegistrationRepository.findAllByActivityId(any(UUID.class)))
