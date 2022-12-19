@@ -116,28 +116,29 @@ public class MatchmakingService {
             ActivityDTO activity,
             List<AvailableActivityModel> feasibleActivities
     ) {
-        List<ActivityRegistration> registrations
-                = activityRegistrationRepository.findAllByActivityId(activity.getId());
 
-        int idx = 0;
-        for (BoatDTO boatId : activity.getBoats()) {
-            BoatDTO boat = boatsClient.getBoat(boatId.getBoatId());
 
-            checkBoatAvailability(dto, activity, feasibleActivities, registrations, boat, idx++);
+        var boats = activity.getBoats();
+        for (int i = 0; i < boats.size(); i++) {
+
+            BoatDTO boat = boatsClient.getBoat(boats.get(i).getBoatId());
+            List<ActivityRegistration> registrations
+                    = activityRegistrationRepository.findAllByActivityId(activity.getId());
+            checkBoatAvailability(dto, activity, feasibleActivities, registrations, boat, i);
         }
     }
 
     private void checkBoatAvailability(
             ActivityRequestDTO dto,
             ActivityDTO activity,
-            List<AvailableActivityModel> feasibleActivities,
-            List<ActivityRegistration> registrations,
+            final List<AvailableActivityModel> feasibleActivities,
+            final List<ActivityRegistration> registrations,
             BoatDTO boat,
-            int idx
+            final int idx
     ) {
-        List<ActivityRegistration> forThisBoat = getRegistrationsForBoat(registrations, idx);
 
         for (BoatRole role : dto.getActivityFilter().getPreferredRoles()) {
+            List<ActivityRegistration> forThisBoat = getRegistrationsForBoat(registrations, idx);
             List<ActivityRegistration> registrationsForRole = getRegistrationsForRole(forThisBoat, role);
             List<BoatRole> availableSpotsForRole = getAvailableSpotForRole(boat, role);
 
