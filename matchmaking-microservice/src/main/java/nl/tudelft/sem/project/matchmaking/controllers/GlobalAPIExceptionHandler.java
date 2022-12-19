@@ -1,8 +1,6 @@
-package nl.tudelft.sem.project.activities.controllers;
+package nl.tudelft.sem.project.matchmaking.controllers;
 
 import nl.tudelft.sem.project.activities.ActivityNotFoundException;
-import nl.tudelft.sem.project.activities.exceptions.BoatNotFoundException;
-import nl.tudelft.sem.project.activities.exceptions.RoleNotFoundException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -31,7 +29,7 @@ public class GlobalAPIExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
-    @ExceptionHandler({BoatNotFoundException.class, RoleNotFoundException.class, ActivityNotFoundException.class})
+    @ExceptionHandler({ActivityNotFoundException.class})
     public String handleNotFoundException(Exception ex) {
         return ex.getMessage();
     }

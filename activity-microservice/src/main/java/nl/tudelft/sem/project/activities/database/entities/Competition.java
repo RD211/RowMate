@@ -4,6 +4,9 @@ import lombok.*;
 import nl.tudelft.sem.project.activities.CompetitionDTO;
 import nl.tudelft.sem.project.enums.Gender;
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * A Competition is one of the two different types of activities.
@@ -23,42 +26,45 @@ public class Competition extends Activity {
     /**
      * Determines if the competitions is available for amateurs.
      */
-    @Column(nullable = true)
+    @Column()
     Boolean allowsAmateurs;
     /**
      * The Organization of the competition.
      */
-    @Column(nullable = true)
+    @Column()
     String requiredOrganization;
 
     /**
      * Gender of person who wants to join the competition.
      */
-    @Column(nullable = true, unique = true)
+    @Column()
     protected Gender requiredGender;
 
     /**
-     * Creates a competition entity from a DTO.
+     * The competition constructor.
      *
-     * @param dto the DTO to create the entity from.
+     * @param id the id of the competition.
+     * @param location the location.
+     * @param owner the activity owner.
+     * @param startTime the start time of the competition.
+     * @param endTime the end time of the competition.
+     * @param boats a list of boats that are part of the activity.
+     * @param allowsAmateurs if the competition allows amateurs.
+     * @param requiredOrganization the required organization.
+     * @param requiredGender the required gender.
      */
-    public Competition(CompetitionDTO dto) {
-        super(dto);
-        this.allowsAmateurs = dto.getAllowsAmateurs();
-        this.requiredOrganization = dto.getRequiredOrganization();
-        this.requiredGender = dto.getRequiredGender();
-    }
-
-    @Override
-    public CompetitionDTO toDTO() {
-        return new CompetitionDTO(
-                this.getId(),
-                this.getLocation(),
-                this.getStartTime(),
-                this.getEndTime(),
-                this.getBoats(),
-                this.getAllowsAmateurs(),
-                this.getRequiredOrganization(),
-                this.getRequiredGender());
+    public Competition(UUID id,
+                       String location,
+                       String owner,
+                       LocalDateTime startTime,
+                       LocalDateTime endTime,
+                       List<Boat> boats,
+                       Boolean allowsAmateurs,
+                       String requiredOrganization,
+                       Gender requiredGender) {
+        super(id, location, owner, startTime, endTime, boats);
+        this.allowsAmateurs = allowsAmateurs;
+        this.requiredOrganization = requiredOrganization;
+        this.requiredGender = requiredGender;
     }
 }
