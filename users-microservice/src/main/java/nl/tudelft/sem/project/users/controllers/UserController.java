@@ -56,7 +56,7 @@ public class UserController {
      * @return the userDTO.
      */
     @GetMapping("/get_user_by_username")
-    public ResponseEntity<UserDTO> getUserByUsername(@Valid @NotNull @RequestParam Username username) {
+    public ResponseEntity<UserDTO> getUserByUsername(@Valid @NotNull @RequestParam("username") Username username) {
         var user = userService.getUserByUsername(username);
         return ResponseEntity.ok(userConverterService.toDTO(user));
     }

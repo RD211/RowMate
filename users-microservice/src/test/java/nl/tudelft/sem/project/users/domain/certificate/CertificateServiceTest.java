@@ -1,6 +1,7 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
 import com.fasterxml.jackson.databind.util.ArrayIterator;
+import nl.tudelft.sem.project.users.CertificateName;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 
 import nl.tudelft.sem.project.users.exceptions.CertificateNameInUseException;

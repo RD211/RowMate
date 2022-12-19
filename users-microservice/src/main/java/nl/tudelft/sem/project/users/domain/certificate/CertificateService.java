@@ -1,6 +1,7 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
 import lombok.NonNull;
+import nl.tudelft.sem.project.users.CertificateName;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.exceptions.CertificateNameInUseException;
 import nl.tudelft.sem.project.users.exceptions.CertificateNotFoundException;

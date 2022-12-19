@@ -1,10 +1,8 @@
 package nl.tudelft.sem.project.users.controllers;
 
 import nl.tudelft.sem.project.users.CertificateDTO;
-import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
-import nl.tudelft.sem.project.users.domain.certificate.Certificate;
 import nl.tudelft.sem.project.users.domain.certificate.CertificateConverterService;
-import nl.tudelft.sem.project.users.domain.certificate.CertificateName;
+import nl.tudelft.sem.project.users.CertificateName;
 import nl.tudelft.sem.project.users.domain.certificate.CertificateService;
 import nl.tudelft.sem.project.users.exceptions.CertificateNameInUseException;
 import nl.tudelft.sem.project.users.exceptions.CertificateNotFoundException;
@@ -54,14 +52,14 @@ public class CertificateController {
     /**
      * Endpoint to fetch a certificate by its id.
      *
-     * @param certficateId The id of the certificate to be fetched.
+     * @param certificateId The id of the certificate to be fetched.
      * @return The found certificate.
      * @throws CertificateNotFoundException Is thrown when the certificate could not be found.
      */
     @GetMapping("/get_certificate_by_id")
-    public ResponseEntity<CertificateDTO> getCertificateById(@NotNull @RequestParam UUID certficateId)
+    public ResponseEntity<CertificateDTO> getCertificateById(@NotNull @RequestParam UUID certificateId)
             throws CertificateNotFoundException {
-        var certificate = certificateService.getCertificateById(certficateId);
+        var certificate = certificateService.getCertificateById(certificateId);
         return ResponseEntity.ok(certificateConverterService.toDTO(certificate));
     }
 
@@ -73,7 +71,8 @@ public class CertificateController {
      * @throws CertificateNotFoundException Is thrown when the certificate could not be found.
      */
     @GetMapping("/get_certificate_by_name")
-    public ResponseEntity<CertificateDTO> getCertificateByName(@NotNull @RequestParam CertificateName certificateName)
+    public ResponseEntity<CertificateDTO> getCertificateByName(
+            @NotNull @RequestParam("certificateName") CertificateName certificateName)
             throws CertificateNotFoundException {
         var certificate = certificateService.getCertificateByName(certificateName);
         return ResponseEntity.ok(certificateConverterService.toDTO(certificate));
@@ -92,7 +91,8 @@ public class CertificateController {
     public ResponseEntity<CertificateDTO> changeCertificateName(
             @Valid @NotNull @RequestBody ChangeCertificateNameModel changeCertificateNameModel)
             throws CertificateNotFoundException, ConstraintViolationException, CertificateNameInUseException {
-        var realCertificate = certificateConverterService.toDatabaseEntity(changeCertificateNameModel.getCertificateDTO());
+        var realCertificate = certificateConverterService.toDatabaseEntity(
+                changeCertificateNameModel.getCertificateDTO());
         var updatedCertificate = certificateService.updateCertificateName(
                 realCertificate, new CertificateName(changeCertificateNameModel.getNewName()));
         return ResponseEntity.ok(certificateConverterService.toDTO(updatedCertificate));
