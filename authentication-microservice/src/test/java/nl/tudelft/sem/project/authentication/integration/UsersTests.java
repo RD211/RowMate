@@ -90,7 +90,7 @@ public class UsersTests {
         final Password newTestPassword = new Password("password456");
         final HashedPassword existingTestPassword = new HashedPassword("password123");
 
-        AppUser existingAppUser = new AppUser(testUser, existingTestPassword);
+        AppUser existingAppUser = new AppUser(testUser, existingTestPassword, false);
         userRepository.save(existingAppUser);
 
         AppUserModel model = new AppUserModel();
@@ -130,7 +130,7 @@ public class UsersTests {
             argThat(userDetails -> userDetails.getUsername().equals(testUser.getName())))
         ).thenReturn(testToken);
 
-        AppUser appUser = new AppUser(testUser, testHashedPassword);
+        AppUser appUser = new AppUser(testUser, testHashedPassword, false);
         userRepository.save(appUser);
 
         AppUserModel model = new AppUserModel();
@@ -194,7 +194,7 @@ public class UsersTests {
                     && wrongPassword.getPasswordValue().equals(authentication.getCredentials().toString())
         ))).thenThrow(new BadCredentialsException("Invalid password"));
 
-        AppUser appUser = new AppUser(testUser, testHashedPassword);
+        AppUser appUser = new AppUser(testUser, testHashedPassword, false);
         userRepository.save(appUser);
 
         AppUserModel model = new AppUserModel();

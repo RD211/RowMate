@@ -2,15 +2,14 @@ package nl.tudelft.sem.project.users.domain.users;
 
 import lombok.NonNull;
 import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserEmail;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
-import nl.tudelft.sem.project.users.exceptions.EmailInUseException;
-import nl.tudelft.sem.project.users.exceptions.UserNotFoundException;
+import nl.tudelft.sem.project.users.EmailInUseException;
+import nl.tudelft.sem.project.users.UserNotFoundException;
 import nl.tudelft.sem.project.shared.UsernameInUseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-
-import java.util.UUID;
 
 /**
  * The users service.
@@ -44,16 +43,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    /**
-     * Deletes a user given the id.
-     *
-     * @param id the id given.
-     * @throws UserNotFoundException if the user was not found.
-     */
-    public void deleteUserById(@NonNull UUID id) throws UserNotFoundException {
-        User foundUser = getUserById(id);
-        userRepository.delete(foundUser);
-    }
 
     /**
      * Deletes a user by email.
@@ -75,22 +64,6 @@ public class UserService {
     public void deleteUserByUsername(@NonNull Username username) throws UserNotFoundException {
         User foundUser = getUserByUsername(username);
         userRepository.delete(foundUser);
-    }
-
-    /**
-     * Gets a user by id.
-     *
-     * @param id the id given.
-     * @return the found user.
-     * @throws UserNotFoundException if the user was not found.
-     */
-    public User getUserById(@NonNull UUID id) throws UserNotFoundException {
-        var user = userRepository.findById(id);
-        if (user.isPresent()) {
-            return user.get();
-        }
-
-        throw new UserNotFoundException("User could not be found by id.");
     }
 
     /**

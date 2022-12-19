@@ -1,7 +1,7 @@
 package nl.tudelft.sem.project.users.database.repositories;
 
 import nl.tudelft.sem.project.users.domain.users.User;
-import nl.tudelft.sem.project.users.domain.users.UserEmail;
+import nl.tudelft.sem.project.users.UserEmail;
 import nl.tudelft.sem.project.shared.Username;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

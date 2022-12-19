@@ -2,6 +2,7 @@ package nl.tudelft.sem.project.users.controllers;
 
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
+import nl.tudelft.sem.project.users.UserEmail;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.domain.certificate.CertificateConverterService;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -36,7 +36,6 @@ public class UserController {
     transient CertificateConverterService certificateConverterService;
 
 
-
     /**
      * The add user endpoint. It adds a user to the database given the UserDTO.
      *
@@ -48,19 +47,6 @@ public class UserController {
         var user = userConverterService.toEntity(userDTO);
         var savedUser = userService.addUser(user);
         return ResponseEntity.ok(userConverterService.toDTO(savedUser));
-    }
-
-
-    /**
-     * Gets a userDTO by the id.
-     *
-     * @param userId the requested id.
-     * @return the userDTO.
-     */
-    @GetMapping("/get_user_by_id")
-    public ResponseEntity<UserDTO> getUserById(@Valid @NotNull @RequestParam  UUID userId) {
-        var user = userService.getUserById(userId);
-        return ResponseEntity.ok(userConverterService.toDTO(user));
     }
 
     /**
@@ -86,6 +72,21 @@ public class UserController {
             @Valid @NotNull @RequestBody ChangeGenderUserModel changeGenderUserModel) {
         var realUser = userConverterService.toDatabaseEntity(changeGenderUserModel.getUser());
         realUser.setGender(changeGenderUserModel.getGender());
+        var savedUser = userRepository.save(realUser);
+        return ResponseEntity.ok(userConverterService.toDTO(savedUser));
+    }
+
+    /**
+     * Changes the organization of the user to some other value.
+     *
+     * @param changeOrganizationUserModel the change organization model, it contains the user and the new organization.
+     * @return the updated userDTO.
+     */
+    @PutMapping("/change_organization")
+    public ResponseEntity<UserDTO> changeOrganization(
+            @Valid @NotNull @RequestBody ChangeOrganizationUserModel changeOrganizationUserModel) {
+        var realUser = userConverterService.toDatabaseEntity(changeOrganizationUserModel.getUser());
+        realUser.setOrganization(changeOrganizationUserModel.getOrganization());
         var savedUser = userRepository.save(realUser);
         return ResponseEntity.ok(userConverterService.toDTO(savedUser));
     }
@@ -162,7 +163,7 @@ public class UserController {
     }
 
     /**
-     * Removes a certificate from the users collection.
+     * Removes a certificate from the users' collection.
      *
      * @param removeCertificateUserModel the model that contains the user and the certificate to remove.
      * @return the updated user.
@@ -171,7 +172,7 @@ public class UserController {
     @DeleteMapping("/remove_certificate")
     public ResponseEntity<UserDTO> removeCertificate(
             @Valid @NotNull @RequestBody RemoveCertificateUserModel removeCertificateUserModel)
-            throws CertificateNotFoundException  {
+            throws CertificateNotFoundException {
         var certificate =
                 certificateRepository.findById(removeCertificateUserModel.getCertificate().getId());
         if (certificate.isEmpty()) {
@@ -214,4 +215,34 @@ public class UserController {
         return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
     }
 
+    /**
+     * Delete a user by the username.
+     * This is an admin endpoint.
+     *
+     * @param username the username of the user to delete.
+     * @return the deleted user before the action.
+     */
+    @DeleteMapping("/delete_user_by_username")
+    public ResponseEntity deleteUserByUsername(
+            @Valid @NotNull @RequestBody Username username) {
+        userService.deleteUserByUsername(username);
+        return ResponseEntity.ok().build();
+    }
+
+
+    /**
+     * Delete a user by the email.
+     * This is an admin endpoint.
+     *
+     * @param email the email of the user to delete.
+     * @return the deleted user before the action.
+     */
+    @DeleteMapping("/delete_user_by_email")
+    public ResponseEntity deleteUserByEmail(
+            @Valid @NotNull @RequestBody UserEmail email) {
+        userService.deleteUserByEmail(email);
+        return ResponseEntity.ok().build();
+
+
+    }
 }
