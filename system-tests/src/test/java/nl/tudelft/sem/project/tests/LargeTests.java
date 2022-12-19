@@ -685,9 +685,9 @@ public class LargeTests {
         var trainingDTO =
                 new TrainingDTO(null, "idk", createUserModel.getUsername(),
                         java.sql.Timestamp.valueOf(
-                                LocalDateTime.of(2022, 11, 1, 1, 1, 1, 1)),
+                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
                         java.sql.Timestamp.valueOf(
-                                LocalDateTime.of(2022, 12, 1, 1, 1, 1, 1)),
+                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
                         List.of(boat));
 
         trainingDTO = gatewayActivitiesClient.createTraining("Bearer " + userToken, trainingDTO);
@@ -716,9 +716,9 @@ public class LargeTests {
         var competitionDTO =
                 new CompetitionDTO(null, "idk", createUserModel.getUsername(),
                         java.sql.Timestamp.valueOf(
-                                LocalDateTime.of(2022, 11, 1, 1, 1, 1, 1)),
+                                LocalDateTime.of(2026, 11, 1, 1, 1, 1, 1)),
                         java.sql.Timestamp.valueOf(
-                                LocalDateTime.of(2022, 12, 1, 1, 1, 1, 1)),
+                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
                         List.of(boat),
                         null,
                         null,

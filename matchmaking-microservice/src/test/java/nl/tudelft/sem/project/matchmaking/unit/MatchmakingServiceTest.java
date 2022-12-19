@@ -4,8 +4,8 @@ import nl.tudelft.sem.project.activities.ActivitiesClient;
 import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.activities.BoatsClient;
-import nl.tudelft.sem.project.utils.ActivityFilterDTO;
-import nl.tudelft.sem.project.utils.ActivityRequestDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityFilterDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRequestDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;
@@ -21,7 +21,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 

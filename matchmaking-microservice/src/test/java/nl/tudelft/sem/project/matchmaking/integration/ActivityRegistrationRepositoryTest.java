@@ -25,7 +25,7 @@ public class ActivityRegistrationRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        entityManager.persist(new ActivityRegistration("userOne", setUUID, 1, BoatRole.Coach));
+        entityManager.persist(new ActivityRegistration("userOne", setUUID, 1, BoatRole.Coach, false));
     }
 
     @Test

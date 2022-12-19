@@ -1,10 +1,12 @@
 package nl.tudelft.sem.project.matchmaking.controllers;
 
 import nl.tudelft.sem.project.activities.ActivityDTO;
-import nl.tudelft.sem.project.utils.ActivityDeregisterRequestDTO;
-import nl.tudelft.sem.project.utils.ActivityRegistrationRequestDTO;
-import nl.tudelft.sem.project.utils.ActivityRequestDTO;
+import nl.tudelft.sem.project.gateway.SeatedUserModel;
+import nl.tudelft.sem.project.matchmaking.ActivityDeregisterRequestDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRegistrationRequestDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRequestDTO;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
+import nl.tudelft.sem.project.matchmaking.UserActivityApplication;
 import nl.tudelft.sem.project.matchmaking.services.MatchmakingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -66,7 +68,7 @@ public class MatchmakingController {
             return ResponseEntity.ok("Registration successful.");
         }
 
-        return ResponseEntity.ok(
+        throw new RuntimeException(
                 "There was a problem registering in the activity."
                 + "Either you are already registered to it, or the role in the boat is taken."
         );
@@ -85,6 +87,31 @@ public class MatchmakingController {
             return ResponseEntity.ok("You successfully deregistered.");
         }
 
-        return ResponseEntity.ok("You are not enrolled in the activity!");
+        throw new RuntimeException("You are not enrolled in the activity!");
+    }
+
+    /**
+     * Get waiting applications. Gets a list of seated user model of where the user applied to and has not yet gotten
+     * approved.
+     *
+     * @param username the username.
+     * @return the list of models.
+     */
+    @GetMapping("get_waiting_applications")
+    public ResponseEntity<List<UserActivityApplication>> getWaitingApplications(
+            @RequestParam(value = "username") String username) {
+        return ResponseEntity.ok(matchmakingService.getAllActivitiesThatUserAppliedTo(username));
+    }
+
+    /**
+     * Get accepted applications. Gets a list of seated user model of where the user applied to and got accepted.
+     *
+     * @param username the username.
+     * @return the list of models.
+     */
+    @GetMapping("get_accepted_applications")
+    public ResponseEntity<List<UserActivityApplication>> getAcceptedApplications(
+            @RequestParam(value = "username") String username) {
+        return ResponseEntity.ok(matchmakingService.getAllActivitiesThatUserIsPartOf(username));
     }
 }

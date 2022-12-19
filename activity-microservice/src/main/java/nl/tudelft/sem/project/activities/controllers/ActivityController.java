@@ -4,20 +4,20 @@ import nl.tudelft.sem.project.activities.CompetitionDTO;
 import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.activities.database.entities.ActivityConverterService;
 import nl.tudelft.sem.project.activities.database.entities.CompetitionConverterService;
-import nl.tudelft.sem.project.activities.database.entities.Training;
 import nl.tudelft.sem.project.activities.database.entities.TrainingConverterService;
 import nl.tudelft.sem.project.activities.services.ActivityService;
 import nl.tudelft.sem.project.activities.ActivityDTO;
-import nl.tudelft.sem.project.utils.ActivityFilterDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityFilterDTO;
 import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -74,6 +74,18 @@ public class ActivityController {
     @PostMapping("/create_training")
     public ResponseEntity<TrainingDTO> createTraining(@Valid @Validated(Fictional.class)
                                                                 @NotNull @RequestBody TrainingDTO dto) {
+        if (dto.getBoats().isEmpty()) {
+            throw new RuntimeException("There should be at least one boat present.");
+        }
+
+        if (dto.getStartTime().after(dto.getEndTime())) {
+            throw new RuntimeException("Starting time should be before ending time.");
+        }
+
+        if (dto.getStartTime().before(Date.from(Instant.now()))) {
+            throw new RuntimeException("Starting time should be in the future.");
+        }
+
         var training = trainingConverterService.toEntity(dto);
         var trainingDTO =
                 trainingConverterService.toDTO(activityService.addTraining(training));
@@ -90,6 +102,18 @@ public class ActivityController {
     @PostMapping("/create_competition")
     public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated(Fictional.class)
                                                       @NotNull @RequestBody CompetitionDTO dto) {
+        if (dto.getBoats().isEmpty()) {
+            throw new RuntimeException("There should be at least one boat present.");
+        }
+
+        if (dto.getStartTime().after(dto.getEndTime())) {
+            throw new RuntimeException("Starting time should be before ending time.");
+        }
+
+        if (dto.getStartTime().before(Date.from(Instant.now()))) {
+            throw new RuntimeException("Starting time should be in the future.");
+        }
+
         var competition = competitionConverterService.toEntity(dto);
         var competitionDTO =
                 competitionConverterService.toDTO(activityService.addCompetition(competition));

@@ -3,8 +3,8 @@ package nl.tudelft.sem.project.matchmaking.strategies;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import nl.tudelft.sem.project.utils.ActivityRegistrationRequestDTO;
-import nl.tudelft.sem.project.utils.ActivityRequestDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRegistrationRequestDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRequestDTO;
 import nl.tudelft.sem.project.matchmaking.models.AvailableActivityModel;
 import nl.tudelft.sem.project.matchmaking.models.FoundActivityModel;
 

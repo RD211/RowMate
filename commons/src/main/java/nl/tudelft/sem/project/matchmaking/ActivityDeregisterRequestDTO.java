@@ -1,4 +1,4 @@
-package nl.tudelft.sem.project.utils;
+package nl.tudelft.sem.project.matchmaking;
 
 import lombok.*;
 
