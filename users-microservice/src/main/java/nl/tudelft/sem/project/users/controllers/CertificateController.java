@@ -18,6 +18,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -113,7 +114,7 @@ public class CertificateController {
         var realCertificate = certificateConverterService.toDatabaseEntity(
                 changeCertificateSupersededModel.getCertificateDTO());
         var updatedCertificate = certificateService.updateCertificateSuperseded(
-                realCertificate, changeCertificateSupersededModel.getNewSupersededId());
+                realCertificate, Optional.ofNullable(changeCertificateSupersededModel.getNewSupersededId()));
         return ResponseEntity.ok(certificateConverterService.toDTO(updatedCertificate));
     }
 
@@ -129,6 +130,25 @@ public class CertificateController {
                         .stream()
                         .map(c -> certificateConverterService.toDTO(c)).collect(Collectors.toList()));
 
+    }
+
+    /**
+     * Endpoint to fetch a chain of certificates.
+     *
+     * @param certificateId Certificate at the start of the chain.
+     * @return The ordered list of certificates in the chain.
+     */
+    @GetMapping("/get_certificate_chain_by_id")
+    public ResponseEntity<List<CertificateDTO>> getCertificateChain(@NotNull @RequestParam UUID certificateId)
+            throws CertificateNotFoundException {
+        return ResponseEntity.ok(
+                certificateService
+                        .getCertificateById(certificateId)
+                        .getAllFromCertificateChain()
+                        .stream()
+                        .map(c -> certificateConverterService.toDTO(c))
+                        .collect(Collectors.toList())
+        );
     }
 
 }
