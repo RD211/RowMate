@@ -1,10 +1,9 @@
 package nl.tudelft.sem.project.notifications.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.activities.CompetitionDTO;
 import nl.tudelft.sem.project.activities.TrainingDTO;
+import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.notifications.EventType;
 import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.users.UserDTO;
@@ -19,6 +18,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -67,7 +70,14 @@ class NotificationsControllerTest {
 
     @Test
     public void sendMailCompetition() throws Exception {
-        CompetitionDTO activityDTO = new CompetitionDTO();
+        CompetitionDTO activityDTO = new CompetitionDTO(UUID.randomUUID(),
+                "location",
+                LocalDateTime.MIN,
+                LocalDateTime.MAX,
+                new ArrayList<>(),
+                false,
+                "Test organization",
+                Gender.Male);
         UserDTO userDTO = UserDTO.builder()
                 .username("testificate")
                 .email("testificate@testific.ate")
