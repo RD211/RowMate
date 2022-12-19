@@ -4,9 +4,17 @@ import feign.FeignException;
 import feign.Headers;
 import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
+import nl.tudelft.sem.project.users.CertificateDTO;
+import nl.tudelft.sem.project.users.models.ChangeCertificateNameModel;
+import nl.tudelft.sem.project.users.models.ChangeCertificateSupersededModel;
+import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @FeignClient(url = "http://localhost:8087/api/admin", name = "gatewayAdminClient")
@@ -42,4 +50,17 @@ public interface GatewayAdminClient {
     @PutMapping("/change_cox_certificate?boatId={boatId}&newCertificateId={newCertificateId}")
     @Headers("Content-Type: application/json")
     BoatDTO changeCoxCertificate(@RequestHeader("Authorization") String bearerToken,@PathVariable(value = "boatId") UUID boatId, @PathVariable(value = "newCertificateId") UUID newCertificateId);
+
+    @PutMapping("/change_certificate_name")
+    @Headers("Content-Type: application/json")
+    CertificateDTO changeCertificateName(@RequestHeader("Authorization") String bearerToken,
+                                          ChangeCertificateNameModel changeCertificateNameModel) throws FeignException;
+
+    @PutMapping("/change_certificate_superseded")
+    @Headers("Content-Type: application/json")
+    CertificateDTO changeCertificateSuperseded(ChangeCertificateSupersededModel changeCertificateSupersededModel) throws FeignException;
+
+    @PostMapping("/add_certificate")
+    @Headers("Content-Type: application/json")
+    CertificateDTO addCertificate(CertificateDTO certificateDTO) throws FeignException;
 }

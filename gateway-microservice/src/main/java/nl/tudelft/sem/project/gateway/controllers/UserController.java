@@ -11,8 +11,10 @@ import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.users.models.*;
+import nl.tudelft.sem.project.utils.Existing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -212,4 +214,20 @@ public class UserController {
         );
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * Checks whether a user is in possession of a certificate directly or through supersedence.
+     *
+     * @param certificateDTO The certificate to look for.
+     * @return Whether the user has the certificate.
+     */
+    @GetMapping("/has_certificate")
+    public ResponseEntity<Boolean> hasCertificate(
+            @Valid @Validated(Existing.class) @RequestBody CertificateDTO certificateDTO) {
+        var username = authManager.getUsername();
+        var userDTO = UserDTO.builder().username(username).build();
+        return ResponseEntity.ok(usersClient.hasCertificate(userDTO, certificateDTO));
+    }
+
+
 }

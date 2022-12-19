@@ -32,10 +32,14 @@ public interface CertificatesClient {
 
     @PutMapping("/change_certificate_superseded")
     @Headers("Content-Type: application/json")
-    CertificateDTO changeCertificateName(ChangeCertificateSupersededModel changeCertificateSupersededModel);
+    CertificateDTO changeCertificateSuperseded(ChangeCertificateSupersededModel changeCertificateSupersededModel);
 
     @GetMapping("")
     @Headers("Content-Type: application/json")
     List<CertificateDTO> getAllAvailableCertificates();
+
+    @GetMapping("/get_certificate_chain_by_id?id={id}")
+    @Headers("Content-Type: application/json")
+    List<CertificateDTO> getCertificateChain(@PathVariable(value = "id") UUID id) throws FeignException;
 
 }
