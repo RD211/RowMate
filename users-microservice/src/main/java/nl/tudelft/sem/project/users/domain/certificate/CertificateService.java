@@ -101,9 +101,13 @@ public class CertificateService {
      *                                      by its id.
      */
     public Certificate updateCertificate(@NonNull Certificate certificate)
-            throws CertificateNotFoundException {
+            throws CertificateNotFoundException, CertificateNameInUseException {
 
         Certificate saved = getCertificateById(certificate.getId());
+
+        if (existsByName(certificate.getName())) {
+            throw new CertificateNameInUseException(certificate.getName());
+        }
 
         saved.setName(certificate.getName());
         saved.setSuperseded(certificate.getSuperseded().orElse(null));

@@ -13,7 +13,7 @@ import java.util.Optional;
 public class CertificateConverterService implements ConverterEntityDTO<CertificateDTO, Certificate> {
 
     @Autowired
-    private transient CertificateService certificateService;
+    transient CertificateService certificateService;
 
     @Override
     public CertificateDTO toDTO(Certificate certificate) {
