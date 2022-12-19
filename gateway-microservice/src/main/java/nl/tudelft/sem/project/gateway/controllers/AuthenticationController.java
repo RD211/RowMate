@@ -3,6 +3,7 @@ package nl.tudelft.sem.project.gateway.controllers;
 import nl.tudelft.sem.project.authentication.AppUserModel;
 import nl.tudelft.sem.project.authentication.AuthClient;
 import nl.tudelft.sem.project.authentication.Password;
+import nl.tudelft.sem.project.authentication.ResetPasswordModel;
 import nl.tudelft.sem.project.gateway.AuthenticateUserModel;
 import nl.tudelft.sem.project.gateway.CreateUserModel;
 import nl.tudelft.sem.project.shared.Username;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 
 @RestController
@@ -66,5 +68,55 @@ public class AuthenticationController {
         var token = authClient.authenticate(appUserModel);
 
         return ResponseEntity.ok(token.getToken());
+    }
+
+    /**
+     * The reset password with previous endpoint.
+     * Resets the password of a user given the previous one.
+     *
+     * @param resetPasswordModel the model that contains username, previous password and new password.
+     * @return nothing.
+     */
+    @PostMapping("/reset_password_with_previous")
+    public ResponseEntity<Void> resetPasswordWithPrevious(
+            @RequestBody @Valid ResetPasswordModel resetPasswordModel) {
+        authClient.resetPasswordWithPrevious(resetPasswordModel);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Reset password by email.
+     * This endpoint will email the user with a reset password link.
+     *
+     * @param username the username of the user.
+     * @return nothing.
+     */
+    @PostMapping("/reset_password_with_email")
+    public ResponseEntity<Void> resetPasswordWithEmail(@RequestBody @Valid Username username) {
+        usersClient.getUserByUsername(username);
+        var token = authClient.getEmailResetPasswordToken(username);
+
+        //TODO: Send email here instead but first we need to have a way to disable emails on tests.
+        System.out.println("http://localhost:8087/api/authentication/reset_password?token=" + token);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Reset password from email token.
+     * This endpoint will reset the password of a user when they use the
+     * link they were sent via email.
+     *
+     * @param resetToken the token.
+     * @param newPassword the new password.
+     * @return nothing.
+     */
+    @PostMapping("/reset_password")
+    public ResponseEntity<Void> resetPassword(@Valid @NotNull @RequestParam("token") String resetToken,
+                                              @Valid @NotNull @RequestBody String newPassword) {
+        authClient.emailResetPassword(
+                resetToken,
+                new Password(newPassword)
+        );
+        return ResponseEntity.ok().build();
     }
 }
