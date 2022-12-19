@@ -33,23 +33,23 @@ public interface GatewayAdminClient {
 
     @PutMapping("/rename_boat?newName={newName}")
     @Headers("Content-Type: application/json")
-    BoatDTO renameBoat(@RequestHeader("Authorization") String bearerToken,UUID boatId, @PathVariable(value = "newName") String newName) throws FeignException;
+    BoatDTO renameBoat(@RequestHeader("Authorization") String bearerToken, UUID boatId, @PathVariable(value = "newName") String newName) throws FeignException;
 
     @DeleteMapping("/delete_boat?boatId={boatId}")
     @Headers("Content-Type: application/json")
-    void deleteBoat(@RequestHeader("Authorization") String bearerToken,@PathVariable(value = "boatId") UUID boatId) throws FeignException;
+    void deleteBoat(@RequestHeader("Authorization") String bearerToken, @PathVariable(value = "boatId") UUID boatId) throws FeignException;
 
     @PostMapping("/add_position_to_boat?newPosition={newPosition}")
     @Headers("Content-Type: application/json")
-    BoatDTO addPositionToBoat(@RequestHeader("Authorization") String bearerToken,UUID boatId, @PathVariable(value = "newPosition") BoatRole newPosition) throws FeignException;
+    BoatDTO addPositionToBoat(@RequestHeader("Authorization") String bearerToken, UUID boatId, @PathVariable(value = "newPosition") BoatRole newPosition) throws FeignException;
 
     @DeleteMapping("/delete_position_from_boat?removePosition={removedPosition}")
     @Headers("Content-Type: application/json")
-    BoatDTO removePositionFromBoat(@RequestHeader("Authorization") String bearerToken,UUID boatId, @PathVariable(value = "removedPosition") BoatRole removedPosition) throws FeignException;
+    BoatDTO removePositionFromBoat(@RequestHeader("Authorization") String bearerToken, UUID boatId, @PathVariable(value = "removedPosition") BoatRole removedPosition) throws FeignException;
 
     @PutMapping("/change_cox_certificate?boatId={boatId}&newCertificateId={newCertificateId}")
     @Headers("Content-Type: application/json")
-    BoatDTO changeCoxCertificate(@RequestHeader("Authorization") String bearerToken,@PathVariable(value = "boatId") UUID boatId, @PathVariable(value = "newCertificateId") UUID newCertificateId);
+    BoatDTO changeCoxCertificate(@RequestHeader("Authorization") String bearerToken, @PathVariable(value = "boatId") UUID boatId, @PathVariable(value = "newCertificateId") UUID newCertificateId);
 
     @PutMapping("/change_certificate_name")
     @Headers("Content-Type: application/json")
@@ -58,9 +58,9 @@ public interface GatewayAdminClient {
 
     @PutMapping("/change_certificate_superseded")
     @Headers("Content-Type: application/json")
-    CertificateDTO changeCertificateSuperseded(ChangeCertificateSupersededModel changeCertificateSupersededModel) throws FeignException;
+    CertificateDTO changeCertificateSuperseded(@RequestHeader("Authorization") String bearerToken, ChangeCertificateSupersededModel changeCertificateSupersededModel) throws FeignException;
 
     @PostMapping("/add_certificate")
     @Headers("Content-Type: application/json")
-    CertificateDTO addCertificate(CertificateDTO certificateDTO) throws FeignException;
+    CertificateDTO addCertificate(@RequestHeader("Authorization") String bearerToken, CertificateDTO certificateDTO) throws FeignException;
 }

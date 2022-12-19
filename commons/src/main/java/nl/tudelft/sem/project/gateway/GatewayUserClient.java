@@ -8,16 +8,12 @@ import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.shared.Organization;
 import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.UserDTO;
-import nl.tudelft.sem.project.utils.Existing;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import javax.validation.Valid;
+import java.util.UUID;
 
 @FeignClient(url = "http://localhost:8087/api/user", name = "gatewayUserClient")
 public interface GatewayUserClient {
@@ -64,5 +60,5 @@ public interface GatewayUserClient {
 
     @GetMapping("/has_certificate")
     @Headers("Content-Type: application/json")
-    boolean hasCertificate(@RequestHeader("Authorization") String bearerToken, CertificateDTO certificateDTO) throws FeignException;
+    boolean hasCertificate(@RequestHeader("Authorization") String bearerToken, UUID certificateId) throws FeignException;
 }

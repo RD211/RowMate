@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 
 @FeignClient(url = "http://localhost:8084/api/users", name = "usersClient")
@@ -69,7 +70,7 @@ public interface UsersClient {
     @Headers("Content-Type: application/json")
     void deleteUserByEmail(UserEmail email) throws FeignException;
 
-    @GetMapping("/has_certificate")
+    @GetMapping("/has_certificate?username={username}&certificateId={certificateId}")
     @Headers("Content-Type: application/json")
-    boolean hasCertificate(UserDTO userDTO, CertificateDTO certificateDTO);
+    boolean hasCertificate(@PathVariable(value = "username") Username username, @PathVariable(value = "certificateId") UUID certificateId);
 }

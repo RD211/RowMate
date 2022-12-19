@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -218,15 +219,14 @@ public class UserController {
     /**
      * Checks whether a user is in possession of a certificate directly or through supersedence.
      *
-     * @param certificateDTO The certificate to look for.
+     * @param certificateId The certificate to look for.
      * @return Whether the user has the certificate.
      */
     @GetMapping("/has_certificate")
     public ResponseEntity<Boolean> hasCertificate(
-            @Valid @Validated(Existing.class) @RequestBody CertificateDTO certificateDTO) {
+            @Valid @NotNull @RequestBody UUID certificateId) {
         var username = authManager.getUsername();
-        var userDTO = UserDTO.builder().username(username).build();
-        return ResponseEntity.ok(usersClient.hasCertificate(userDTO, certificateDTO));
+        return ResponseEntity.ok(usersClient.hasCertificate(new Username(username), certificateId));
     }
 
 

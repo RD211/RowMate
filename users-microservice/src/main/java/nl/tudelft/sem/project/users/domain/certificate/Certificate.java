@@ -106,7 +106,7 @@ public class Certificate {
      * @param other Certificate to be looked for
      * @return True if other could be found in chain of this
      */
-    public boolean hasInChain(Certificate other) {
+    public boolean hasInChain(final Certificate other) {
         Certificate finger = this;
         while (finger != null) {
             if (other.equals(finger)) {
