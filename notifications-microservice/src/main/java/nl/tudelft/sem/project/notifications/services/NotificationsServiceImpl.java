@@ -5,11 +5,14 @@ import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.notifications.mailTemplates.*;
 import nl.tudelft.sem.project.notifications.exceptions.MailNotSentException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 
+@Component
 public class NotificationsServiceImpl implements NotificationsService {
 
     @Autowired
@@ -17,6 +20,9 @@ public class NotificationsServiceImpl implements NotificationsService {
 
     @Autowired
     private transient HashMap<EventType, MailTemplate> messageTemplates;
+
+    @Value("${application.properties.test-mode:false}")
+    private transient String testMode;
 
     /* TODO Finish method (properly adding activity details) once
     ActivityDTO has been completely implemented. */
@@ -29,9 +35,9 @@ public class NotificationsServiceImpl implements NotificationsService {
      * @param notificationDTO the DTO containing details
      *                        about the user and the
      *                        activity, if applicable
-     * @throws Exception if any issues are encountered regarding the sending of the notification
+     * @throws MailNotSentException if any issues are encountered regarding the sending of the notification
      */
-    public void sendNotification(NotificationDTO notificationDTO) throws MailNotSentException {
+    public SimpleMailMessage sendNotification(NotificationDTO notificationDTO) throws MailNotSentException {
         SimpleMailMessage message = new SimpleMailMessage();
         String activityDetails;
 
@@ -44,17 +50,20 @@ public class NotificationsServiceImpl implements NotificationsService {
         if (eventType == EventType.SIGN_UP
             || eventType == EventType.RESET_PASSWORD
             || eventType == EventType.TEST) {
+            message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage());
+        } else {
             activityDetails = "\nActivity details:\n"
                     + notificationDTO.getActivityDTO().toString();
             message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage()
                     + activityDetails);
-        } else {
-            message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage());
         }
-        try {
-            mailSender.send(message);
-        } catch (Exception e) {
-            throw new MailNotSentException(e.getMessage());
+        if (testMode.equals("false")) {
+            try {
+                mailSender.send(message);
+            } catch (Exception e) {
+                throw new MailNotSentException(e.getMessage());
+            }
         }
+        return message;
     }
 }
