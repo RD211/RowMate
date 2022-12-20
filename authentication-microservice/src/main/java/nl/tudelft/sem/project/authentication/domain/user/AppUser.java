@@ -9,6 +9,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
+@Generated
 public class AppUser {
 
     @Column(nullable = false, unique = true)

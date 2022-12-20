@@ -1,6 +1,8 @@
 package nl.tudelft.sem.project.authentication.config;
 
 import javax.sql.DataSource;
+
+import lombok.Generated;
 import lombok.Getter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories("nl.tudelft.sem.project.authentication.domain")
 @PropertySource("classpath:application-dev.properties")
 @EnableTransactionManagement
+@Generated
 public class H2Config {
 
     @Getter
