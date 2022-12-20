@@ -8,7 +8,6 @@ import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.*;
 import nl.tudelft.sem.project.users.models.ChangeCertificateNameModel;
 import nl.tudelft.sem.project.users.models.ChangeCertificateSupersededModel;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -186,7 +185,7 @@ public class AdminController {
      */
     @PostMapping("/add_certificate")
     public ResponseEntity<CertificateDTO> addCertificate(
-            @Valid @Validated(Fictional.class) @RequestBody CertificateDTO certificateDTO) {
+            @Valid @Validated @RequestBody CertificateDTO certificateDTO) {
         var saved = certificatesClient.addCertificate(certificateDTO);
         return ResponseEntity.ok(saved);
     }

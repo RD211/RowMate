@@ -8,10 +8,8 @@ import nl.tudelft.sem.project.users.exceptions.CertificateNameInUseException;
 import nl.tudelft.sem.project.users.exceptions.CertificateNotFoundException;
 import nl.tudelft.sem.project.users.models.ChangeCertificateNameModel;
 import nl.tudelft.sem.project.users.models.ChangeCertificateSupersededModel;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
@@ -43,7 +41,7 @@ public class CertificateController {
      */
     @PostMapping("/add_certificate")
     public ResponseEntity<CertificateDTO> addCertificate(
-            @Valid @Validated(Fictional.class) @RequestBody CertificateDTO certificateDTO)
+            @Valid @RequestBody CertificateDTO certificateDTO)
             throws CertificateNameInUseException, CertificateNotFoundException, ConstraintViolationException {
         var certificate = certificateConverterService.toEntity(certificateDTO);
         var savedCertificate = certificateService.addCertificate(certificate);

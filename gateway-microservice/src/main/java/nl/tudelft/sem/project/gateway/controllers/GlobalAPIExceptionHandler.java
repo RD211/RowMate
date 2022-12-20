@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.gateway.controllers;
 
+import lombok.Generated;
 import nl.tudelft.sem.project.users.EmailInUseException;
 import nl.tudelft.sem.project.users.UserNotFoundException;
 import org.springframework.core.Ordered;
@@ -16,6 +17,7 @@ import javax.validation.ConstraintViolationException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
+@Generated
 public class GlobalAPIExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

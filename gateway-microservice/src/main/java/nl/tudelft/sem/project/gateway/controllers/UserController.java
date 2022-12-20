@@ -12,7 +12,6 @@ import nl.tudelft.sem.project.users.CertificatesClient;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.users.models.*;
-import nl.tudelft.sem.project.utils.Existing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

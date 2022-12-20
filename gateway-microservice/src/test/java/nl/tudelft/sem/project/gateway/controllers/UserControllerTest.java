@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -215,5 +215,15 @@ class UserControllerTest {
         when(certificatesClient.getCertificateById(certId)).thenReturn(cert);
         var details = userController.removeCertificate(certId).getBody();
         assertEquals(userDTO.withCertificates(Set.of()), details);
+    }
+
+    @Test
+    void hasCertificate() {
+        var certId = UUID.randomUUID();
+        when(authManager.getUsername()).thenReturn("tester");
+        when(usersClient.hasCertificate(new Username("tester"), certId)).thenReturn(true);
+        var response = userController.hasCertificate(certId).getBody();
+        assertEquals(Boolean.TRUE, response);
+        verify(usersClient, times(1)).hasCertificate(new Username("tester"), certId);
     }
 }

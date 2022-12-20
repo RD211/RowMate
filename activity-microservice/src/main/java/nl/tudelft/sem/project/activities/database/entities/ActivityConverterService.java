@@ -35,6 +35,7 @@ public class ActivityConverterService implements ConverterEntityDTO<ActivityDTO,
     @Override
     public Activity toEntity(ActivityDTO dto) {
         return Activity.builder()
+                .id(dto.getId())
                 .boats(dto.getBoats().stream().map(boatConverterService::toEntity).collect(Collectors.toList()))
                 .owner(dto.getOwner())
                 .startTime(dto.getStartTime().toInstant()
