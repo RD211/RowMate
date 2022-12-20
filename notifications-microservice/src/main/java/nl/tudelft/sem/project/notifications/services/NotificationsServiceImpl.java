@@ -1,5 +1,7 @@
 package nl.tudelft.sem.project.notifications.services;
 
+import nl.tudelft.sem.project.activities.ActivityDTO;
+import nl.tudelft.sem.project.activities.CompetitionDTO;
 import nl.tudelft.sem.project.notifications.EventType;
 import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.notifications.mailTemplates.*;
@@ -52,17 +54,29 @@ public class NotificationsServiceImpl implements NotificationsService {
             || eventType == EventType.TEST) {
             message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage());
         } else {
-            activityDetails = "\nActivity details:\n"
-                    + notificationDTO.getActivityDTO().toString();
+            activityDetails = formatActivityDetailsMessage(notificationDTO.getActivityDTO());
             message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage()
                     + activityDetails);
         }
-        if (testMode.equals("false")) {
+        if (!testMode.equals("true")) {
             try {
                 mailSender.send(message);
             } catch (Exception e) {
                 throw new MailNotSentException(e.getMessage());
             }
+        }
+        return message;
+    }
+
+    private String formatActivityDetailsMessage(ActivityDTO activityDTO) {
+        String message = "\nActivity Details:\nDate: " + activityDTO.getStartTime()
+                + " - " + activityDTO.getEndTime() + "\nLocation: "
+                + activityDTO.getLocation() + "\nHosted by: "
+                + activityDTO.getOwner();
+
+        if (activityDTO.getClass() == CompetitionDTO.class) {
+            message += "\nFor: " + ((CompetitionDTO) activityDTO).getRequiredGender()
+                    + "\nInvited organization: " + ((CompetitionDTO) activityDTO).getRequiredOrganization();
         }
         return message;
     }

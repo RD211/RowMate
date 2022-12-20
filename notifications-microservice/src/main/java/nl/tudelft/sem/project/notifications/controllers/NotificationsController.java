@@ -1,6 +1,10 @@
 package nl.tudelft.sem.project.notifications.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import nl.tudelft.sem.project.activities.CompetitionDTO;
 import nl.tudelft.sem.project.activities.TrainingDTO;
+import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.notifications.EventType;
 import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.notifications.services.NotificationsService;
@@ -8,6 +12,10 @@ import nl.tudelft.sem.project.users.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * Hello World example controller.
