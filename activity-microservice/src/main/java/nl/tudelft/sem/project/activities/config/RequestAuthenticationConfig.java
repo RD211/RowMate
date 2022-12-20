@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.activities.config;
 
+import lombok.Generated;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -10,6 +11,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * The type Web security config.
  */
 @Configuration
+@Generated
 public class RequestAuthenticationConfig extends WebSecurityConfigurerAdapter {
 
     public RequestAuthenticationConfig() {

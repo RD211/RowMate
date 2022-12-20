@@ -6,6 +6,9 @@ import nl.tudelft.sem.project.authentication.Password;
 import nl.tudelft.sem.project.authentication.ResetPasswordModel;
 import nl.tudelft.sem.project.gateway.AuthenticateUserModel;
 import nl.tudelft.sem.project.gateway.CreateUserModel;
+import nl.tudelft.sem.project.notifications.EventType;
+import nl.tudelft.sem.project.notifications.NotificationClient;
+import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
@@ -27,6 +30,8 @@ public class AuthenticationController {
     @Autowired
     private transient AuthClient authClient;
 
+    @Autowired
+    private transient NotificationClient notificationsClient;
 
     /**
      * The register endpoint.
@@ -93,11 +98,16 @@ public class AuthenticationController {
      */
     @PostMapping("/reset_password_with_email")
     public ResponseEntity<Void> resetPasswordWithEmail(@RequestBody @Valid Username username) {
-        usersClient.getUserByUsername(username);
-        var token = authClient.getEmailResetPasswordToken(username);
+        var user = usersClient.getUserByUsername(username);
+        authClient.getEmailResetPasswordToken(username);
 
-        //TODO: Send email here instead but first we need to have a way to disable emails on tests.
-        System.out.println("http://localhost:8087/api/authentication/reset_password?token=" + token);
+        notificationsClient.sendNotification(
+                new NotificationDTO(
+                        user,
+                        EventType.RESET_PASSWORD
+                )
+        );
+
         return ResponseEntity.ok().build();
     }
 

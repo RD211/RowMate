@@ -11,7 +11,6 @@ import nl.tudelft.sem.project.users.domain.certificate.CertificateService;
 import nl.tudelft.sem.project.users.exceptions.CertificateNotFoundException;
 import nl.tudelft.sem.project.users.domain.users.*;
 import nl.tudelft.sem.project.users.models.*;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -48,7 +47,7 @@ public class UserController {
      * @return the updated dto including the ID.
      */
     @PostMapping("/add_user")
-    public ResponseEntity<UserDTO> addUser(@Valid @Validated(Fictional.class) @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> addUser(@Valid @RequestBody UserDTO userDTO) {
         var user = userConverterService.toEntity(userDTO);
         var savedUser = userService.addUser(user);
         return ResponseEntity.ok(userConverterService.toDTO(savedUser));

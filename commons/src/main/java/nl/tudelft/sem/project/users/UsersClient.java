@@ -4,7 +4,6 @@ import feign.FeignException;
 import feign.Headers;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.models.*;
-import nl.tudelft.sem.project.utils.Existing;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

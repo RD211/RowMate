@@ -6,12 +6,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import nl.tudelft.sem.project.DTO;
-import nl.tudelft.sem.project.utils.Existing;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -29,21 +28,22 @@ import java.util.UUID;
 @SuperBuilder
 public class ActivityDTO implements DTO {
 
-    @NotNull(groups={Existing.class})
     protected UUID id;
 
-    @NotNull(groups={Fictional.class})
+    @NotNull
+    @Size(max = 200, message = "Location has maximum length of 200")
     protected String location;
 
-    @NotNull(groups={Fictional.class})
+    @NotNull
+    @Size(min = 4, max = 50, message = "Username of owner must be between 4 and 50 characters.")
     protected String owner;
 
-    @NotNull(groups={Fictional.class})
+    @NotNull
     protected Date startTime;
 
-    @NotNull(groups={Fictional.class})
+    @NotNull
     protected Date endTime;
 
-    @NotNull(groups={Fictional.class})
+    @NotNull
     protected List<BoatDTO> boats;
 }

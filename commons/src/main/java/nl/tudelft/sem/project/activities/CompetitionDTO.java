@@ -3,7 +3,6 @@ package nl.tudelft.sem.project.activities;
 import lombok.*;
 import nl.tudelft.sem.project.DTO;
 import nl.tudelft.sem.project.enums.Gender;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
@@ -19,6 +18,7 @@ import java.util.UUID;
 @Validated
 public class CompetitionDTO extends TrainingDTO {
 
+    @NotNull @Valid
     protected Boolean allowsAmateurs;
 
     protected String requiredOrganization;

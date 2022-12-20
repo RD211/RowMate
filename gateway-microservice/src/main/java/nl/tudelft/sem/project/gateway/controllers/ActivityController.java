@@ -6,7 +6,6 @@ import nl.tudelft.sem.project.gateway.CreateCompetitionModel;
 import nl.tudelft.sem.project.gateway.CreateTrainingModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import nl.tudelft.sem.project.users.UsersClient;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -56,7 +55,7 @@ public class ActivityController {
      * @return the new training dto.
      */
     @PostMapping("/create_training")
-    public ResponseEntity<TrainingDTO> createTraining(@Valid @Validated(Fictional.class)
+    public ResponseEntity<TrainingDTO> createTraining(@Valid @Validated
                                                           @RequestBody CreateTrainingModel createTrainingModel) {
 
         if (createTrainingModel.getDateInterval().getStartDate()
@@ -89,7 +88,7 @@ public class ActivityController {
      * @return the new competition dto.
      */
     @PostMapping("/create_competition")
-    public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated(Fictional.class)
+    public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated
                                                       @RequestBody CreateCompetitionModel createCompetitionModel) {
         if (createCompetitionModel.getDateInterval().getStartDate()
                 .after(createCompetitionModel.getDateInterval().getEndDate())) {
