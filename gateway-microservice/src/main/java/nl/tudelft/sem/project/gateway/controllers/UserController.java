@@ -11,12 +11,15 @@ import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.users.models.*;
+import nl.tudelft.sem.project.utils.Existing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -212,4 +215,19 @@ public class UserController {
         );
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * Checks whether a user is in possession of a certificate directly or through supersedence.
+     *
+     * @param certificateId The certificate to look for.
+     * @return Whether the user has the certificate.
+     */
+    @GetMapping("/has_certificate")
+    public ResponseEntity<Boolean> hasCertificate(
+            @Valid @NotNull @RequestBody UUID certificateId) {
+        var username = authManager.getUsername();
+        return ResponseEntity.ok(usersClient.hasCertificate(new Username(username), certificateId));
+    }
+
+
 }
