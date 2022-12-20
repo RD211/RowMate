@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.gateway.controllers;
 
+import nl.tudelft.sem.project.activities.BoatsClient;
 import nl.tudelft.sem.project.authentication.AppUserModel;
 import nl.tudelft.sem.project.authentication.AuthClient;
 import nl.tudelft.sem.project.authentication.Password;
@@ -25,6 +26,9 @@ class AdminControllerTest {
 
     @Mock
     private transient UsersClient usersClient;
+
+    @Mock
+    private transient BoatsClient boatsClient;
 
     @InjectMocks
     AdminController adminController;
