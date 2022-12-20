@@ -228,7 +228,7 @@ public class UserController {
      * @return the deleted user before the action.
      */
     @DeleteMapping("/delete_user_by_username")
-    public ResponseEntity deleteUserByUsername(
+    public ResponseEntity<Void> deleteUserByUsername(
             @Valid @NotNull @RequestBody Username username) {
         userService.deleteUserByUsername(username);
         return ResponseEntity.ok().build();
@@ -243,7 +243,7 @@ public class UserController {
      * @return the deleted user before the action.
      */
     @DeleteMapping("/delete_user_by_email")
-    public ResponseEntity deleteUserByEmail(
+    public ResponseEntity<Void> deleteUserByEmail(
             @Valid @NotNull @RequestBody UserEmail email) {
         userService.deleteUserByEmail(email);
         return ResponseEntity.ok().build();

@@ -9,8 +9,10 @@ import nl.tudelft.sem.project.shared.Organization;
 import nl.tudelft.sem.project.utils.Existing;
 import nl.tudelft.sem.project.utils.Fictional;
 import org.hibernate.validator.constraints.Email;
+import org.springframework.validation.annotation.Validated;
 
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
@@ -22,10 +24,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @With
+@Validated
 public class UserDTO implements DTO {
     /**
      * User's name.
      */
+    @Valid
     @NotNull(groups = {Existing.class})
     @Size(min = 4, max = 50, message = "Name must be between 4 and 50 characters.", groups = {Existing.class})
     protected String username;
