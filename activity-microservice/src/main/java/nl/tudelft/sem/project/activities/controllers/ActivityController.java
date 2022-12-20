@@ -74,18 +74,6 @@ public class ActivityController {
     @PostMapping("/create_training")
     public ResponseEntity<TrainingDTO> createTraining(@Valid @Validated(Fictional.class)
                                                                 @NotNull @RequestBody TrainingDTO dto) {
-        if (dto.getBoats().isEmpty()) {
-            throw new RuntimeException("There should be at least one boat present.");
-        }
-
-        if (dto.getStartTime().after(dto.getEndTime())) {
-            throw new RuntimeException("Starting time should be before ending time.");
-        }
-
-        if (dto.getStartTime().before(Date.from(Instant.now()))) {
-            throw new RuntimeException("Starting time should be in the future.");
-        }
-
         var training = trainingConverterService.toEntity(dto);
         var trainingDTO =
                 trainingConverterService.toDTO(activityService.addTraining(training));
@@ -102,18 +90,6 @@ public class ActivityController {
     @PostMapping("/create_competition")
     public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated(Fictional.class)
                                                       @NotNull @RequestBody CompetitionDTO dto) {
-        if (dto.getBoats().isEmpty()) {
-            throw new RuntimeException("There should be at least one boat present.");
-        }
-
-        if (dto.getStartTime().after(dto.getEndTime())) {
-            throw new RuntimeException("Starting time should be before ending time.");
-        }
-
-        if (dto.getStartTime().before(Date.from(Instant.now()))) {
-            throw new RuntimeException("Starting time should be in the future.");
-        }
-
         var competition = competitionConverterService.toEntity(dto);
         var competitionDTO =
                 competitionConverterService.toDTO(activityService.addCompetition(competition));

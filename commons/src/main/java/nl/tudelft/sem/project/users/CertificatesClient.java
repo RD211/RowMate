@@ -17,9 +17,9 @@ public interface CertificatesClient {
     @Headers("Content-Type: application/json")
     CertificateDTO addCertificate(CertificateDTO cartificate) throws FeignException;
 
-    @GetMapping("/get_certificate_by_id?id={id}")
+    @GetMapping("/get_certificate_by_id?certificateId={certificateId}")
     @Headers("Content-Type: application/json")
-    CertificateDTO getCertificateById(@PathVariable(value = "id") UUID id) throws FeignException;
+    CertificateDTO getCertificateById(@PathVariable(value = "certificateId") UUID id) throws FeignException;
 
     @GetMapping("/get_certificate_by_name?certificateName={certificateName}")
     @Headers("Content-Type: application/json")
@@ -38,8 +38,8 @@ public interface CertificatesClient {
     @Headers("Content-Type: application/json")
     List<CertificateDTO> getAllAvailableCertificates();
 
-    @GetMapping("/get_certificate_chain_by_id?id={id}")
+    @GetMapping("/get_certificate_chain_by_id?certificateId={certificateId}")
     @Headers("Content-Type: application/json")
-    List<CertificateDTO> getCertificateChain(@PathVariable(value = "id") UUID id) throws FeignException;
+    List<CertificateDTO> getCertificateChain(@PathVariable(value = "certificateId") UUID id) throws FeignException;
 
 }
