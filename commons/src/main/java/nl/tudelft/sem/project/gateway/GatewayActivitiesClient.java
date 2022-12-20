@@ -15,11 +15,11 @@ import java.util.UUID;
 public interface GatewayActivitiesClient {
     @PostMapping(value="/create_training")
     @Headers("Content-Type: application/json")
-    TrainingDTO createTraining(@RequestHeader("Authorization") String bearerToken, @RequestBody TrainingDTO dto) throws FeignException;
+    TrainingDTO createTraining(@RequestHeader("Authorization") String bearerToken, @RequestBody CreateTrainingModel dto) throws FeignException;
 
     @PostMapping(value="/create_competition")
     @Headers("Content-Type: application/json")
-    CompetitionDTO createCompetition(@RequestHeader("Authorization") String bearerToken, @RequestBody CompetitionDTO dto) throws FeignException;
+    CompetitionDTO createCompetition(@RequestHeader("Authorization") String bearerToken, @RequestBody CreateCompetitionModel dto) throws FeignException;
 
     @GetMapping(value="/get_competition_by_id?id={id}")
     @Headers("Content-Type: application/json")
