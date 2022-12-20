@@ -1,12 +1,10 @@
-package nl.tudelft.sem.project.tests;
+package nl.tudelft.sem.project.tests.functional;
 
 import nl.tudelft.sem.project.activities.BoatDTO;
-import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.gateway.*;
 import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.users.CertificateDTO;
-import nl.tudelft.sem.project.users.UserDTO;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -14,18 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.Lifecycle;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(classes=nl.tudelft.sem.project.system.tests.Application.class)
-public class ScenarioTests {
-
-
+public class ActivitiesFunctionalTests {
     @Autowired
     GatewayAuthenticationClient gatewayAuthenticationClient;
 
@@ -41,13 +37,7 @@ public class ScenarioTests {
     @Autowired
     GatewayActivitiesClient gatewayActivitiesClient;
 
-    @Autowired
-    GatewayMatchmakingClient gatewayMatchmakingClient;
-
-    @Autowired
-    GatewayCertificatesClient gatewayCertificatesClient;
     static List<ConfigurableApplicationContext> microservices;
-
     @BeforeAll
     static void startEverything() {
         microservices = List.of(
@@ -74,6 +64,20 @@ public class ScenarioTests {
         });
     }
 
+    public CertificateDTO addCertificateToTheDatabase(CertificateDTO dto) {
+        var adminToken = gatewayAuthenticationClient.authenticate(
+                AuthenticateUserModel.builder().username(
+                        "administrator"
+                ).password("administrator").build()
+        );
+
+        var certificateDTO = gatewayAdminClient.addCertificate("Bearer " + adminToken, dto);
+        assertEquals(certificateDTO.getName(), dto.getName());
+        assertEquals(certificateDTO.getSupersededId(), dto.getSupersededId());
+        assertNotNull(certificateDTO.getId());
+        return certificateDTO;
+    }
+
     public BoatDTO addBoatToTheDatabase(BoatDTO dto) {
         var adminToken = gatewayAuthenticationClient.authenticate(
                 AuthenticateUserModel.builder().username(
@@ -89,39 +93,26 @@ public class ScenarioTests {
         return boatDTO;
     }
 
-    public CertificateDTO addCertificateToTheDatabase(CertificateDTO dto) {
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
-        var certificateDTO = gatewayAdminClient.addCertificate("Bearer " + adminToken, dto);
-        assertEquals(certificateDTO.getName(), dto.getName());
-        assertEquals(certificateDTO.getSupersededId(), dto.getSupersededId());
-        assertNotNull(certificateDTO.getId());
-        return certificateDTO;
-    }
-
     @Test
-    void createActivityAndSomeoneRegistersTest() {
+    void createTrainingTest() {
         var newCertificate = new CertificateDTO(
-          null,
-          "best cert",
+                null,
+                "best ce35rt",
                 null
         );
 
         newCertificate = addCertificateToTheDatabase(newCertificate);
-        var boat = addBoatToTheDatabase(
-                        BoatDTO.builder()
-                                .name("boat 1")
-                                .availablePositions(List.of(BoatRole.Coach))
-                                .coxCertificateId(newCertificate.getId()).build());
 
+        var boat = addBoatToTheDatabase(
+                BoatDTO.builder().name("bestest boat").availablePositions(
+                                List.of(BoatRole.Coach)
+                        ).coxCertificateId(newCertificate.getId())
+                        .build()
+        );
         var createUserModel = CreateUserModel.builder()
-                .username("tester1")
-                .email("tester@test.test")
-                .password("testertester").build();
+                .username("asdasdasda4sdas55d")
+                .email("adasd13a44s@gdgafm54co.3om")
+                .password("treyh4bd5tyr").build();
         var userToken = gatewayAuthenticationClient.register(
                 createUserModel
         );
@@ -129,35 +120,57 @@ public class ScenarioTests {
         var trainingModel =
                 new CreateTrainingModel("idk",
                         new DateInterval(java.sql.Timestamp.valueOf(
-                                LocalDateTime.of(2026, 11, 1, 1, 1, 1, 1)),
-                        java.sql.Timestamp.valueOf(
-                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1))),
+                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
+                                java.sql.Timestamp.valueOf(
+                                        LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1))),
                         List.of(boat.getBoatId()));
 
         var trainingDTO = gatewayActivitiesClient.createTraining("Bearer " + userToken, trainingModel);
         var queriedDTO =
                 gatewayActivitiesClient.getTraining("Bearer " + userToken, trainingDTO.getId());
+        assertNotNull(trainingDTO);
+        assertEquals(queriedDTO, trainingDTO);
+    }
 
-
-        var otherUserToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("tester2")
-                        .email("tester2@test.test")
-                        .password("testertester2").build()
+    @Test
+    void createCompetitionTest() {
+        var newCertificate = new CertificateDTO(
+                null,
+                "best cert33",
+                null
         );
 
-        var responseRegister = gatewayMatchmakingClient.registerInActivity(
-                "Bearer " + otherUserToken,
-                new SeatedUserModel(
-                        queriedDTO.getId(),
-                        0,
-                        BoatRole.Coach
-                )
+        newCertificate = addCertificateToTheDatabase(newCertificate);
+
+        var boat = addBoatToTheDatabase(
+                BoatDTO.builder().name("bestest boat2").availablePositions(
+                                List.of(BoatRole.Coach)
+                        ).coxCertificateId(newCertificate.getId())
+                        .build()
+        );
+        var createUserModel = CreateUserModel.builder()
+                .username("asda3sdasda4sdas55d")
+                .email("adasd133a44s@gdgafm54co.3om")
+                .password("treyh34bd5tyr").build();
+        var userToken = gatewayAuthenticationClient.register(
+                createUserModel
         );
 
-        var applications =
-                gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
-        assertNotNull(applications);
-        assertEquals(1, applications.size());
+        var competitionModel =
+                new CreateCompetitionModel("idk",
+                        new DateInterval(java.sql.Timestamp.valueOf(
+                                LocalDateTime.of(2026, 11, 1, 1, 1, 1, 1)),
+                                java.sql.Timestamp.valueOf(
+                                        LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1))),
+                        List.of(boat.getBoatId()),
+                        true,
+                        null,
+                        null);
+
+        var competitionDTO = gatewayActivitiesClient.createCompetition("Bearer " + userToken, competitionModel);
+        var queriedDTO =
+                gatewayActivitiesClient.getCompetition("Bearer " + userToken, competitionDTO.getId());
+        assertNotNull(competitionDTO);
+        assertEquals(queriedDTO, competitionDTO);
     }
 }

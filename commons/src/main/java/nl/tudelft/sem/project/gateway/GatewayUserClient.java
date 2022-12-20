@@ -52,11 +52,11 @@ public interface GatewayUserClient {
 
     @PostMapping("/add_certificate")
     @Headers("Content-Type: application/json")
-    UserDTO addCertificate(@RequestHeader("Authorization") String bearerToken, CertificateDTO certificateDTO) throws FeignException;
+    UserDTO addCertificate(@RequestHeader("Authorization") String bearerToken, UUID certificateID) throws FeignException;
 
     @PostMapping("/remove_certificate")
     @Headers("Content-Type: application/json")
-    UserDTO removeCertificate(@RequestHeader("Authorization") String bearerToken, CertificateDTO certificateDTO) throws FeignException;
+    UserDTO removeCertificate(@RequestHeader("Authorization") String bearerToken, UUID certificateID) throws FeignException;
 
     @GetMapping("/has_certificate")
     @Headers("Content-Type: application/json")

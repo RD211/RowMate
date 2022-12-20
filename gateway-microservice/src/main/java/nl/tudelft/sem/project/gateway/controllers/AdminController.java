@@ -54,7 +54,7 @@ public class AdminController {
      * @return nothing
      */
     @DeleteMapping("/delete_user_by_email")
-    public ResponseEntity deleteUserByEmail(@Valid @RequestBody @NotNull String email) {
+    public ResponseEntity<Void> deleteUserByEmail(@Valid @RequestBody @NotNull String email) {
         usersClient.deleteUserByEmail(
                 new UserEmail(email)
         );
@@ -62,12 +62,29 @@ public class AdminController {
     }
 
 
+    /**
+     * Adds a boat to the database.
+     * The cox certificate must also be valid.
+     *
+     * @param boat the boat to add.
+     * @return the added boat dto.
+     */
     @PostMapping("/add_boat")
     public ResponseEntity<BoatDTO> addBoat(@Valid @RequestBody @NotNull BoatDTO boat) {
+
+        // This checks that we actually have a certificate with this id.
+        certificatesClient.getCertificateById(boat.getCoxCertificateId());
         var boatDTO = boatsClient.addBoat(boat);
         return ResponseEntity.ok(boatDTO);
     }
 
+    /**
+     * Rename a boat from the database.
+     *
+     * @param boatId the boat id.
+     * @param newName the new boat name.
+     * @return the new boat dto.
+     */
     @PutMapping("/rename_boat")
     public ResponseEntity<BoatDTO> renameBoat(@Valid @RequestBody @NotNull UUID boatId,
                                               @Valid @NotNull @RequestParam("newName") String newName) {
@@ -75,12 +92,25 @@ public class AdminController {
         return ResponseEntity.ok(boatDTO);
     }
 
+    /**
+     * The delete a boat endpoint.
+     *
+     * @param boatId the boat id.
+     * @return nothing.
+     */
     @DeleteMapping("/delete_boat")
     public ResponseEntity<Void> deleteBoat(@Valid @RequestParam("boatId") @NotNull UUID boatId) {
         boatsClient.deleteBoat(boatId);
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Adds a position to a boat.
+     *
+     * @param boatId the boat id.
+     * @param newPosition the new position.
+     * @return the new boat dto.
+     */
     @PostMapping("/add_position_to_boat")
     public ResponseEntity<BoatDTO> addPositionToBoat(@Valid @RequestBody @NotNull UUID boatId,
                                                      @Valid @NotNull
@@ -89,6 +119,13 @@ public class AdminController {
         return ResponseEntity.ok(boatDTO);
     }
 
+    /**
+     * Deletes a position from a boat.
+     *
+     * @param boatId the boat id.
+     * @param removedPosition the position to remove.
+     * @return the new boat dto.
+     */
     @DeleteMapping("/delete_position_from_boat")
     public ResponseEntity<BoatDTO> removePositionFromBoat(@Valid @RequestBody @NotNull UUID boatId,
                                                      @Valid @NotNull
@@ -97,10 +134,20 @@ public class AdminController {
         return ResponseEntity.ok(boatDTO);
     }
 
+    /**
+     * The change cox certificate endpoint.
+     * This will change the certifiate of a boat to a different one.
+     *
+     * @param boatId the boat id.
+     * @param newCertificate the new certificate id.
+     * @return the new boat dto.
+     */
     @PutMapping("/change_cox_certificate")
-    public ResponseEntity<BoatDTO> removePositionFromBoat(@Valid @RequestParam("boatId") @NotNull UUID boatId,
+    public ResponseEntity<BoatDTO> changeCoxCertificate(@Valid @RequestParam("boatId") @NotNull UUID boatId,
                                                           @Valid @NotNull
                                                           @RequestParam("newCertificateId") UUID newCertificate) {
+        // This checks that we actually have a certificate with this id.
+        certificatesClient.getCertificateById(newCertificate);
         var boatDTO = boatsClient.changeCoxCertificate(boatId, newCertificate);
         return ResponseEntity.ok(boatDTO);
     }
