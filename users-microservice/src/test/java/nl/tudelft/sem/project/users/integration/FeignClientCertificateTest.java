@@ -54,7 +54,7 @@ public class FeignClientCertificateTest {
     @ParameterizedTest
     @CsvSource({"1", "51"})
     void certificateNameBoundaryTestsBad(int len) {
-        String certificateName = strOfLen(len);
+        String certificateName = "A".repeat(len);
 
         assertThatThrownBy(() -> certificatesClient.addCertificate(
                 CertificateDTO.builder().name(certificateName).build()
@@ -64,7 +64,7 @@ public class FeignClientCertificateTest {
     @ParameterizedTest
     @CsvSource({"2", "50"})
     void certificateNameBoundaryTestsOk(int len) {
-        String certificateName = strOfLen(len);
+        String certificateName = "A".repeat(len);
 
         var response = certificatesClient.addCertificate(
                 CertificateDTO.builder().name(certificateName).build()
@@ -72,14 +72,6 @@ public class FeignClientCertificateTest {
 
         assertThat(response.getId()).isNotNull();
         assertThat(response.getName()).isEqualTo(certificateName);
-    }
-
-    String strOfLen(int len) {
-        StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            sb.append('A');
-        }
-        return sb.toString();
     }
 
     @Test
