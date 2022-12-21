@@ -7,6 +7,7 @@ import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.users.CertificateDTO;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -22,15 +23,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(classes=nl.tudelft.sem.project.system.tests.Application.class)
 public class ActivitiesFunctionalTests extends FunctionalTestsBase{
+    String adminToken;
 
+    @BeforeEach
+    void setup() {
+        adminToken = gatewayAuthenticationClient.authenticate(
+                AuthenticateUserModel.builder()
+                        .username("administrator")
+                        .password("administrator")
+                        .build()
+        );
+    }
 
     public CertificateDTO addCertificateToTheDatabase(CertificateDTO dto) {
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
         var certificateDTO = gatewayAdminClient.addCertificate("Bearer " + adminToken, dto);
         assertEquals(certificateDTO.getName(), dto.getName());
         assertEquals(certificateDTO.getSupersededId(), dto.getSupersededId());
@@ -39,12 +44,6 @@ public class ActivitiesFunctionalTests extends FunctionalTestsBase{
     }
 
     public BoatDTO addBoatToTheDatabase(BoatDTO dto) {
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
         var boatDTO = gatewayAdminClient.addBoat("Bearer " + adminToken, dto);
         assertEquals(boatDTO.getName(), dto.getName());
         assertEquals(boatDTO.getAvailablePositions(), dto.getAvailablePositions());

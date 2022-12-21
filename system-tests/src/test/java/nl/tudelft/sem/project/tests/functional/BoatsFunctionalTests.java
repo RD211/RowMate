@@ -4,14 +4,9 @@ import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.gateway.*;
 import nl.tudelft.sem.project.users.CertificateDTO;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.Lifecycle;
 
 import java.util.List;
 
@@ -20,13 +15,34 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes=nl.tudelft.sem.project.system.tests.Application.class)
 public class BoatsFunctionalTests extends FunctionalTestsBase {
 
-    public CertificateDTO addCertificateToTheDatabase(CertificateDTO dto) {
-        var adminToken = gatewayAuthenticationClient.authenticate(
+    String adminToken;
+    String userToken;
+
+    @BeforeEach
+    void setup() {
+        adminToken = gatewayAuthenticationClient.authenticate(
                 AuthenticateUserModel.builder().username(
                         "administrator"
                 ).password("administrator").build()
         );
+        try {
+            userToken = gatewayAuthenticationClient.register(
+                    CreateUserModel.builder()
+                            .username("mynameisjeff")
+                            .email("good@email.com")
+                            .password("ilikepancakes").build()
+            );
+        } catch (Exception e) {
+            userToken = gatewayAuthenticationClient.authenticate(
+                    AuthenticateUserModel.builder()
+                            .username("mynameisjeff")
+                            .password("ilikepancakes")
+                            .build()
+            );
+        }
+    }
 
+    public CertificateDTO addCertificateToTheDatabase(CertificateDTO dto) {
         var certificateDTO = gatewayAdminClient.addCertificate("Bearer " + adminToken, dto);
         assertEquals(certificateDTO.getName(), dto.getName());
         assertEquals(certificateDTO.getSupersededId(), dto.getSupersededId());
@@ -36,12 +52,6 @@ public class BoatsFunctionalTests extends FunctionalTestsBase {
 
     @Test
     void addBoatTest() {
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
         var cert = new CertificateDTO(
                 null,
                 "best ce745rt",
@@ -64,18 +74,6 @@ public class BoatsFunctionalTests extends FunctionalTestsBase {
 
     @Test
     void getBoatTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdasdasdastttd")
-                        .email("adasdtas@tttt.cottm")
-                        .password("treyhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
         var cert = new CertificateDTO(
                 null,
                 "be2s55t cert",
@@ -99,18 +97,6 @@ public class BoatsFunctionalTests extends FunctionalTestsBase {
 
     @Test
     void getAllBoatsTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasvvdasasdasd")
-                        .email("adasdvvvas@ggavvfmco.cvvom")
-                        .password("treyhb5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
         var cert = new CertificateDTO(
                 null,
                 "best 22cert",
@@ -135,18 +121,6 @@ public class BoatsFunctionalTests extends FunctionalTestsBase {
 
     @Test
     void renameBoatTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdasdasvvdasd")
-                        .email("adasdas@fgdgafdmco.casom")
-                        .password("treysdhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
         var cert = new CertificateDTO(
                 null,
                 "best65 cert",
@@ -172,18 +146,6 @@ public class BoatsFunctionalTests extends FunctionalTestsBase {
 
     @Test
     void deleteBoatTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdasdasbbdasd")
-                        .email("adasbbdas@xzd.csdfom")
-                        .password("trfeyhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
         var cert = new CertificateDTO(
                 null,
                 "be34324st cert",
@@ -205,18 +167,6 @@ public class BoatsFunctionalTests extends FunctionalTestsBase {
 
     @Test
     void addPositionTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdgasdasdasd")
-                        .email("adagsdas@gdgafmdco.cxom")
-                        .password("treyhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
         var cert = new CertificateDTO(
                 null,
                 "54bes3456t cert",
@@ -241,18 +191,6 @@ public class BoatsFunctionalTests extends FunctionalTestsBase {
 
     @Test
     void removePositionTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdas11dasdasd")
-                        .email("adas3das@gdgafmco.com")
-                        .password("treyhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
         var cert = new CertificateDTO(
                 null,
                 "best cer55t",
@@ -277,18 +215,6 @@ public class BoatsFunctionalTests extends FunctionalTestsBase {
 
     @Test
     void changeCertificateBoatTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdasdasdas55d")
-                        .email("adasd13as@gdgafm54co.3om")
-                        .password("treyhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
         var cert = new CertificateDTO(
                 null,
                 "b5est cert",

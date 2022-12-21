@@ -26,6 +26,9 @@ public class FunctionalTestsBase {
     @Autowired
     GatewayActivitiesClient gatewayActivitiesClient;
 
+    @Autowired
+    GatewayCertificatesClient gatewayCertificatesClient;
+
     static List<ConfigurableApplicationContext> microservices;
     @BeforeAll
     static void startEverything() {
