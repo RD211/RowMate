@@ -94,8 +94,11 @@ public class MatchMakingFunctionalTests {
                 CreateUserModel.builder()
                         .username("tester2")
                         .email("tester2@test.test")
-                        .password("testertester2").build()
+                        .password("testertester2")
+                        .build()
         );
+
+        gatewayUserClient.changeAmateur("Bearer " + userToken, true);
 
         var newCertificate = new CertificateDTO(
                 null,
@@ -245,14 +248,32 @@ public class MatchMakingFunctionalTests {
                         .coxCertificateId(certificateDTO.getId()).build());
         var trainingModel =
                 new CreateTrainingModel("idk",
-                        new DateInterval(java.sql.Timestamp.valueOf(
-                                LocalDateTime.of(2023, 11, 1, 1, 1, 1, 1)),
+                        new DateInterval(
                                 java.sql.Timestamp.valueOf(
-                                        LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1))),
+                                    LocalDateTime.of(2023, 11, 1, 1, 1, 1, 1)),
+                                java.sql.Timestamp.valueOf(
+                                        LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1))
+                        ),
                         List.of(boat.getBoatId()));
 
         var trainingDTO = gatewayActivitiesClient.createTraining("Bearer " + userToken, trainingModel);
         var query = gatewayActivitiesClient.getTraining("Bearer " + userToken, trainingDTO.getId());
+
+        var boat2 = addBoatToTheDatabase(
+                BoatDTO.builder()
+                        .name("boat 3")
+                        .availablePositions(List.of(BoatRole.Coach))
+                        .coxCertificateId(certificateDTO.getId()).build());
+
+        var competitionModel =
+                new CreateCompetitionModel("idk",
+                        new DateInterval(java.sql.Timestamp.valueOf(
+                        LocalDateTime.of(2023, 1, 1, 1, 1, 1, 1)),
+                        java.sql.Timestamp.valueOf(
+                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1))),
+                        List.of(boat2.getBoatId()), false, null, null);
+
+        gatewayActivitiesClient.createCompetition("Bearer " + userToken, competitionModel);
 
         gatewayMatchmakingClient.autoFindActivity(
                 "Bearer " + otherUserToken,

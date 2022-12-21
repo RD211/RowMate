@@ -1,9 +1,6 @@
 package nl.tudelft.sem.project.matchmaking.services;
 
-import nl.tudelft.sem.project.activities.ActivitiesClient;
-import nl.tudelft.sem.project.activities.ActivityDTO;
-import nl.tudelft.sem.project.activities.BoatDTO;
-import nl.tudelft.sem.project.activities.BoatsClient;
+import nl.tudelft.sem.project.activities.*;
 import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.matchmaking.*;
 import nl.tudelft.sem.project.enums.BoatRole;
@@ -84,7 +81,9 @@ public class MatchmakingService {
 
         List<ActivityDTO> availableActivitiesInTimeslot = findActivities(dto);
 
-        activityMatcher.setAvailableActivities(extractFeasibleActivities(dto, availableActivitiesInTimeslot));
+        UserDTO user = usersClient.getUserByUsername(new Username(dto.getUserName()));
+
+        activityMatcher.setAvailableActivities(extractFeasibleActivities(dto, availableActivitiesInTimeslot, user));
         activityMatcher.setRequestData(dto);
 
         FoundActivityModel pickedActivity = activityMatcher.findActivityToRegister();
@@ -110,22 +109,45 @@ public class MatchmakingService {
      */
     private List<AvailableActivityModel> extractFeasibleActivities(
         ActivityRequestDTO dto,
-        List<ActivityDTO> availableActivities
+        List<ActivityDTO> availableActivities,
+        UserDTO user
     ) {
         List<AvailableActivityModel> feasibleActivities = new ArrayList<>();
         for (ActivityDTO activity : availableActivities) {
-            determineFeasibility(dto, activity, feasibleActivities);
+            determineFeasibility(dto, activity, feasibleActivities, user);
         }
         return feasibleActivities;
+    }
+
+    private boolean userCanParticipateInCompetition(
+            CompetitionDTO competitionDTO,
+            UserDTO userDTO
+    ) {
+        if (!competitionDTO.getAllowsAmateurs() && userDTO.isAmateur()) {
+            return false;
+        }
+        if (competitionDTO.getRequiredGender() != null
+                && !competitionDTO.getRequiredGender().equals(userDTO.getGender())) {
+            return false;
+        }
+        if (competitionDTO.getRequiredOrganization() != null
+                && !competitionDTO.getRequiredOrganization().equals(userDTO.getOrganization().toString())) {
+            return false;
+        }
+        return true;
     }
 
     @SuppressWarnings("PMD")
     private void determineFeasibility(
             ActivityRequestDTO dto,
             ActivityDTO activity,
-            List<AvailableActivityModel> feasibleActivities
+            List<AvailableActivityModel> feasibleActivities,
+            UserDTO user
     ) {
 
+        if (activity instanceof CompetitionDTO && !userCanParticipateInCompetition((CompetitionDTO) activity, user)) {
+            return;
+        }
 
         List<ActivityRegistration> registrations
                 = activityRegistrationRepository.findAllByActivityId(activity.getId());
@@ -194,6 +216,13 @@ public class MatchmakingService {
      */
     @Transactional
     public boolean registerUserInActivity(ActivityRegistrationRequestDTO dto) {
+        ActivityDTO activityDTO = activitiesClient.getActivity(dto.getActivityId());
+        UserDTO userDTO = usersClient.getUserByUsername(new Username(dto.getUserName()));
+        if (activityDTO instanceof CompetitionDTO
+                && !userCanParticipateInCompetition((CompetitionDTO) activityDTO, userDTO)) {
+            return false;
+        }
+
 
         List<ActivityRegistration> overlappingRegistrations
             = activityRegistrationRepository.findRequestOverlap(
