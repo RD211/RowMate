@@ -12,9 +12,9 @@ import java.util.UUID;
 
 @FeignClient(url = "http://localhost:8087/api/certificates", name = "gatewayCertificatesClient")
 public interface GatewayCertificatesClient {
-    @GetMapping("/get_certificate_by_id?id={id}")
+    @GetMapping("/get_certificate_by_id?certificateId={certificateId}")
     @Headers("Content-Type: application/json")
-    CertificateDTO getCertificateById(@RequestHeader("Authorization") String bearerToken, @PathVariable(value = "id") UUID id) throws FeignException;
+    CertificateDTO getCertificateById(@RequestHeader("Authorization") String bearerToken, @PathVariable(value = "certificateId") UUID certificateId) throws FeignException;
 
     @GetMapping("/get_certificate_by_name?certificateName={certificateName}")
     @Headers("Content-Type: application/json")
@@ -24,7 +24,7 @@ public interface GatewayCertificatesClient {
     @Headers("Content-Type: application/json")
     List<CertificateDTO> getAllAvailableCertificates(@RequestHeader("Authorization") String bearerToken);
 
-    @GetMapping("/get_certificate_chain_by_id?id={id}")
+    @GetMapping("/get_certificate_chain_by_id?certificateId={certificateId}")
     @Headers("Content-Type: application/json")
-    List<CertificateDTO> getCertificateChain(@RequestHeader("Authorization") String bearerToken, @PathVariable(value = "id") UUID id) throws FeignException;
+    List<CertificateDTO> getCertificateChain(@RequestHeader("Authorization") String bearerToken, @PathVariable(value = "certificateId") UUID certificateId) throws FeignException;
 }

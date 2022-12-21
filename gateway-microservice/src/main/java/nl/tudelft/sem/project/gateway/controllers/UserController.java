@@ -7,14 +7,12 @@ import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.shared.Organization;
 import nl.tudelft.sem.project.shared.Username;
-import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.CertificatesClient;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.users.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;

@@ -20,7 +20,7 @@ import java.io.Serializable;
 @Validated
 public class CertificateName implements Serializable {
     @NotNull
-    @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
+    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     private final String value;
 
     /**
