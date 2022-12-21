@@ -45,6 +45,7 @@ class AuthenticationControllerTest {
         userDTO = UserDTO.builder().email("tester@testing.test")
                         .username("tester_master").build();
         when(usersClient.addUser(userDTO)).thenReturn(userDTO);
+        when(usersClient.getUserByUsername(new Username("tester_master"))).thenReturn(userDTO);
     }
 
     @Test
@@ -100,7 +101,7 @@ class AuthenticationControllerTest {
 
         assertDoesNotThrow(() -> authenticationController.resetPasswordWithEmail(username));
 
-        verify(notificationClient, times(1)).sendNotification(any(NotificationDTO.class));
+        verify(notificationsClient, times(1)).sendNotification(any(NotificationDTO.class));
         verify(usersClient, times(1)).getUserByUsername(username);
         verify(authClient, times(1)).getEmailResetPasswordToken(username);
         verifyNoMoreInteractions(authClient, usersClient);

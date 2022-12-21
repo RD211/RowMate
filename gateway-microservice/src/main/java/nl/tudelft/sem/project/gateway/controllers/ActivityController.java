@@ -17,6 +17,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -34,15 +36,17 @@ public class ActivityController {
     private final transient NotificationsClient notificationsClient;
 
     private final transient BoatsClient boatsClient;
+
     /**
      * The activity controller constructor.
      *
-     * @param authManager the auth manager.
-     * @param usersClient the user client.
+     * @param authManager      the auth manager.
+     * @param usersClient      the user client.
      * @param activitiesClient the activities client.
      */
     @Autowired
-    public ActivityController(AuthManager authManager, UsersClient usersClient, ActivitiesClient activitiesClient, BoatsClient boatsClient, NotificationsClient notificationsClient) {
+    public ActivityController(AuthManager authManager, UsersClient usersClient, ActivitiesClient activitiesClient,
+                              BoatsClient boatsClient, NotificationsClient notificationsClient) {
         this.authManager = authManager;
         this.usersClient = usersClient;
         this.activitiesClient = activitiesClient;
@@ -59,7 +63,7 @@ public class ActivityController {
      */
     @PostMapping("/create_training")
     public ResponseEntity<TrainingDTO> createTraining(@Valid @Validated
-                                                          @RequestBody CreateTrainingModel createTrainingModel) {
+                                                      @RequestBody CreateTrainingModel createTrainingModel) {
 
         if (createTrainingModel.getDateInterval().getStartDate()
                 .after(createTrainingModel.getDateInterval().getEndDate())) {
@@ -81,11 +85,11 @@ public class ActivityController {
                         .collect(Collectors.toList())
         );
 
-        UserDTO userDTO = usersClient.getUserByUsername(new Username(username));
+        UserDTO userDTO = usersClient.getUserByUsername(new Username(authManager.getUsername()));
         // Send notification that the training has been created.
         notificationsClient.sendNotification(NotificationDTO.builder()
                 .userDTO(userDTO)
-                        .activityDTO(trainingDTO)
+                .activityDTO(trainingDTO)
                 .eventType(EventType.CREATED_ACTIVITY)
                 .build());
 
@@ -100,7 +104,7 @@ public class ActivityController {
      */
     @PostMapping("/create_competition")
     public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated
-                                                      @RequestBody CreateCompetitionModel createCompetitionModel) {
+                                                            @RequestBody CreateCompetitionModel createCompetitionModel) {
         if (createCompetitionModel.getDateInterval().getStartDate()
                 .after(createCompetitionModel.getDateInterval().getEndDate())) {
             throw new RuntimeException("Starting time should be before ending time.");
@@ -125,7 +129,7 @@ public class ActivityController {
                 createCompetitionModel.getRequiredGender()
         );
 
-        UserDTO userDTO = usersClient.getUserByUsername(new Username(username));
+        UserDTO userDTO = usersClient.getUserByUsername(new Username(authManager.getUsername()));
         // Send notification that competition has been created.
         notificationsClient.sendNotification(NotificationDTO.builder()
                 .userDTO(userDTO)
