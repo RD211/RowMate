@@ -22,10 +22,26 @@ There are also two extra projects which has special uses
 # Running the microservices
 
 In order to run the system you will need to run all six different microservices as spring boot applications.
+You can easily do this by running the following command: ```gradle bootRun --parallel```
 After making sure all the microservices has spinned up all you need to access the interface is go to the following url.
 
 ## http://localhost:8087/swagger-ui/index.html
 
+# Important note
+In order to create activities you will need to add boat and certitficates to the database.
+You can do this only by using the admin endpoints that can be found in the adminController.
+In order to use these endpoints you will need to authenticate with the following credentials.
+Username: administrator
+Password: administrator
+The code that adds this user can be found in the authentication-microservice and can be configured to allow a different user to be the administrator.
+
+The administrator should be used only for calling admin endpoints and for nothing else! The admin user does not have an actual user account.
+
+
+In order to add a boat the database you will first need to create a certificate and reference that in the boat.
+After creating a boat you can create an activity after signing out of our administrator account and into a normal user account.
+
+# Swagger UI
 Here you will prompted with the following webpage.
 This is a way to interact with every endpoint that is accessible.
 
@@ -50,3 +66,4 @@ For example this is the authentication model:
 And this is the create competition model:
 
 <img src="images/create-competition-model.png" width=1000 >
+
