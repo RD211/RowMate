@@ -6,9 +6,13 @@ import nl.tudelft.sem.project.authentication.Password;
 import nl.tudelft.sem.project.authentication.ResetPasswordModel;
 import nl.tudelft.sem.project.gateway.AuthenticateUserModel;
 import nl.tudelft.sem.project.gateway.CreateUserModel;
+import nl.tudelft.sem.project.notifications.EventType;
+import nl.tudelft.sem.project.notifications.NotificationClient;
+import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +31,8 @@ public class AuthenticationController {
     @Autowired
     private transient AuthClient authClient;
 
+    @Autowired
+    private transient NotificationClient notificationClient;
 
     /**
      * The register endpoint.
@@ -47,6 +53,12 @@ public class AuthenticationController {
                         .email(createUserModel.getEmail()).build();
 
         usersClient.addUser(userDTO);
+
+        // Send notification that the user has registered using this email.
+        notificationClient.sendNotification(NotificationDTO.builder()
+                .userDTO(userDTO)
+                .eventType(EventType.SIGN_UP)
+                .build());
 
         var token = authClient.authenticate(appUserModel);
 
@@ -81,6 +93,14 @@ public class AuthenticationController {
     public ResponseEntity<Void> resetPasswordWithPrevious(
             @RequestBody @Valid ResetPasswordModel resetPasswordModel) {
         authClient.resetPasswordWithPrevious(resetPasswordModel);
+
+        UserDTO userDTO = usersClient.getUserByUsername(resetPasswordModel.getAppUserModel().getUsername());
+        // Send notification that password has been reset using previous password.
+        notificationClient.sendNotification(NotificationDTO.builder()
+                        .userDTO(userDTO)
+                        .eventType(EventType.RESET_PASSWORD_CONFIRM)
+                .build());
+
         return ResponseEntity.ok().build();
     }
 
@@ -93,11 +113,18 @@ public class AuthenticationController {
      */
     @PostMapping("/reset_password_with_email")
     public ResponseEntity<Void> resetPasswordWithEmail(@RequestBody @Valid Username username) {
-        usersClient.getUserByUsername(username);
+        UserDTO userDTO = usersClient.getUserByUsername(username);
         var token = authClient.getEmailResetPasswordToken(username);
+        String tokenLink = "http://localhost:8087/api/authentication/reset_password?token=" + token;
 
-        //TODO: Send email here instead but first we need to have a way to disable emails on tests.
-        System.out.println("http://localhost:8087/api/authentication/reset_password?token=" + token);
+        // Send password reset link to email address.
+        notificationClient.sendNotification(NotificationDTO.builder()
+                        .userDTO(userDTO)
+                        .eventType(EventType.RESET_PASSWORD)
+                        .optionalField(tokenLink)
+                .build());
+
+        System.out.println(tokenLink);
         return ResponseEntity.ok().build();
     }
 

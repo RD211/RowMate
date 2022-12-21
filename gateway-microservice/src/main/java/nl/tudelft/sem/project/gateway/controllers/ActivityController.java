@@ -6,6 +6,11 @@ import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.activities.CompetitionDTO;
 import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
+import nl.tudelft.sem.project.notifications.EventType;
+import nl.tudelft.sem.project.notifications.NotificationClient;
+import nl.tudelft.sem.project.notifications.NotificationDTO;
+import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +34,8 @@ public class ActivityController {
 
     private final transient ActivitiesClient activitiesClient;
 
+    private final transient NotificationClient notificationClient;
+
     /**
      * The activity controller constructor.
      *
@@ -37,10 +44,12 @@ public class ActivityController {
      * @param activitiesClient the activities client.
      */
     @Autowired
-    public ActivityController(AuthManager authManager, UsersClient usersClient, ActivitiesClient activitiesClient) {
+    public ActivityController(AuthManager authManager, UsersClient usersClient,
+                              ActivitiesClient activitiesClient, NotificationClient notificationClient) {
         this.authManager = authManager;
         this.usersClient = usersClient;
         this.activitiesClient = activitiesClient;
+        this.notificationClient = notificationClient;
     }
 
 
@@ -56,6 +65,14 @@ public class ActivityController {
         var username = authManager.getUsername();
         trainingDTO.setOwner(username);
 
+        UserDTO userDTO = usersClient.getUserByUsername(new Username(username));
+        // Send notification that the training has been created.
+        notificationClient.sendNotification(NotificationDTO.builder()
+                .userDTO(userDTO)
+                        .activityDTO(trainingDTO)
+                .eventType(EventType.CREATED_ACTIVITY)
+                .build());
+
         return ResponseEntity.ok(activitiesClient.createTraining(trainingDTO));
     }
 
@@ -70,6 +87,14 @@ public class ActivityController {
                                                       @RequestBody CompetitionDTO competitionDTO) {
         var username = authManager.getUsername();
         competitionDTO.setOwner(username);
+
+        UserDTO userDTO = usersClient.getUserByUsername(new Username(username));
+        // Send notification that competition has been created.
+        notificationClient.sendNotification(NotificationDTO.builder()
+                .userDTO(userDTO)
+                .activityDTO(competitionDTO)
+                .eventType(EventType.CREATED_ACTIVITY)
+                .build());
 
         return ResponseEntity.ok(activitiesClient.createCompetition(competitionDTO));
     }

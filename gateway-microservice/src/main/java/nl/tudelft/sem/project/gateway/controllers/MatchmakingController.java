@@ -7,6 +7,11 @@ import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import nl.tudelft.sem.project.matchmaking.*;
+import nl.tudelft.sem.project.notifications.EventType;
+import nl.tudelft.sem.project.notifications.NotificationClient;
+import nl.tudelft.sem.project.notifications.NotificationDTO;
+import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +35,8 @@ public class MatchmakingController {
 
     private final transient AuthManager authManager;
 
+    private final transient NotificationClient notificationClient;
+
     /**
      * The matchmaking controller constructor.
      *
@@ -39,11 +46,12 @@ public class MatchmakingController {
      */
     @Autowired
     public MatchmakingController(MatchmakingClient matchmakingClient, UsersClient usersClient, AuthManager authManager,
-                                 ActivitiesClient activitiesClient) {
+                                 ActivitiesClient activitiesClient, NotificationClient notificationClient) {
         this.matchmakingClient = matchmakingClient;
         this.usersClient = usersClient;
         this.authManager = authManager;
         this.activitiesClient = activitiesClient;
+        this.notificationClient = notificationClient;
     }
 
     /**
@@ -100,7 +108,21 @@ public class MatchmakingController {
         activityRequest.setUserName(username);
         activityRequest.setBoat(seatedUserModel.getBoat());
 
-        activitiesClient.getActivity(activityRequest.getActivityId());
+        ActivityDTO activityDTO = activitiesClient.getActivity(activityRequest.getActivityId());
+
+        // Send notifications to user who has joined and to the owner of the activity.
+        UserDTO userDTO = usersClient.getUserByUsername(new Username(username));
+        UserDTO ownerUserDTO = usersClient.getUserByUsername(new Username(activityDTO.getOwner()));
+        notificationClient.sendNotification(NotificationDTO.builder()
+                .userDTO(userDTO)
+                .activityDTO(activityDTO)
+                .eventType(EventType.JOINED_ACTIVITY)
+                .build());
+        notificationClient.sendNotification(NotificationDTO.builder()
+                .userDTO(ownerUserDTO)
+                .activityDTO(activityDTO)
+                .eventType(EventType.USER_JOINED)
+                .build());
 
         return ResponseEntity.ok(matchmakingClient.registerInActivity(activityRequest));
     }
@@ -119,7 +141,16 @@ public class MatchmakingController {
         activityRequest.setActivityId(activityId);
         activityRequest.setUserName(username);
 
-        activitiesClient.getActivity(activityId);
+        ActivityDTO activityDTO = activitiesClient.getActivity(activityId);
+
+        // Send notification to activity owner that the user has left.
+        UserDTO ownerUserDTO = usersClient.getUserByUsername(new Username(activityDTO.getOwner()));
+        notificationClient.sendNotification(NotificationDTO.builder()
+                .userDTO(ownerUserDTO)
+                .activityDTO(activityDTO)
+                .eventType(EventType.USER_LEFT)
+                .build());
+
         return ResponseEntity.ok(matchmakingClient.deRegisterFromActivity(activityRequest));
     }
 
