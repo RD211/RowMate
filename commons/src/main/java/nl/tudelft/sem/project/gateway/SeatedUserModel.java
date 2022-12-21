@@ -1,9 +1,6 @@
 package nl.tudelft.sem.project.gateway;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import nl.tudelft.sem.project.enums.BoatRole;
 
 import java.util.UUID;
@@ -12,6 +9,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Generated
 public class SeatedUserModel {
     protected UUID activityId;
     protected int boat;

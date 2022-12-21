@@ -6,7 +6,6 @@ import nl.tudelft.sem.project.activities.database.entities.BoatConverterService;
 import nl.tudelft.sem.project.activities.database.entities.BoatService;
 import nl.tudelft.sem.project.activities.database.repository.BoatRepository;
 import nl.tudelft.sem.project.enums.BoatRole;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +48,7 @@ public class BoatController {
      */
     @PostMapping("/add_boat")
     public ResponseEntity<BoatDTO> addBoat(
-            @Valid @Validated(Fictional.class) @RequestBody BoatDTO boatDTO
+            @Valid @RequestBody BoatDTO boatDTO
     ) {
         Boat boat = boatService.addBoat(boatConverterService.toEntity(boatDTO));
         return ResponseEntity.ok(boatConverterService.toDTO(boat));

@@ -82,6 +82,16 @@ public class JwtTokenGeneratorTests {
         assertThat(claims.getSubject()).isEqualTo(username.getName());
     }
 
+    @Test
+    public void generateTokenHasCorrectNameForResetPassword() {
+        // Act
+        Token token = jwtTokenGenerator.generateTokenForResetPassword(new Username(user.getUsername()));
+
+        // Assert
+        Claims claims = getClaims(token.getToken());
+        assertThat(claims.getSubject()).isEqualTo(username.getName());
+    }
+
     private Claims getClaims(String token) {
         return Jwts.parser()
                 .setAllowedClockSkewSeconds(Integer.MAX_VALUE)

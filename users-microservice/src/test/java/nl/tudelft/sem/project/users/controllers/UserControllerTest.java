@@ -6,12 +6,14 @@ import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.shared.Organization;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.CertificateDTO;
+import nl.tudelft.sem.project.users.CertificateName;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UserEmail;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
 import nl.tudelft.sem.project.users.domain.certificate.CertificateConverterService;
+import nl.tudelft.sem.project.users.domain.certificate.CertificateService;
 import nl.tudelft.sem.project.users.domain.users.*;
 import nl.tudelft.sem.project.users.models.*;
 import org.junit.jupiter.api.Test;
@@ -49,6 +51,9 @@ class UserControllerTest {
 
     @Mock
     transient CertificateRepository certificateRepository;
+
+    @Mock
+    transient CertificateService certificateService;
 
     @InjectMocks
     UserController userController;
@@ -618,5 +623,34 @@ class UserControllerTest {
 
         verify(userService, times(1)).deleteUserByEmail(new UserEmail("user@usering.user"));
         verifyNoMoreInteractions(userConverterService, userService);
+    }
+
+    @Test
+    void hasCertificate() {
+        var cert1 = new Certificate("root cert");
+
+        var cert2 = new Certificate("node cert", cert1);
+
+        var cert3 = new Certificate("leaf cert", cert2);
+
+        var cert4 = new Certificate("leaf cert2", cert1);
+
+        var user = User.builder().username(
+                new Username("userr")
+        ).certificates(Set.of(
+                cert3
+        )).build();
+
+
+        when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
+        when(certificateService.getCertificateById(cert1.getId())).thenReturn(cert1);
+        when(certificateService.getCertificateById(cert2.getId())).thenReturn(cert2);
+        when(certificateService.getCertificateById(cert3.getId())).thenReturn(cert3);
+        when(certificateService.getCertificateById(cert4.getId())).thenReturn(cert4);
+
+        assertEquals(Boolean.TRUE, userController.hasCertificate(user.getUsername(), cert1.getId()).getBody());
+        assertEquals(Boolean.TRUE, userController.hasCertificate(user.getUsername(), cert2.getId()).getBody());
+        assertEquals(Boolean.FALSE, userController.hasCertificate(user.getUsername(), cert4.getId()).getBody());
+
     }
 }

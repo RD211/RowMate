@@ -2,7 +2,7 @@ package nl.tudelft.sem.project.users.integration;
 
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 import nl.tudelft.sem.project.users.domain.certificate.Certificate;
-import nl.tudelft.sem.project.users.domain.certificate.CertificateName;
+import nl.tudelft.sem.project.users.CertificateName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

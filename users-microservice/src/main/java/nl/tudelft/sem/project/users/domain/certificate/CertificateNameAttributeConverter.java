@@ -1,5 +1,7 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
+import nl.tudelft.sem.project.users.CertificateName;
+
 import javax.persistence.AttributeConverter;
 
 public class CertificateNameAttributeConverter implements AttributeConverter<CertificateName, String> {
