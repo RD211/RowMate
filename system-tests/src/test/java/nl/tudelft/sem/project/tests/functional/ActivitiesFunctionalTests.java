@@ -21,48 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(classes=nl.tudelft.sem.project.system.tests.Application.class)
-public class ActivitiesFunctionalTests {
-    @Autowired
-    GatewayAuthenticationClient gatewayAuthenticationClient;
+public class ActivitiesFunctionalTests extends FunctionalTestsBase{
 
-    @Autowired
-    GatewayUserClient gatewayUserClient;
-
-    @Autowired
-    GatewayAdminClient gatewayAdminClient;
-
-    @Autowired
-    GatewayBoatsClient gatewayBoatsClient;
-
-    @Autowired
-    GatewayActivitiesClient gatewayActivitiesClient;
-
-    static List<ConfigurableApplicationContext> microservices;
-    @BeforeAll
-    static void startEverything() {
-        microservices = List.of(
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.users.Application.class).run("--server.port=8084"),
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.gateway.Application.class).properties("jwt.secret=exampleSecret").run("--server.port=8087"),
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.authentication.Application.class).properties("jwt.secret=exampleSecret").run("--server.port=8081"),
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.activities.Application.class).run("--server.port=8085"),
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.notifications.Application.class).properties("application.properties.test-mode=true").run("--server.port=8086"),
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.matchmaking.Application.class).run("--server.port=8083")
-        );
-    }
-
-    @AfterAll
-    static void shutdownEverything() {
-        microservices.forEach(x -> {
-            x.stop();
-            x.close();
-        });
-    }
 
     public CertificateDTO addCertificateToTheDatabase(CertificateDTO dto) {
         var adminToken = gatewayAuthenticationClient.authenticate(
