@@ -23,7 +23,7 @@ public interface CertificatesClient {
 
     @GetMapping("/get_certificate_by_name?certificateName={certificateName}")
     @Headers("Content-Type: application/json")
-    CertificateDTO getCertificateByName(@PathVariable(value = "certificateName") CertificateName certificateName) throws FeignException;
+    CertificateDTO getCertificateByName(@PathVariable(value = "certificateName") String certificateName) throws FeignException;
 
 
     @PutMapping("/change_certificate_name")

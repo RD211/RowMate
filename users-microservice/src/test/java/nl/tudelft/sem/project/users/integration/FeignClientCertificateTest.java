@@ -2,6 +2,10 @@ package nl.tudelft.sem.project.users.integration;
 
 import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.CertificatesClient;
+import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
+import nl.tudelft.sem.project.users.models.ChangeCertificateNameModel;
+import nl.tudelft.sem.project.users.models.ChangeCertificateSupersededModel;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,8 +31,16 @@ public class FeignClientCertificateTest {
     @Autowired
     CertificatesClient certificatesClient;
 
+    @Autowired
+    CertificateRepository certificateRepository;
+
+    @BeforeEach
+    void setup() {
+        certificateRepository.deleteAll();
+    }
+
     @ParameterizedTest
-    @CsvSource({"A normal certificate name", "894142134 jrhk21r213hrlc 41234", "ABC"})
+    @CsvSource({"A normal certificate name", "894142134 jrhk21r213hrlc 41234", "C4"})
     void addingCertificatesWithValidNamesTest(String certificateName) {
         var response = certificatesClient.addCertificate(
                 CertificateDTO.builder().name(certificateName).build()
@@ -46,7 +58,7 @@ public class FeignClientCertificateTest {
 
         assertThatThrownBy(() -> certificatesClient.addCertificate(
                 CertificateDTO.builder().name(certificateName).build()
-        ));
+        )).hasMessageContaining("Name must be between 2 and 50 characters");
     }
 
     @ParameterizedTest
@@ -94,6 +106,114 @@ public class FeignClientCertificateTest {
 
         assertThatThrownBy(() -> certificatesClient.addCertificate(
                 CertificateDTO.builder().name("Ok name").supersededId(nonExistentId).build()
-        ));
+        )).hasMessageContaining("id").hasMessageContaining(nonExistentId.toString());
+    }
+
+    @Test
+    void addCertificateWithPreexistingName() {
+        var existing = certificatesClient.addCertificate(
+                CertificateDTO.builder().name("A name").build()
+        );
+
+        assertThatThrownBy(
+                () -> certificatesClient.addCertificate(
+                        CertificateDTO.builder().name(existing.getName()).build()
+                )
+        ).hasMessageContaining("name").hasMessageContaining(existing.getName());
+    }
+
+    @Test
+    void gettingVariousCertificates() {
+        var certificate = certificatesClient.addCertificate(
+                CertificateDTO.builder().name("A name").build()
+        );
+        var withSuperseding = certificatesClient.addCertificate(
+                CertificateDTO.builder().name("Another name").supersededId(certificate.getId()).build()
+        );
+        var anotherCertificate = certificatesClient.addCertificate(
+                CertificateDTO.builder().name("Some name").build()
+        );
+
+        assertThat(certificatesClient.getAllAvailableCertificates())
+                .containsExactlyInAnyOrder(certificate, withSuperseding, anotherCertificate);
+
+        assertThat(certificatesClient.getCertificateByName("A name")).isEqualTo(certificate);
+        assertThat(certificatesClient.getCertificateById(anotherCertificate.getId())).isEqualTo(anotherCertificate);
+
+        assertThat(certificatesClient.getCertificateChain(withSuperseding.getId()))
+                .containsExactly(withSuperseding, certificate);
+    }
+
+    @Test
+    void gettingNonExistentCertificates() {
+        var nonExistentId = UUID.randomUUID();
+        assertThatThrownBy(() -> certificatesClient.getCertificateById(nonExistentId))
+                .hasMessageContaining(nonExistentId.toString())
+                .hasMessageContaining("id");
+
+        assertThatThrownBy(() -> certificatesClient.getCertificateChain(nonExistentId))
+                .hasMessageContaining(nonExistentId.toString())
+                .hasMessageContaining("id");
+
+        var nonExistentName = "A non-existent name";
+        assertThatThrownBy(() -> certificatesClient.getCertificateByName(nonExistentName))
+                .hasMessageContaining(nonExistentName)
+                .hasMessageContaining("name");
+
+    }
+
+    @Test
+    void updatingCertificates() {
+        final var certificate = certificatesClient.addCertificate(CertificateDTO.builder().name("A nice name").build());
+        var testCert = certificatesClient.addCertificate(CertificateDTO.builder().name("Another name").build());
+
+        testCert = certificatesClient.changeCertificateName(
+                new ChangeCertificateNameModel(testCert, "Another nice name"));
+        var fetched = certificatesClient.getCertificateById(testCert.getId());
+        assertThat(fetched).isEqualTo(testCert);
+        assertThat(fetched.getName()).isEqualTo("Another nice name");
+
+        testCert = certificatesClient.changeCertificateSuperseded(
+                new ChangeCertificateSupersededModel(testCert, certificate.getId()));
+        fetched = certificatesClient.getCertificateById(testCert.getId());
+        assertThat(fetched).isEqualTo(testCert);
+        assertThat(fetched.getSupersededId()).isEqualTo(certificate.getId());
+
+        testCert = certificatesClient.changeCertificateSuperseded(
+                new ChangeCertificateSupersededModel(testCert, null));
+        fetched = certificatesClient.getCertificateById(testCert.getId());
+        assertThat(fetched).isEqualTo(testCert);
+        assertThat(fetched.getSupersededId()).isEqualTo(null);
+    }
+
+    @Test
+    void updatingCertificatesBad() {
+        var testCert = certificatesClient.addCertificate(CertificateDTO.builder().name("A nice name").build());
+        var nonExistentCert = CertificateDTO.builder().name("A name").id(UUID.randomUUID()).build();
+
+        assertThatThrownBy(
+                () -> certificatesClient.changeCertificateName(
+                        new ChangeCertificateNameModel(nonExistentCert, "A name"))
+        ).hasMessageContaining(nonExistentCert.getId().toString()).hasMessageContaining("id");
+
+        assertThatThrownBy(
+                () -> certificatesClient.changeCertificateName(
+                        new ChangeCertificateNameModel(testCert, "_"))
+        ).hasMessageContaining("Name must be between 2 and 50 characters");
+
+        assertThatThrownBy(
+                () -> certificatesClient.changeCertificateName(
+                        new ChangeCertificateNameModel(testCert, testCert.getName()))
+        ).hasMessageContaining("name").hasMessageContaining(testCert.getName());
+
+        assertThatThrownBy(
+                () -> certificatesClient.changeCertificateSuperseded(
+                        new ChangeCertificateSupersededModel(nonExistentCert, testCert.getId()))
+        ).hasMessageContaining(nonExistentCert.getId().toString()).hasMessageContaining("id");
+
+        assertThatThrownBy(
+                () -> certificatesClient.changeCertificateSuperseded(
+                        new ChangeCertificateSupersededModel(testCert, nonExistentCert.getId()))
+        ).hasMessageContaining(nonExistentCert.getId().toString()).hasMessageContaining("id");
     }
 }
