@@ -6,11 +6,11 @@ import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.shared.Organization;
-import nl.tudelft.sem.project.utils.Existing;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.hibernate.validator.constraints.Email;
+import org.springframework.validation.annotation.Validated;
 
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
@@ -22,19 +22,20 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @With
+@Validated
 public class UserDTO implements DTO {
     /**
      * User's name.
      */
-    @NotNull(groups = {Existing.class})
-    @Size(min = 4, max = 50, message = "Name must be between 4 and 50 characters.", groups = {Existing.class})
+    @Valid
+    @NotNull
+    @Size(min = 4, max = 50, message = "Name must be between 4 and 50 characters.")
     protected String username;
 
     /**
      * User's email address.
      */
-    @NotNull(groups = {Fictional.class})
-    @Email(groups = {Fictional.class}, message = "Email must be valid.")
+    @Email(message = "Email must be valid.")
     protected String email;
 
     /**

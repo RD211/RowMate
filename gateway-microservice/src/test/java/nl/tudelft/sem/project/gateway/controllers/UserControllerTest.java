@@ -7,6 +7,7 @@ import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.shared.Organization;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.CertificateDTO;
+import nl.tudelft.sem.project.users.CertificatesClient;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.users.models.*;
@@ -25,9 +26,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -38,6 +40,9 @@ class UserControllerTest {
 
     @Mock
     private transient UsersClient usersClient;
+
+    @Mock
+    private transient CertificatesClient certificatesClient;
 
     @InjectMocks
     UserController userController;
@@ -183,7 +188,10 @@ class UserControllerTest {
         )).thenReturn(
                 userDTO.withCertificates(Set.of(cert))
         );
-        var details = userController.addCertificate(cert).getBody();
+
+        var certId = UUID.randomUUID();
+        when(certificatesClient.getCertificateById(certId)).thenReturn(cert);
+        var details = userController.addCertificate(certId).getBody();
         assertEquals(userDTO.withCertificates(Set.of(cert)), details);
     }
 
@@ -202,7 +210,20 @@ class UserControllerTest {
         )).thenReturn(
                 userDTO.withCertificates(Set.of())
         );
-        var details = userController.removeCertificate(cert).getBody();
+
+        var certId = UUID.randomUUID();
+        when(certificatesClient.getCertificateById(certId)).thenReturn(cert);
+        var details = userController.removeCertificate(certId).getBody();
         assertEquals(userDTO.withCertificates(Set.of()), details);
+    }
+
+    @Test
+    void hasCertificate() {
+        var certId = UUID.randomUUID();
+        when(authManager.getUsername()).thenReturn("tester");
+        when(usersClient.hasCertificate(new Username("tester"), certId)).thenReturn(true);
+        var response = userController.hasCertificate(certId).getBody();
+        assertEquals(Boolean.TRUE, response);
+        verify(usersClient, times(1)).hasCertificate(new Username("tester"), certId);
     }
 }

@@ -2,6 +2,8 @@ package nl.tudelft.sem.project.authentication.domain.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import nl.tudelft.sem.project.authentication.Password;
@@ -70,5 +72,32 @@ public class RegistrationServiceTests {
 
         assertThat(savedUser.getUsername()).isEqualTo(testUser);
         assertThat(savedUser.getPassword()).isEqualTo(existingTestPassword);
+    }
+
+    @Test
+    public void createUserAndCheckIfUsernameIsUniqueAfter() throws Exception {
+        // Arrange
+        final Username testUser = new Username("SomeUser2");
+        final Password testPassword = new Password("password1234");
+        final HashedPassword testHashedPassword = new HashedPassword("hashedTestPassword");
+        when(mockPasswordEncoder.hash(testPassword)).thenReturn(testHashedPassword);
+
+        // Act
+        registrationService.registerUser(testUser, testPassword, false);
+
+        // Assert
+        AppUser savedUser = userRepository.findByUsername(testUser).orElseThrow();
+
+        assertThat(savedUser.getUsername()).isEqualTo(testUser);
+        assertThat(savedUser.getPassword()).isEqualTo(testHashedPassword);
+
+        var result = registrationService.checkUsernameIsUnique(testUser);
+        assertFalse(result);
+    }
+
+    @Test
+    public void usernameIsUniqueRandom() {
+        var result = registrationService.checkUsernameIsUnique(new Username("very random username"));
+        assertTrue(result);
     }
 }

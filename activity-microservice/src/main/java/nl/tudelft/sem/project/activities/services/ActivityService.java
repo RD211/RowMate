@@ -99,10 +99,22 @@ public class ActivityService {
                 ActivityNotFoundException("Could not find activity by id. Found different type of activity instead.");
     }
 
+    /**
+     * Adds a training to the database.
+     *
+     * @param training the training.
+     * @return the saved entity.
+     */
     public Training addTraining(Training training) {
         return activityRepository.save(training);
     }
 
+    /**
+     * Adds a competition to the database.
+     *
+     * @param competition the competition.
+     * @return the saved entity.
+     */
     public Competition addCompetition(Competition competition) {
         return activityRepository.save(competition);
     }
