@@ -4,7 +4,9 @@ import feign.FeignException;
 import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
+import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.gateway.*;
+import nl.tudelft.sem.project.matchmaking.ActivityFilterDTO;
 import nl.tudelft.sem.project.matchmaking.ActivityRegistrationResponseDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -14,7 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -157,4 +161,52 @@ public class ScenarioTests {
         assertEquals(1, applications.size());
     }
 
+    @Test
+    void createActivityAndSomeoneUsesStrategy() {
+        var boat = addBoatToTheDatabase(
+                BoatDTO.builder()
+                        .name("boat 1")
+                        .availablePositions(List.of(BoatRole.Coach))
+                        .coxCertificateId(UUID.randomUUID()).build());
+
+        var createUserModel = CreateUserModel.builder()
+                .username("userOne")
+                .email("tester@test.test")
+                .password("testertester").build();
+        var userToken = gatewayAuthenticationClient.register(
+                createUserModel
+        );
+
+        var trainingDTO =
+                new TrainingDTO(null, "idk", createUserModel.getUsername(),
+                        java.sql.Timestamp.valueOf(
+                                LocalDateTime.of(2026, 11, 1, 1, 1, 1, 1)),
+                        java.sql.Timestamp.valueOf(
+                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
+                        List.of(boat));
+
+        gatewayActivitiesClient.createTraining("Bearer " + userToken, trainingDTO);
+
+        var otherUserToken = gatewayAuthenticationClient.register(
+                CreateUserModel.builder()
+                        .username("userTwo")
+                        .email("tester2@test.test")
+                        .password("testertester2").build()
+        );
+
+        var rsp = gatewayMatchmakingClient.autoFindActivity(
+                "Bearer " + otherUserToken,
+                MatchmakingStrategy.Random,
+                new ActivityFilterDTO(
+                    Date.from(LocalDateTime.of(2020, 11, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC)),
+                    Date.from(LocalDateTime.of(2030, 12, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC)),
+                    List.of(BoatRole.Coach)
+                )
+        );
+
+        var applications =
+                gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
+        assertNotNull(applications);
+        assertEquals(1, applications.size());
+    }
 }
