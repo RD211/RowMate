@@ -1,9 +1,11 @@
 package nl.tudelft.sem.project.tests;
 
+import feign.FeignException;
 import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.gateway.*;
+import nl.tudelft.sem.project.matchmaking.ActivityRegistrationResponseDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -125,5 +129,32 @@ public class ScenarioTests {
                 gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
         assertNotNull(applications);
         assertEquals(1, applications.size());
+
+
+        assertThatThrownBy(() -> {
+            gatewayMatchmakingClient.respondToRegistration(
+                    "Bearer " + otherUserToken,
+                    new ActivityRegistrationResponseDTO(
+                            "tester2",
+                            queriedDTO.getId(),
+                            true
+                    )
+            );
+        }).isInstanceOf(FeignException.class)
+                        .hasMessageContaining("You are not the owner of this activity!");
+
+        gatewayMatchmakingClient.respondToRegistration(
+                "Bearer " + userToken,
+                new ActivityRegistrationResponseDTO(
+                        "tester2",
+                        queriedDTO.getId(),
+                        true
+                )
+        );
+
+        applications = gatewayMatchmakingClient.getAcceptedApplications("Bearer " + otherUserToken);
+        assertNotNull(applications);
+        assertEquals(1, applications.size());
     }
+
 }

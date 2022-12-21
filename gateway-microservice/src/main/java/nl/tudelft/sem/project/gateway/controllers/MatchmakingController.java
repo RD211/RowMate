@@ -7,8 +7,10 @@ import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import nl.tudelft.sem.project.matchmaking.*;
+import nl.tudelft.sem.project.notifications.NotificationClient;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.utils.Fictional;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +30,8 @@ public class MatchmakingController {
 
     private final transient UsersClient usersClient;
 
+    private final transient NotificationClient notificationClient;
+
     private final transient AuthManager authManager;
 
     /**
@@ -38,11 +42,16 @@ public class MatchmakingController {
      * @param authManager the auth manager.
      */
     @Autowired
-    public MatchmakingController(MatchmakingClient matchmakingClient, UsersClient usersClient, AuthManager authManager,
-                                 ActivitiesClient activitiesClient) {
+    public MatchmakingController(
+            MatchmakingClient matchmakingClient,
+            UsersClient usersClient,
+            AuthManager authManager,
+            NotificationClient notificationClient,
+            ActivitiesClient activitiesClient) {
         this.matchmakingClient = matchmakingClient;
         this.usersClient = usersClient;
         this.authManager = authManager;
+        this.notificationClient = notificationClient;
         this.activitiesClient = activitiesClient;
     }
 
