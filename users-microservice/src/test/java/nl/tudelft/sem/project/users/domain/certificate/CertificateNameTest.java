@@ -24,7 +24,7 @@ class CertificateNameTest {
 
     @Test
     void nameTooShort() {
-        assertThatThrownBy(() -> new CertificateName("AB")).isInstanceOf(ConstraintViolationException.class);
+        assertThatThrownBy(() -> new CertificateName("A")).isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test

@@ -15,9 +15,9 @@ import java.util.UUID;
 public interface CertificatesClient {
     @PostMapping("/add_certificate")
     @Headers("Content-Type: application/json")
-    CertificateDTO addCertificate(CertificateDTO cartificate) throws FeignException;
+    CertificateDTO addCertificate(CertificateDTO certificate) throws FeignException;
 
-    @GetMapping("/get_certificate_by_id?id={id}")
+    @GetMapping("/get_certificate_by_id?certificateId={id}")
     @Headers("Content-Type: application/json")
     CertificateDTO getCertificateById(@PathVariable(value = "id") UUID id) throws FeignException;
 
