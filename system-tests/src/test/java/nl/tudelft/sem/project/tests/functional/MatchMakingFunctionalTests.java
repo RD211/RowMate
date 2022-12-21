@@ -273,7 +273,8 @@ public class MatchMakingFunctionalTests {
                                 LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1))),
                         List.of(boat2.getBoatId()), false, null, null);
 
-        gatewayActivitiesClient.createCompetition("Bearer " + userToken, competitionModel);
+        var competitionDTO = gatewayActivitiesClient.createCompetition("Bearer " + userToken, competitionModel);
+        competitionDTO = gatewayActivitiesClient.getCompetition("Bearer " + userToken, competitionDTO.getId());
 
         gatewayMatchmakingClient.autoFindActivity(
                 "Bearer " + otherUserToken,
@@ -297,6 +298,36 @@ public class MatchMakingFunctionalTests {
         );
 
         gatewayMatchmakingClient.deRegisterFromActivity("Bearer " + otherUserToken, query.getId());
+
+        var thirdUserToken = gatewayAuthenticationClient.register(
+                CreateUserModel.builder()
+                        .username("tester3")
+                        .email("tt@test.test")
+                        .password("testertester2")
+                        .build()
+        );
+
+        gatewayUserClient.changeAmateur("Bearer " + thirdUserToken, false);
+        gatewayMatchmakingClient.autoFindActivity(
+                "Bearer " + thirdUserToken,
+                MatchmakingStrategy.EarliestFirst,
+                new ActivityFilterDTO(
+                        Date.from(LocalDateTime.of(2019, 11, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC)),
+                        Date.from(LocalDateTime.of(2030, 12, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC)),
+                        List.of(BoatRole.Coach)
+                )
+        );
+
+        applications =
+                gatewayMatchmakingClient.getWaitingApplications("Bearer " + thirdUserToken);
+
+        assertThatList(applications).contains(
+                new UserActivityApplication(
+                        competitionDTO,
+                        competitionDTO.getBoats().get(0),
+                        BoatRole.Coach
+                )
+        );
     }
 
     @AfterAll

@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ActivityRequestDTO {
-
     protected String userName;
     protected ActivityFilterDTO activityFilter;
 }
