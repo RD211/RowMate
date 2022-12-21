@@ -35,7 +35,6 @@ public class MatchmakingService {
     transient ActivitiesClient activitiesClient;
     transient UsersClient usersClient;
     transient BoatsClient boatsClient;
-    transient NotificationClient notificationClient;
 
     transient ActivityRegistrationRepository activityRegistrationRepository;
 
@@ -93,18 +92,10 @@ public class MatchmakingService {
         if (pickedActivity != null) {
             registerUserInActivity(pickedActivity.getRegistrationRequestDTO());
 
-            ActivityDTO activity = pickedActivity.getActivityDTO();
-            UserDTO owner = usersClient.getUserByUsername(new Username(activity.getOwner()));
-            sendNotification(activity, owner, EventType.USER_JOINED);
-
             return "Your registration request has been sent to the activity owner. "
                     + "You will get an email when the owner responds to your request.";
         }
         return autoFindErrorMessage;
-    }
-
-    private void sendNotification(ActivityDTO activity, UserDTO user, EventType eventType) {
-        notificationClient.sendNotification(new NotificationDTO(user, activity, eventType));
     }
 
     /**
@@ -200,6 +191,7 @@ public class MatchmakingService {
      */
     @Transactional
     public boolean registerUserInActivity(ActivityRegistrationRequestDTO dto) {
+
         List<ActivityRegistration> overlappingRegistrations
             = activityRegistrationRepository.findRequestOverlap(
                     dto.getActivityId(),
@@ -212,13 +204,15 @@ public class MatchmakingService {
             return false;
         }
 
+        boolean status
+            = activitiesClient.getActivity(dto.getActivityId()).getOwner().equals(dto.getUserName());
         ActivityRegistration registration
             = new ActivityRegistration(
                 dto.getUserName(),
                 dto.getActivityId(),
                 dto.getBoat(),
                 dto.getBoatRole(),
-                false
+                status
             );
         activityRegistrationRepository.save(registration);
         return true;
@@ -238,12 +232,6 @@ public class MatchmakingService {
             = activityRegistrationRepository.findById(new ActivityRegistrationId(dto.getUserName(), dto.getActivityId()));
         if (registration.isEmpty()) {
             return false;
-        }
-
-        if (registration.get().isAccepted()) {
-            ActivityDTO activity = activitiesClient.getActivity(dto.getActivityId());
-            UserDTO owner = usersClient.getUserByUsername(new Username(activity.getOwner()));
-            sendNotification(activity, owner, EventType.USER_LEFT);
         }
 
         activityRegistrationRepository.delete(registration.get());
@@ -266,17 +254,12 @@ public class MatchmakingService {
             return false;
         }
 
-        ActivityDTO activity = activitiesClient.getActivity(dto.getActivityId());
-        UserDTO user = usersClient.getUserByUsername(new Username(dto.getUserName()));
-
         if (dto.isAccepted()) {
             ActivityRegistration reg = registration.get();
             reg.setAccepted(true);
             activityRegistrationRepository.save(reg);
-            sendNotification(activity, user, EventType.JOINED_ACTIVITY);
         } else {
             activityRegistrationRepository.delete(registration.get());
-            sendNotification(activity, user, EventType.REJECT_REGISTRATION);
         }
         return true;
     }
