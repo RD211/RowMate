@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+import java.util.UUID;
+
 @FeignClient(url = "http://localhost:8087/api/user", name = "gatewayUserClient")
 public interface GatewayUserClient {
     @GetMapping("/get_details")
@@ -50,9 +52,13 @@ public interface GatewayUserClient {
 
     @PostMapping("/add_certificate")
     @Headers("Content-Type: application/json")
-    UserDTO addCertificate(@RequestHeader("Authorization") String bearerToken, CertificateDTO certificateDTO) throws FeignException;
+    UserDTO addCertificate(@RequestHeader("Authorization") String bearerToken, UUID certificateID) throws FeignException;
 
     @PostMapping("/remove_certificate")
     @Headers("Content-Type: application/json")
-    UserDTO removeCertificate(@RequestHeader("Authorization") String bearerToken, CertificateDTO certificateDTO) throws FeignException;
+    UserDTO removeCertificate(@RequestHeader("Authorization") String bearerToken, UUID certificateID) throws FeignException;
+
+    @GetMapping("/has_certificate")
+    @Headers("Content-Type: application/json")
+    boolean hasCertificate(@RequestHeader("Authorization") String bearerToken, UUID certificateId) throws FeignException;
 }

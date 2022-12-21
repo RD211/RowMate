@@ -84,6 +84,16 @@ public class MailTemplateConfig {
     }
 
     @Bean
+    public  MailTemplateImpl getMailTestActivity() {
+        return MailTemplateImpl
+                .builder()
+                .subject("Test email")
+                .message("Test email.")
+                .eventType(EventType.TEST_ACTIVITY)
+                .build();
+    }
+
+    @Bean
     public MailTemplateImpl getMailUserJoined() {
         return MailTemplateImpl
                 .builder()

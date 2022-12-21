@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
+import nl.tudelft.sem.project.users.CertificateName;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolationException;

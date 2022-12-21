@@ -8,15 +8,18 @@ import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.shared.Organization;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.CertificateDTO;
+import nl.tudelft.sem.project.users.CertificatesClient;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import nl.tudelft.sem.project.users.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -27,15 +30,18 @@ public class UserController {
 
     private final transient UsersClient usersClient;
 
+    private final transient CertificatesClient certificatesClient;
+
     /**
      * Instantiates a new controller.
      *
      * @param authManager Spring Security component used to authenticate and authorize the user
      */
     @Autowired
-    public UserController(AuthManager authManager, UsersClient usersClient) {
+    public UserController(AuthManager authManager, UsersClient usersClient, CertificatesClient certificatesClient) {
         this.authManager = authManager;
         this.usersClient = usersClient;
+        this.certificatesClient = certificatesClient;
     }
 
 
@@ -180,16 +186,16 @@ public class UserController {
     /**
      * Adds a new certificate to the user set of certificates.
      *
-     * @param certificateDTO the new certificate to add.
+     * @param certificateID the new certificate to add.
      * @return the updated user dto.
      */
     @PostMapping("/add_certificate")
-    public ResponseEntity<UserDTO> addCertificate(@Valid @RequestBody @NotNull CertificateDTO certificateDTO) {
+    public ResponseEntity<UserDTO> addCertificate(@Valid @RequestBody @NotNull UUID certificateID) {
         var username = authManager.getUsername();
         var response = usersClient.addCertificateToUser(
                 new AddCertificateUserModel(
                         UserDTO.builder().username(username).build(),
-                        certificateDTO
+                        certificatesClient.getCertificateById(certificateID)
                 )
         );
         return ResponseEntity.ok(response);
@@ -198,18 +204,31 @@ public class UserController {
     /**
      * Removes a certificates from the user set.
      *
-     * @param certificateDTO the certificate to remove.
+     * @param certificateID the certificate to remove.
      * @return the updated user dto.
      */
     @PostMapping("/remove_certificate")
-    public ResponseEntity<UserDTO> removeCertificate(@Valid @RequestBody @NotNull CertificateDTO certificateDTO) {
+    public ResponseEntity<UserDTO> removeCertificate(@Valid @RequestBody @NotNull UUID certificateID) {
         var username = authManager.getUsername();
         var response = usersClient.removeCertificateFromUser(
                 new RemoveCertificateUserModel(
                         UserDTO.builder().username(username).build(),
-                        certificateDTO
+                        certificatesClient.getCertificateById(certificateID)
                 )
         );
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Checks whether a user is in possession of a certificate directly or through supersedence.
+     *
+     * @param certificateId The certificate to look for.
+     * @return Whether the user has the certificate.
+     */
+    @GetMapping("/has_certificate")
+    public ResponseEntity<Boolean> hasCertificate(
+            @Valid @NotNull @RequestBody UUID certificateId) {
+        var username = authManager.getUsername();
+        return ResponseEntity.ok(usersClient.hasCertificate(new Username(username), certificateId));
     }
 }

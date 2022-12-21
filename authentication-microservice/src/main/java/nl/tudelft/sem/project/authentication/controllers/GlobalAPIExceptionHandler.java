@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.authentication.controllers;
 
+import lombok.Generated;
 import nl.tudelft.sem.project.shared.UsernameInUseException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
+@Generated
 public class GlobalAPIExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

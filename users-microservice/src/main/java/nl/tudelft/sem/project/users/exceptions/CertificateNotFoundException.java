@@ -1,6 +1,6 @@
 package nl.tudelft.sem.project.users.exceptions;
 
-import nl.tudelft.sem.project.users.domain.certificate.CertificateName;
+import nl.tudelft.sem.project.users.CertificateName;
 
 import java.util.UUID;
 

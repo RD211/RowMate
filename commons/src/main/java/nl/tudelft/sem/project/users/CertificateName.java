@@ -1,22 +1,24 @@
-package nl.tudelft.sem.project.users.domain.certificate;
+package nl.tudelft.sem.project.users;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.validation.annotation.Validated;
 
+import javax.persistence.Embeddable;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 @Getter
 @ToString
 @EqualsAndHashCode
 @Validated
-public class CertificateName {
+public class CertificateName implements Serializable {
     @NotNull
     @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
     private final String value;

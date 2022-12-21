@@ -9,8 +9,6 @@ import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import nl.tudelft.sem.project.matchmaking.*;
 import nl.tudelft.sem.project.notifications.NotificationClient;
 import nl.tudelft.sem.project.users.UsersClient;
-import nl.tudelft.sem.project.utils.Fictional;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
