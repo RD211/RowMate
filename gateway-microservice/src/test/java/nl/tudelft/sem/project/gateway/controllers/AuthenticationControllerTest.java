@@ -1,12 +1,10 @@
 package nl.tudelft.sem.project.gateway.controllers;
 
-import nl.tudelft.sem.project.authentication.AppUserModel;
-import nl.tudelft.sem.project.authentication.AuthClient;
-import nl.tudelft.sem.project.authentication.Password;
-import nl.tudelft.sem.project.authentication.Token;
+import nl.tudelft.sem.project.authentication.*;
 import nl.tudelft.sem.project.gateway.AuthenticateUserModel;
 import nl.tudelft.sem.project.gateway.CreateUserModel;
 import nl.tudelft.sem.project.notifications.NotificationsClient;
+import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
@@ -21,7 +19,7 @@ import org.mockito.quality.Strictness;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -50,7 +48,7 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    void register() {
+    void registerTest() {
         when(authClient.authenticate(
                 AppUserModel.builder()
                         .username(new Username("tester_master"))
@@ -65,7 +63,7 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    void authenticate() {
+    void authenticateTest() {
         when(authClient.authenticate(
                 AppUserModel.builder()
                         .username(new Username("tester_master"))
@@ -77,5 +75,46 @@ class AuthenticationControllerTest {
                         .username("tester_master").build()
         );
         assertEquals("best_token", token.getBody());
+    }
+
+    @Test
+    void resetPasswordWithPreviousTest() {
+        var resetPasswordModel =  new ResetPasswordModel(AppUserModel.builder()
+                .username(new Username("tester_master"))
+                .password(new Password("tester_god")).build(), new Password("AN AMAZING PASSWORD"));
+
+        assertDoesNotThrow(() -> authenticationController.resetPasswordWithPrevious(resetPasswordModel));
+        verify(authClient, times(1)).resetPasswordWithPrevious(resetPasswordModel);
+        verifyNoMoreInteractions(authClient);
+    }
+
+    @Test
+    void resetPasswordWithEmailTest() {
+        var username = new Username("tester");
+
+        when(authClient.getEmailResetPasswordToken(username)).thenReturn("a token");
+
+        var userDTO = UserDTO.builder()
+                .email("test@testing.com").username(username.getName()).build();
+        when(usersClient.getUserByUsername(username)).thenReturn(userDTO);
+
+        assertDoesNotThrow(() -> authenticationController.resetPasswordWithEmail(username));
+
+        verify(notificationClient, times(1)).sendNotification(any(NotificationDTO.class));
+        verify(usersClient, times(1)).getUserByUsername(username);
+        verify(authClient, times(1)).getEmailResetPasswordToken(username);
+        verifyNoMoreInteractions(authClient, usersClient);
+    }
+
+    @Test
+    void resetPasswordTest() {
+        var newPassword = "a new password";
+        var token = "a token";
+
+
+        assertDoesNotThrow(() -> authenticationController.resetPassword(token, newPassword));
+
+        verify(authClient, times(1)).emailResetPassword(token, new Password(newPassword));
+        verifyNoMoreInteractions(authClient);
     }
 }

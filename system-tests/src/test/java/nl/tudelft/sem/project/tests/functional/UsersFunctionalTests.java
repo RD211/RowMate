@@ -1,14 +1,10 @@
-package nl.tudelft.sem.project.tests;
+package nl.tudelft.sem.project.tests.functional;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import nl.tudelft.sem.project.activities.BoatDTO;
-import nl.tudelft.sem.project.activities.CompetitionDTO;
-import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.authentication.AppUserModel;
 import nl.tudelft.sem.project.authentication.Password;
 import nl.tudelft.sem.project.authentication.ResetPasswordModel;
-import nl.tudelft.sem.project.authentication.Token;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.gateway.*;
@@ -26,20 +22,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.Lifecycle;
 
-
 import java.sql.Date;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes=nl.tudelft.sem.project.system.tests.Application.class)
-public class LargeTests {
-
-
+public class UsersFunctionalTests {
     @Autowired
     GatewayAuthenticationClient gatewayAuthenticationClient;
 
@@ -68,7 +59,7 @@ public class LargeTests {
                 new SpringApplicationBuilder(
                         nl.tudelft.sem.project.activities.Application.class).run("--server.port=8085"),
                 new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.notifications.Application.class).run("--server.port=8086"),
+                        nl.tudelft.sem.project.notifications.Application.class).properties("application.properties.test-mode=true").run("--server.port=8086"),
                 new SpringApplicationBuilder(
                         nl.tudelft.sem.project.matchmaking.Application.class).run("--server.port=8083")
         );
@@ -76,25 +67,11 @@ public class LargeTests {
 
     @AfterAll
     static void shutdownEverything() {
-        microservices.forEach(Lifecycle::stop);
+        microservices.forEach(x -> {
+            x.stop();
+            x.close();
+        });
     }
-
-    public BoatDTO addBoatToTheDatabase(BoatDTO dto) {
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
-        var boatDTO = gatewayAdminClient.addBoat("Bearer " + adminToken, dto);
-        assertEquals(boatDTO.getName(), dto.getName());
-        assertEquals(boatDTO.getAvailablePositions(), dto.getAvailablePositions());
-        assertEquals(boatDTO.getCoxCertificateId(), dto.getCoxCertificateId());
-        assertNotNull(boatDTO.getBoatId());
-        return boatDTO;
-    }
-
-
 
     @ParameterizedTest
     @CsvSource({"test,test@test.com,passss3123", "tEst,tester@gmail.com,passss", "amazing_name_here,wow@wow.com,asdhjkdas"})
@@ -442,292 +419,5 @@ public class LargeTests {
                         .password(newPassword).build()
         );
         assertNotNull(newToken);
-    }
-
-    @Test
-    void addBoatTest() {
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
-        var certId = UUID.randomUUID();
-        var boat = BoatDTO.builder()
-                .name("good_boat")
-                .availablePositions(List.of(BoatRole.Coach, BoatRole.Cox))
-                .coxCertificateId(certId)
-                .build();
-        var boatDTO = gatewayAdminClient.addBoat("Bearer " + adminToken, boat);
-        assertEquals(boatDTO.getName(), "good_boat");
-        assertEquals(boatDTO.getAvailablePositions(), List.of(BoatRole.Coach, BoatRole.Cox));
-        assertEquals(boatDTO.getCoxCertificateId(), certId);
-        assertNotNull(boatDTO.getBoatId());
-    }
-
-    @Test
-    void getBoatTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdasdasdastttd")
-                        .email("adasdtas@tttt.cottm")
-                        .password("treyhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
-        var certId = UUID.randomUUID();
-        var boat = BoatDTO.builder()
-                .name("good_boat1")
-                .availablePositions(List.of(BoatRole.Coach, BoatRole.Cox))
-                .coxCertificateId(certId)
-                .build();
-        var boatDTO = gatewayAdminClient.addBoat("Bearer " + adminToken, boat);
-        var queriedBoat = gatewayBoatsClient.getBoat("Bearer " + userToken, boatDTO.getBoatId());
-        assertEquals(queriedBoat.getName(), "good_boat1");
-        assertEquals(queriedBoat.getAvailablePositions(), List.of(BoatRole.Coach, BoatRole.Cox));
-        assertEquals(queriedBoat.getCoxCertificateId(), certId);
-        assertNotNull(queriedBoat.getBoatId());
-    }
-
-    @Test
-    void getAllBoatsTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasvvdasasdasd")
-                        .email("adasdvvvas@ggavvfmco.cvvom")
-                        .password("treyhb5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-        var certId = UUID.randomUUID();
-        var boat = BoatDTO.builder()
-                .name("good_boat2")
-                .availablePositions(List.of(BoatRole.Coach, BoatRole.Cox))
-                .coxCertificateId(certId)
-                .build();
-        var boatDTO = gatewayAdminClient.addBoat("Bearer " + adminToken, boat);
-        var queriedBoat = gatewayBoatsClient.getBoat("Bearer " + userToken,
-                boatDTO.getBoatId());
-
-        var allBoats = gatewayBoatsClient.getAllBoats("Bearer " + userToken);
-
-        assertTrue(allBoats.contains(queriedBoat));
-    }
-
-    @Test
-    void renameBoatTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdasdasvvdasd")
-                        .email("adasdas@fgdgafdmco.casom")
-                        .password("treysdhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
-        var certId = UUID.randomUUID();
-        var boat = BoatDTO.builder()
-                .name("good_boat4")
-                .availablePositions(List.of(BoatRole.Coach, BoatRole.Cox))
-                .coxCertificateId(certId)
-                .build();
-        var boatDTO = gatewayAdminClient.addBoat("Bearer " + adminToken, boat);
-        gatewayAdminClient.renameBoat("Bearer " + adminToken, boatDTO.getBoatId(), "changed_boat4");
-        var queriedBoat = gatewayBoatsClient.getBoat("Bearer " + userToken, boatDTO.getBoatId());
-
-        assertEquals(queriedBoat.getName(), "changed_boat4");
-        assertEquals(queriedBoat.getAvailablePositions(), List.of(BoatRole.Coach, BoatRole.Cox));
-        assertEquals(queriedBoat.getCoxCertificateId(), certId);
-        assertNotNull(queriedBoat.getBoatId());
-    }
-
-    @Test
-    void deleteBoatTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdasdasbbdasd")
-                        .email("adasbbdas@xzd.csdfom")
-                        .password("trfeyhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
-        var certId = UUID.randomUUID();
-        var boat = BoatDTO.builder()
-                .name("good_boat7")
-                .availablePositions(List.of(BoatRole.Coach, BoatRole.Cox))
-                .coxCertificateId(certId)
-                .build();
-        var boatDTO = gatewayAdminClient.addBoat("Bearer " + adminToken, boat);
-        assertDoesNotThrow(() -> gatewayBoatsClient.getBoat("Bearer " + userToken, boatDTO.getBoatId()));
-        gatewayAdminClient.deleteBoat("Bearer " + adminToken, boatDTO.getBoatId());
-        assertThrows(Exception.class, () -> gatewayBoatsClient.getBoat("Bearer " + userToken, boatDTO.getBoatId()));
-    }
-
-    @Test
-    void addPositionTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdgasdasdasd")
-                        .email("adagsdas@gdgafmdco.cxom")
-                        .password("treyhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
-        var certId = UUID.randomUUID();
-        var boat = BoatDTO.builder()
-                .name("good_boat11")
-                .availablePositions(List.of(BoatRole.Coach, BoatRole.Cox))
-                .coxCertificateId(certId)
-                .build();
-        var boatDTO = gatewayAdminClient.addBoat("Bearer " + adminToken, boat);
-        gatewayAdminClient.addPositionToBoat("Bearer " + adminToken, boatDTO.getBoatId(), BoatRole.ScullingRower);
-        var queriedBoat = gatewayBoatsClient.getBoat("Bearer " + userToken, boatDTO.getBoatId());
-
-        assertEquals(queriedBoat.getAvailablePositions(), List.of(BoatRole.Coach, BoatRole.Cox, BoatRole.ScullingRower));
-        assertEquals(queriedBoat.getCoxCertificateId(), certId);
-        assertNotNull(queriedBoat.getBoatId());
-    }
-
-    @Test
-    void removePositionTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdas11dasdasd")
-                        .email("adas3das@gdgafmco.com")
-                        .password("treyhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
-        var certId = UUID.randomUUID();
-        var boat = BoatDTO.builder()
-                .name("good_boat155")
-                .availablePositions(List.of(BoatRole.Coach, BoatRole.Cox))
-                .coxCertificateId(certId)
-                .build();
-        var boatDTO = gatewayAdminClient.addBoat("Bearer " + adminToken, boat);
-        gatewayAdminClient.removePositionFromBoat("Bearer " + adminToken, boatDTO.getBoatId(), BoatRole.Coach);
-        var queriedBoat = gatewayBoatsClient.getBoat("Bearer " + userToken, boatDTO.getBoatId());
-
-        assertEquals(queriedBoat.getAvailablePositions(), List.of(BoatRole.Cox));
-        assertEquals(queriedBoat.getCoxCertificateId(), certId);
-        assertNotNull(queriedBoat.getBoatId());
-    }
-
-    @Test
-    void changeCertificateBoatTest() {
-        var userToken = gatewayAuthenticationClient.register(
-                CreateUserModel.builder()
-                        .username("asdasdasdasdas55d")
-                        .email("adasd13as@gdgafm54co.3om")
-                        .password("treyhbd5tyr").build()
-        );
-        var adminToken = gatewayAuthenticationClient.authenticate(
-                AuthenticateUserModel.builder().username(
-                        "administrator"
-                ).password("administrator").build()
-        );
-
-        var certId = UUID.randomUUID();
-        var newCertId = UUID.randomUUID();
-        var boat = BoatDTO.builder()
-                .name("good_boat13")
-                .availablePositions(List.of(BoatRole.Coach, BoatRole.Cox))
-                .coxCertificateId(certId)
-                .build();
-        var boatDTO = gatewayAdminClient.addBoat("Bearer " + adminToken, boat);
-        gatewayAdminClient.changeCoxCertificate("Bearer " + adminToken, boatDTO.getBoatId(), newCertId);
-        var queriedBoat = gatewayBoatsClient.getBoat("Bearer " + userToken, boatDTO.getBoatId());
-
-        assertEquals(queriedBoat.getCoxCertificateId(), newCertId);
-        assertNotNull(queriedBoat.getBoatId());
-    }
-
-
-
-    @Test
-    void createTrainingTest() {
-        var boat = addBoatToTheDatabase(
-                BoatDTO.builder().name("bestest boat").availablePositions(
-                        List.of(BoatRole.Coach)
-                ).coxCertificateId(UUID.randomUUID())
-                        .build()
-        );
-        var createUserModel = CreateUserModel.builder()
-                .username("asdasdasda4sdas55d")
-                .email("adasd13a44s@gdgafm54co.3om")
-                .password("treyh4bd5tyr").build();
-        var userToken = gatewayAuthenticationClient.register(
-                createUserModel
-        );
-
-        var trainingDTO =
-                new TrainingDTO(null, "idk", createUserModel.getUsername(),
-                        java.sql.Timestamp.valueOf(
-                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
-                        java.sql.Timestamp.valueOf(
-                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
-                        List.of(boat));
-
-        trainingDTO = gatewayActivitiesClient.createTraining("Bearer " + userToken, trainingDTO);
-        var queriedDTO =
-                gatewayActivitiesClient.getTraining("Bearer " + userToken, trainingDTO.getId());
-        assertNotNull(trainingDTO);
-        assertEquals(queriedDTO, trainingDTO);
-    }
-
-    @Test
-    void createCompetitionTest() {
-        var boat = addBoatToTheDatabase(
-                BoatDTO.builder().name("bestest boat2").availablePositions(
-                                List.of(BoatRole.Coach)
-                        ).coxCertificateId(UUID.randomUUID())
-                        .build()
-        );
-        var createUserModel = CreateUserModel.builder()
-                .username("asda3sdasda4sdas55d")
-                .email("adasd133a44s@gdgafm54co.3om")
-                .password("treyh34bd5tyr").build();
-        var userToken = gatewayAuthenticationClient.register(
-                createUserModel
-        );
-
-        var competitionDTO =
-                new CompetitionDTO(null, "idk", createUserModel.getUsername(),
-                        java.sql.Timestamp.valueOf(
-                                LocalDateTime.of(2026, 11, 1, 1, 1, 1, 1)),
-                        java.sql.Timestamp.valueOf(
-                                LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1)),
-                        List.of(boat),
-                        null,
-                        null,
-                        null);
-
-        competitionDTO = gatewayActivitiesClient.createCompetition("Bearer " + userToken, competitionDTO);
-        var queriedDTO =
-                gatewayActivitiesClient.getCompetition("Bearer " + userToken, competitionDTO.getId());
-        assertNotNull(competitionDTO);
-        assertEquals(queriedDTO, competitionDTO);
     }
 }

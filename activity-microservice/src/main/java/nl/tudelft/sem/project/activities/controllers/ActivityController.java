@@ -2,13 +2,13 @@ package nl.tudelft.sem.project.activities.controllers;
 
 import nl.tudelft.sem.project.activities.CompetitionDTO;
 import nl.tudelft.sem.project.activities.TrainingDTO;
+import nl.tudelft.sem.project.activities.config.AppConfig;
 import nl.tudelft.sem.project.activities.database.entities.ActivityConverterService;
 import nl.tudelft.sem.project.activities.database.entities.CompetitionConverterService;
 import nl.tudelft.sem.project.activities.database.entities.TrainingConverterService;
 import nl.tudelft.sem.project.activities.services.ActivityService;
 import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.matchmaking.ActivityFilterDTO;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,32 +24,20 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/activity")
+@Validated
 public class ActivityController {
 
+    @Autowired
     transient ActivityService activityService;
 
-    transient TrainingConverterService trainingConverterService;
-    transient CompetitionConverterService competitionConverterService;
-    transient ActivityConverterService activityConverterService;
-
-    /**
-     * The autowired constructor of the controller.
-     *
-     * @param activityService the activityService.
-     * @param trainingConverterService the converter service for trainings.
-     * @param competitionConverterService the converter for competitions.
-     * @param activityConverterService the converter for activities.
-     */
     @Autowired
-    public ActivityController(ActivityService activityService,
-                              TrainingConverterService trainingConverterService,
-                              CompetitionConverterService competitionConverterService,
-                              ActivityConverterService activityConverterService) {
-        this.activityService = activityService;
-        this.trainingConverterService = trainingConverterService;
-        this.competitionConverterService = competitionConverterService;
-        this.activityConverterService = activityConverterService;
-    }
+    transient TrainingConverterService trainingConverterService;
+
+    @Autowired
+    transient CompetitionConverterService competitionConverterService;
+
+    @Autowired
+    transient ActivityConverterService activityConverterService;
 
     /**
      * The find endpoint. Finds an activity given the filter.
@@ -72,24 +60,10 @@ public class ActivityController {
      * @return the new training dto.
      */
     @PostMapping("/create_training")
-    public ResponseEntity<TrainingDTO> createTraining(@Valid @Validated(Fictional.class)
-                                                                @NotNull @RequestBody TrainingDTO dto) {
-        if (dto.getBoats().isEmpty()) {
-            throw new RuntimeException("There should be at least one boat present.");
-        }
-
-        if (dto.getStartTime().after(dto.getEndTime())) {
-            throw new RuntimeException("Starting time should be before ending time.");
-        }
-
-        if (dto.getStartTime().before(Date.from(Instant.now()))) {
-            throw new RuntimeException("Starting time should be in the future.");
-        }
-
+    public ResponseEntity<TrainingDTO> createTraining(@Valid @NotNull @RequestBody TrainingDTO dto) {
         var training = trainingConverterService.toEntity(dto);
         var trainingDTO =
                 trainingConverterService.toDTO(activityService.addTraining(training));
-
         return ResponseEntity.ok(trainingDTO);
     }
 
@@ -100,20 +74,7 @@ public class ActivityController {
      * @return the new competition dto.
      */
     @PostMapping("/create_competition")
-    public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated(Fictional.class)
-                                                      @NotNull @RequestBody CompetitionDTO dto) {
-        if (dto.getBoats().isEmpty()) {
-            throw new RuntimeException("There should be at least one boat present.");
-        }
-
-        if (dto.getStartTime().after(dto.getEndTime())) {
-            throw new RuntimeException("Starting time should be before ending time.");
-        }
-
-        if (dto.getStartTime().before(Date.from(Instant.now()))) {
-            throw new RuntimeException("Starting time should be in the future.");
-        }
-
+    public ResponseEntity<CompetitionDTO> createCompetition(@Valid @NotNull @RequestBody CompetitionDTO dto) {
         var competition = competitionConverterService.toEntity(dto);
         var competitionDTO =
                 competitionConverterService.toDTO(activityService.addCompetition(competition));

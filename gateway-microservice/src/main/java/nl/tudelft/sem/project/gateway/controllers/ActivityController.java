@@ -1,10 +1,9 @@
 package nl.tudelft.sem.project.gateway.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import nl.tudelft.sem.project.activities.ActivitiesClient;
-import nl.tudelft.sem.project.activities.ActivityDTO;
-import nl.tudelft.sem.project.activities.CompetitionDTO;
-import nl.tudelft.sem.project.activities.TrainingDTO;
+import nl.tudelft.sem.project.activities.*;
+import nl.tudelft.sem.project.gateway.CreateCompetitionModel;
+import nl.tudelft.sem.project.gateway.CreateTrainingModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import nl.tudelft.sem.project.notifications.EventType;
 import nl.tudelft.sem.project.notifications.NotificationsClient;
@@ -12,7 +11,6 @@ import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
-import nl.tudelft.sem.project.utils.Fictional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -34,6 +33,7 @@ public class ActivityController {
 
     private final transient NotificationsClient notificationsClient;
 
+    private final transient BoatsClient boatsClient;
     /**
      * The activity controller constructor.
      *
@@ -42,26 +42,44 @@ public class ActivityController {
      * @param activitiesClient the activities client.
      */
     @Autowired
-    public ActivityController(AuthManager authManager, UsersClient usersClient,
-                              ActivitiesClient activitiesClient, NotificationsClient notificationsClient) {
+    public ActivityController(AuthManager authManager, UsersClient usersClient, ActivitiesClient activitiesClient, BoatsClient boatsClient, NotificationsClient notificationsClient) {
         this.authManager = authManager;
         this.usersClient = usersClient;
         this.activitiesClient = activitiesClient;
         this.notificationsClient = notificationsClient;
+        this.boatsClient = boatsClient;
     }
 
 
     /**
      * The create training endpoint. Creates a training.
      *
-     * @param trainingDTO the training dto.
+     * @param createTrainingModel the training dto.
      * @return the new training dto.
      */
     @PostMapping("/create_training")
-    public ResponseEntity<TrainingDTO> createTraining(@Valid @Validated(Fictional.class)
-                                                          @RequestBody TrainingDTO trainingDTO) {
-        var username = authManager.getUsername();
-        trainingDTO.setOwner(username);
+    public ResponseEntity<TrainingDTO> createTraining(@Valid @Validated
+                                                          @RequestBody CreateTrainingModel createTrainingModel) {
+
+        if (createTrainingModel.getDateInterval().getStartDate()
+                .after(createTrainingModel.getDateInterval().getEndDate())) {
+            throw new RuntimeException("Starting time should be before ending time.");
+        }
+
+        if (createTrainingModel.getDateInterval().getStartDate().before(Date.from(Instant.now()))) {
+            throw new RuntimeException("Starting time should be in the future.");
+        }
+
+        var trainingDTO = new TrainingDTO(
+                null,
+                createTrainingModel.getLocation(),
+                authManager.getUsername(),
+                createTrainingModel.getDateInterval().getStartDate(),
+                createTrainingModel.getDateInterval().getEndDate(),
+                createTrainingModel.getBoats()
+                        .stream().map(boatsClient::getBoat)
+                        .collect(Collectors.toList())
+        );
 
         UserDTO userDTO = usersClient.getUserByUsername(new Username(username));
         // Send notification that the training has been created.
@@ -77,14 +95,35 @@ public class ActivityController {
     /**
      * The create competition endpoint. Creates a competition.
      *
-     * @param competitionDTO the competition dto.
+     * @param createCompetitionModel the competition dto.
      * @return the new competition dto.
      */
     @PostMapping("/create_competition")
-    public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated(Fictional.class)
-                                                      @RequestBody CompetitionDTO competitionDTO) {
-        var username = authManager.getUsername();
-        competitionDTO.setOwner(username);
+    public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated
+                                                      @RequestBody CreateCompetitionModel createCompetitionModel) {
+        if (createCompetitionModel.getDateInterval().getStartDate()
+                .after(createCompetitionModel.getDateInterval().getEndDate())) {
+            throw new RuntimeException("Starting time should be before ending time.");
+        }
+
+        if (createCompetitionModel.getDateInterval().getStartDate().before(Date.from(Instant.now()))) {
+            throw new RuntimeException("Starting time should be in the future.");
+        }
+
+
+        var competitionDTO = new CompetitionDTO(
+                null,
+                createCompetitionModel.getLocation(),
+                authManager.getUsername(),
+                createCompetitionModel.getDateInterval().getStartDate(),
+                createCompetitionModel.getDateInterval().getEndDate(),
+                createCompetitionModel.getBoats()
+                        .stream().map(boatsClient::getBoat)
+                        .collect(Collectors.toList()),
+                createCompetitionModel.getAllowsAmateurs(),
+                createCompetitionModel.getRequiredOrganization(),
+                createCompetitionModel.getRequiredGender()
+        );
 
         UserDTO userDTO = usersClient.getUserByUsername(new Username(username));
         // Send notification that competition has been created.

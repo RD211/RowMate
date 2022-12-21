@@ -113,6 +113,7 @@ public class MatchmakingService {
         return feasibleActivities;
     }
 
+    @SuppressWarnings("PMD")
     private void determineFeasibility(
             ActivityRequestDTO dto,
             ActivityDTO activity,
@@ -120,16 +121,18 @@ public class MatchmakingService {
     ) {
 
 
+        List<ActivityRegistration> registrations
+                = activityRegistrationRepository.findAllByActivityId(activity.getId());
         var boats = activity.getBoats();
         for (int i = 0; i < boats.size(); i++) {
 
             BoatDTO boat = boatsClient.getBoat(boats.get(i).getBoatId());
-            List<ActivityRegistration> registrations
-                    = activityRegistrationRepository.findAllByActivityId(activity.getId());
+
             checkBoatAvailability(dto, activity, feasibleActivities, registrations, boat, i);
         }
     }
 
+    @SuppressWarnings("PMD")
     private void checkBoatAvailability(
             ActivityRequestDTO dto,
             ActivityDTO activity,
@@ -139,8 +142,8 @@ public class MatchmakingService {
             final int idx
     ) {
 
+        List<ActivityRegistration> forThisBoat = getRegistrationsForBoat(registrations, idx);
         for (BoatRole role : dto.getActivityFilter().getPreferredRoles()) {
-            List<ActivityRegistration> forThisBoat = getRegistrationsForBoat(registrations, idx);
             List<ActivityRegistration> registrationsForRole = getRegistrationsForRole(forThisBoat, role);
             List<BoatRole> availableSpotsForRole = getAvailableSpotForRole(boat, role);
 

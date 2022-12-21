@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.authentication.config;
 
+import lombok.Generated;
 import nl.tudelft.sem.project.authentication.Password;
 import nl.tudelft.sem.project.authentication.domain.user.RegistrationService;
 import nl.tudelft.sem.project.shared.Username;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
  * add an admin record to the users table.
  */
 @Component
+@Generated
 public class AdminAdder {
 
     @Autowired

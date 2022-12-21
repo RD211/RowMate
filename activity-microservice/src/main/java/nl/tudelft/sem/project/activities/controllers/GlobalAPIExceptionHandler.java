@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.activities.controllers;
 
+import lombok.Generated;
 import nl.tudelft.sem.project.activities.ActivityNotFoundException;
 import nl.tudelft.sem.project.activities.exceptions.BoatNotFoundException;
 import nl.tudelft.sem.project.activities.exceptions.RoleNotFoundException;
@@ -17,6 +18,7 @@ import javax.validation.ConstraintViolationException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
+@Generated
 public class GlobalAPIExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

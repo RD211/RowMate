@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.authentication.config;
 
+import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import nl.tudelft.sem.project.authentication.domain.user.PasswordHashingService;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * The type Web security config.
  */
 @Configuration
+@Generated
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Getter
     @Setter(onMethod = @__({@Autowired})) // add autowired annotation on setter
