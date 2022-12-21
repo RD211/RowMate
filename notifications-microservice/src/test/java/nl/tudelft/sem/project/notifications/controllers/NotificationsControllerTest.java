@@ -59,7 +59,7 @@ class NotificationsControllerTest {
                 .build();
         String notificationJson = objectMapper.writeValueAsString(notificationDTO);
 
-        ResultActions res = mockMvc.perform(post("/sendNotification")
+        ResultActions res = mockMvc.perform(post("/api/notifications/sendNotification")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(notificationJson));
 
@@ -93,7 +93,7 @@ class NotificationsControllerTest {
                 .build();
         String notificationJson = objectMapper.writeValueAsString(notificationDTO);
 
-        ResultActions res = mockMvc.perform(post("/sendNotification")
+        ResultActions res = mockMvc.perform(post("/api/notifications/sendNotification")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(notificationJson));
 
@@ -106,7 +106,7 @@ class NotificationsControllerTest {
 
     @Test
     public void sendMailManual() throws Exception {
-        ResultActions res = mockMvc.perform(post("/sendNotifManual")
+        ResultActions res = mockMvc.perform(post("/api/notifications/sendNotifManual")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("TEST@TEST.TEST"));
 

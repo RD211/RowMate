@@ -7,12 +7,11 @@ import nl.tudelft.sem.project.authentication.ResetPasswordModel;
 import nl.tudelft.sem.project.gateway.AuthenticateUserModel;
 import nl.tudelft.sem.project.gateway.CreateUserModel;
 import nl.tudelft.sem.project.notifications.EventType;
-import nl.tudelft.sem.project.notifications.NotificationClient;
+import nl.tudelft.sem.project.notifications.NotificationsClient;
 import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +31,7 @@ public class AuthenticationController {
     private transient AuthClient authClient;
 
     @Autowired
-    private transient NotificationClient notificationClient;
+    private transient NotificationsClient notificationsClient;
 
     /**
      * The register endpoint.
@@ -55,7 +54,7 @@ public class AuthenticationController {
         usersClient.addUser(userDTO);
 
         // Send notification that the user has registered using this email.
-        notificationClient.sendNotification(NotificationDTO.builder()
+        notificationsClient.sendNotification(NotificationDTO.builder()
                 .userDTO(userDTO)
                 .eventType(EventType.SIGN_UP)
                 .build());
@@ -96,7 +95,7 @@ public class AuthenticationController {
 
         UserDTO userDTO = usersClient.getUserByUsername(resetPasswordModel.getAppUserModel().getUsername());
         // Send notification that password has been reset using previous password.
-        notificationClient.sendNotification(NotificationDTO.builder()
+        notificationsClient.sendNotification(NotificationDTO.builder()
                         .userDTO(userDTO)
                         .eventType(EventType.RESET_PASSWORD_CONFIRM)
                 .build());
@@ -118,7 +117,7 @@ public class AuthenticationController {
         String tokenLink = "http://localhost:8087/api/authentication/reset_password?token=" + token;
 
         // Send password reset link to email address.
-        notificationClient.sendNotification(NotificationDTO.builder()
+        notificationsClient.sendNotification(NotificationDTO.builder()
                         .userDTO(userDTO)
                         .eventType(EventType.RESET_PASSWORD)
                         .optionalField(tokenLink)

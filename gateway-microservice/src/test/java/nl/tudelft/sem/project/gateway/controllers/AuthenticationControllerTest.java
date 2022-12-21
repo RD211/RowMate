@@ -6,6 +6,7 @@ import nl.tudelft.sem.project.authentication.Password;
 import nl.tudelft.sem.project.authentication.Token;
 import nl.tudelft.sem.project.gateway.AuthenticateUserModel;
 import nl.tudelft.sem.project.gateway.CreateUserModel;
+import nl.tudelft.sem.project.notifications.NotificationsClient;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
@@ -17,12 +18,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
+@ActiveProfiles({"test"})
 class AuthenticationControllerTest {
 
     @Mock
@@ -30,6 +33,9 @@ class AuthenticationControllerTest {
 
     @Mock
     private transient UsersClient usersClient;
+
+    @Mock
+    private transient NotificationsClient notificationsClient;
 
     @InjectMocks
     AuthenticationController authenticationController;

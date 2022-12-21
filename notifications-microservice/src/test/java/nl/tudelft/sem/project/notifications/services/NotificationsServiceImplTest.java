@@ -46,7 +46,7 @@ public class NotificationsServiceImplTest {
         assertThat(res.getFrom()).isEqualTo("noreply.rowing.delft@gmail.com");
         assertThat(res.getSubject()).isEqualTo("Test email");
         assertThat(res.getText()).contains("Test email.");
-        assertThat(res.getText()).contains("Activity details");
+        assertThat(res.getText()).contains("Activity Details");
     }
 
     @Test
@@ -66,6 +66,6 @@ public class NotificationsServiceImplTest {
         assertThat(res.getFrom()).isEqualTo("noreply.rowing.delft@gmail.com");
         assertThat(res.getSubject()).isEqualTo("Test email");
         assertThat(res.getText()).contains("Test email.");
-        assertThat(res.getText()).doesNotContain("Activity details");
+        assertThat(res.getText()).doesNotContain("Activity Details");
     }
 }

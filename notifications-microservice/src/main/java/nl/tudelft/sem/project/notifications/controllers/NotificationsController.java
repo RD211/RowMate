@@ -24,6 +24,7 @@ import java.util.UUID;
  * </p>
  */
 @RestController
+@RequestMapping("/api/notifications")
 public class NotificationsController {
 
     @Autowired

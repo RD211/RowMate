@@ -12,7 +12,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 @Component
 public class NotificationsServiceImpl implements NotificationsService {
@@ -23,11 +25,13 @@ public class NotificationsServiceImpl implements NotificationsService {
     @Autowired
     private transient HashMap<EventType, MailTemplate> messageTemplates;
 
+    private final transient List<EventType> eventTypesUserRelated = Arrays.asList(
+            EventType.SIGN_UP, EventType.TEST,
+            EventType.RESET_PASSWORD, EventType.RESET_PASSWORD_CONFIRM);
+
     @Value("${application.properties.test-mode:false}")
     private transient String testMode;
 
-    /* TODO Finish method (properly adding activity details) once
-    ActivityDTO has been completely implemented. */
     /**
      * Sends a mail notification to the email address
      * specified in the NotificationDTO, and customizes
@@ -49,9 +53,7 @@ public class NotificationsServiceImpl implements NotificationsService {
 
         EventType eventType = notificationDTO.getEventType();
 
-        if (eventType == EventType.SIGN_UP
-            || eventType == EventType.RESET_PASSWORD
-            || eventType == EventType.TEST) {
+        if (eventTypesUserRelated.contains(eventType)) {
             message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage());
         } else {
             activityDetails = formatActivityDetailsMessage(notificationDTO);
@@ -79,7 +81,9 @@ public class NotificationsServiceImpl implements NotificationsService {
             message += "\nFor: " + ((CompetitionDTO) activityDTO).getRequiredGender()
                     + "\nInvited organization: " + ((CompetitionDTO) activityDTO).getRequiredOrganization();
         }
-        if (notificationDTO.getOptionalField() != null) message += "\n\n" + notificationDTO.getOptionalField();
+        if (notificationDTO.getOptionalField() != null) {
+            message += "\n\n" + notificationDTO.getOptionalField();
+        }
         return message;
     }
 }
