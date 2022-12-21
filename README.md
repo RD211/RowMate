@@ -41,6 +41,10 @@ The administrator should be used only for calling admin endpoints and for nothin
 In order to add a boat the database you will first need to create a certificate and reference that in the boat.
 After creating a boat you can create an activity after signing out of our administrator account and into a normal user account.
 
+## We provided a step by step tutorial for creating an activity. Please follow the tutorial here: [click here](Createanactivitytutorial.html). It's a html file clearly explaining how to create an activity.
+## The file is called "Createanactivitytutorial.html".
+
+
 # Swagger UI
 Here you will prompted with the following webpage.
 This is a way to interact with every endpoint that is accessible.
