@@ -54,7 +54,7 @@ public class NotificationsServiceImpl implements NotificationsService {
             || eventType == EventType.TEST) {
             message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage());
         } else {
-            activityDetails = formatActivityDetailsMessage(notificationDTO.getActivityDTO());
+            activityDetails = formatActivityDetailsMessage(notificationDTO);
             message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage()
                     + activityDetails);
         }
@@ -68,7 +68,8 @@ public class NotificationsServiceImpl implements NotificationsService {
         return message;
     }
 
-    private String formatActivityDetailsMessage(ActivityDTO activityDTO) {
+    private String formatActivityDetailsMessage(NotificationDTO notificationDTO) {
+        ActivityDTO activityDTO = notificationDTO.getActivityDTO();
         String message = "\nActivity Details:\nDate: " + activityDTO.getStartTime()
                 + " - " + activityDTO.getEndTime() + "\nLocation: "
                 + activityDTO.getLocation() + "\nHosted by: "
@@ -78,6 +79,7 @@ public class NotificationsServiceImpl implements NotificationsService {
             message += "\nFor: " + ((CompetitionDTO) activityDTO).getRequiredGender()
                     + "\nInvited organization: " + ((CompetitionDTO) activityDTO).getRequiredOrganization();
         }
+        if (notificationDTO.getOptionalField() != null) message += "\n\n" + notificationDTO.getOptionalField();
         return message;
     }
 }
