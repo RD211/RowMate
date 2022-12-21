@@ -68,5 +68,4 @@ public class CertificatesController {
         var certificates = certificatesClient.getCertificateChain(certificateId);
         return ResponseEntity.ok(certificates);
     }
-
 }

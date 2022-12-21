@@ -2,9 +2,11 @@ package nl.tudelft.sem.project.matchmaking.domain;
 
 import nl.tudelft.sem.project.enums.BoatRole;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,6 +49,9 @@ public interface ActivityRegistrationRepository extends JpaRepository<ActivityRe
     @Query("select a from ActivityRegistration a where a.userName = ?1 and a.accepted = ?2")
     List<ActivityRegistration> findByUserNameAndAccepted(String userName, boolean accepted);
 
-
+    @Transactional
+    @Modifying
+    @Query("delete from ActivityRegistration a where a.userName = ?1 and a.activityId = ?2")
+    void deleteByUserNameAndActivityId(String userName, UUID activityId);
 
 }

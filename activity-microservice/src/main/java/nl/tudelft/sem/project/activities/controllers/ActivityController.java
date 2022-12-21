@@ -1,13 +1,9 @@
 package nl.tudelft.sem.project.activities.controllers;
 
-import nl.tudelft.sem.project.activities.CompetitionDTO;
-import nl.tudelft.sem.project.activities.TrainingDTO;
-import nl.tudelft.sem.project.activities.config.AppConfig;
-import nl.tudelft.sem.project.activities.database.entities.ActivityConverterService;
-import nl.tudelft.sem.project.activities.database.entities.CompetitionConverterService;
-import nl.tudelft.sem.project.activities.database.entities.TrainingConverterService;
+import feign.FeignException;
+import nl.tudelft.sem.project.activities.*;
+import nl.tudelft.sem.project.activities.database.entities.*;
 import nl.tudelft.sem.project.activities.services.ActivityService;
-import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.matchmaking.ActivityFilterDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,15 +23,16 @@ public class ActivityController {
 
     @Autowired
     transient ActivityService activityService;
-
     @Autowired
     transient TrainingConverterService trainingConverterService;
-
     @Autowired
     transient CompetitionConverterService competitionConverterService;
-
     @Autowired
     transient ActivityConverterService activityConverterService;
+    @Autowired
+    transient BoatsClient boatsClient;
+    @Autowired
+    transient BoatConverterService boatConverterService;
 
     /**
      * The find endpoint. Finds an activity given the filter.
@@ -64,6 +59,7 @@ public class ActivityController {
         var training = trainingConverterService.toEntity(dto);
         var trainingDTO =
                 trainingConverterService.toDTO(activityService.addTraining(training));
+
         return ResponseEntity.ok(trainingDTO);
     }
 
@@ -116,5 +112,48 @@ public class ActivityController {
     public ResponseEntity<ActivityDTO> getActivityById(@Valid @NotNull @RequestParam UUID id) {
         return ResponseEntity.ok(
                 activityConverterService.toDTO(activityService.getActivityById(id)));
+    }
+
+    /**
+     * Adds a new boat to a given activity. If the given boat is not one
+     * in the database it is also added on top of that.
+     *
+     * @param activityId ID of the activity.
+     * @param boatDTO Boat DTO object to add.
+     * @return The activity object after it has changed.
+     */
+    @PostMapping("/add_boat_to_activity")
+    @SuppressWarnings("PMD")
+    public ResponseEntity<ActivityDTO> addBoatToActivity(
+            @Valid @NotNull @RequestParam UUID activityId,
+            @Valid @NotNull @RequestBody BoatDTO boatDTO
+    ) {
+        BoatDTO boat;
+        try {
+            boat = boatsClient.getBoat(boatDTO.getBoatId());
+        } catch (FeignException e) {
+            boat = boatsClient.addBoat(boatDTO);
+        }
+        var activity = activityService.addBoatToActivity(activityId, boatConverterService.toEntity(boat));
+        return ResponseEntity.ok(activityConverterService.toDTO(activity));
+    }
+
+    /**
+     * Changes the times of the activity.
+     *
+     * @param changeActivityTimeModel Model containing activity id and the new times.
+     * @return ActivityDTO of the changed activity. Returns 404 if there is no such
+     *         activity.
+     */
+    @PutMapping("/change_activity_times")
+    public ResponseEntity<ActivityDTO> changeActivityTimes(
+            @Valid @NotNull @RequestBody ChangeActivityTimeModel changeActivityTimeModel
+    ) {
+        var activity = activityService.changeActivityTimes(
+                changeActivityTimeModel.getActivityId(),
+                changeActivityTimeModel.getNewStartDate(),
+                changeActivityTimeModel.getNewEndDate()
+        );
+        return ResponseEntity.ok(activityConverterService.toDTO(activity));
     }
 }

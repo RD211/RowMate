@@ -4,8 +4,10 @@ import feign.FeignException;
 import feign.Headers;
 import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
-import nl.tudelft.sem.project.matchmaking.*;
+import nl.tudelft.sem.project.matchmaking.ActivityFilterDTO;
+import nl.tudelft.sem.project.matchmaking.UserActivityApplication;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,4 +44,12 @@ public interface GatewayMatchmakingClient {
     @GetMapping(value="/get_accepted_applications")
     @Headers("Content-Type: application/json")
     List<UserActivityApplication> getAcceptedApplications(@RequestHeader("Authorization") String bearerToken);
+
+    @DeleteMapping("/delete_user_from_activity?activityId={activityId}&userName={userName}")
+    @Headers("Content-Type: application/json")
+    ResponseEntity<Void> deleteByUserNameAndActivityId(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable(value="activityId") UUID activityId,
+            @PathVariable(value="userName") String userName
+    ) throws FeignException;
 }
