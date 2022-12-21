@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.gateway.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.activities.BoatsClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@SecurityRequirement(name = "Bearer Authentication")
 @RequestMapping("/api/boats")
 public class BoatController {
 

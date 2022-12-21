@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.gateway.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import nl.tudelft.sem.project.authentication.AppUserModel;
 import nl.tudelft.sem.project.authentication.AuthClient;
 import nl.tudelft.sem.project.authentication.Password;

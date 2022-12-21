@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.gateway.controllers;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
