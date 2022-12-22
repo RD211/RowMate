@@ -86,13 +86,19 @@ public class ActivityController {
                         .collect(Collectors.toList())
         );
 
-        UserDTO userDTO = usersClient.getUserByUsername(new Username(authManager.getUsername()));
         // Send notification that the training has been created.
-        notificationsClient.sendNotification(NotificationDTO.builder()
-                .userDTO(userDTO)
-                .activityDTO(trainingDTO)
-                .eventType(EventType.CREATED_ACTIVITY)
-                .build());
+        try {
+            new Thread(() -> {
+                UserDTO userDTO = usersClient.getUserByUsername(new Username(authManager.getUsername()));
+                notificationsClient.sendNotification(NotificationDTO.builder()
+                        .userDTO(userDTO)
+                        .activityDTO(trainingDTO)
+                        .eventType(EventType.CREATED_ACTIVITY)
+                        .build());
+            }).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         return ResponseEntity.ok(activitiesClient.createTraining(trainingDTO));
     }
@@ -130,13 +136,19 @@ public class ActivityController {
                 createCompetitionModel.getRequiredGender()
         );
 
-        UserDTO userDTO = usersClient.getUserByUsername(new Username(authManager.getUsername()));
         // Send notification that competition has been created.
-        notificationsClient.sendNotification(NotificationDTO.builder()
-                .userDTO(userDTO)
-                .activityDTO(competitionDTO)
-                .eventType(EventType.CREATED_ACTIVITY)
-                .build());
+        try {
+            new Thread(() -> {
+                UserDTO userDTO = usersClient.getUserByUsername(new Username(authManager.getUsername()));
+                notificationsClient.sendNotification(NotificationDTO.builder()
+                        .userDTO(userDTO)
+                        .activityDTO(competitionDTO)
+                        .eventType(EventType.CREATED_ACTIVITY)
+                        .build());
+            }).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         return ResponseEntity.ok(activitiesClient.createCompetition(competitionDTO));
     }

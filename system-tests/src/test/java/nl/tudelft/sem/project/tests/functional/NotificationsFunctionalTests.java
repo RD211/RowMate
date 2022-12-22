@@ -263,9 +263,9 @@ public class NotificationsFunctionalTests extends FunctionalTestsBase{
 
         assertEquals(message.getEnvelopeReceiver(), "creatorul@activitatii.edu");
         assertEquals(message.getEnvelopeSender(), "localhost");
-        assertEquals(message.getMimeMessage().getSubject(), "User left your activity");
+        assertEquals(message.getMimeMessage().getSubject(), "User joined your activity");
         assertTrue(message.getMimeMessage().getContent().toString().contains("Activity Details:"));
-        assertTrue(message.getMimeMessage().getContent().toString().contains("One user has left your activity."));
+        assertFalse(message.getMimeMessage().getContent().toString().contains("One user has left your activity."));
         assertFalse(message.getMimeMessage().getContent().toString().contains("For:"));
     }
 
@@ -309,9 +309,9 @@ public class NotificationsFunctionalTests extends FunctionalTestsBase{
 
         assertEquals(message.getEnvelopeReceiver(), "adasd13a44s@gdgafm54co.3om");
         assertEquals(message.getEnvelopeSender(), "localhost");
-        assertEquals(message.getMimeMessage().getSubject(), "Activity created");
-        assertTrue(message.getMimeMessage().getContent().toString().contains("Activity Details:"));
-        assertTrue(message.getMimeMessage().getContent().toString().contains("6666"));
+        assertEquals(message.getMimeMessage().getSubject(), "Account successfully created!");
+        assertFalse(message.getMimeMessage().getContent().toString().contains("Activity Details:"));
+        assertFalse(message.getMimeMessage().getContent().toString().contains("6666"));
         assertFalse(message.getMimeMessage().getContent().toString().contains("For:"));
     }
 
@@ -358,9 +358,9 @@ public class NotificationsFunctionalTests extends FunctionalTestsBase{
 
         assertEquals(message.getEnvelopeReceiver(), "adasd133a44s@gdgafm54co.3om");
         assertEquals(message.getEnvelopeSender(), "localhost");
-        assertEquals(message.getMimeMessage().getSubject(), "Activity created");
-        assertTrue(message.getMimeMessage().getContent().toString().contains("Activity Details:"));
-        assertTrue(message.getMimeMessage().getContent().toString().contains("2026"));
-        assertTrue(message.getMimeMessage().getContent().toString().contains("For: null"));
+        assertEquals(message.getMimeMessage().getSubject(), "Account successfully created!");
+        assertFalse(message.getMimeMessage().getContent().toString().contains("Activity Details:"));
+        assertFalse(message.getMimeMessage().getContent().toString().contains("2026"));
+        assertFalse(message.getMimeMessage().getContent().toString().contains("For: null"));
     }
 }

@@ -111,16 +111,23 @@ public class MatchmakingController {
         // Send notifications to user who has joined and to the owner of the activity.
         UserDTO userDTO = usersClient.getUserByUsername(new Username(username));
         UserDTO ownerUserDTO = usersClient.getUserByUsername(new Username(activityDTO.getOwner()));
-        notificationsClient.sendNotification(NotificationDTO.builder()
-                .userDTO(userDTO)
-                .activityDTO(activityDTO)
-                .eventType(EventType.JOINED_ACTIVITY)
-                .build());
-        notificationsClient.sendNotification(NotificationDTO.builder()
-                .userDTO(ownerUserDTO)
-                .activityDTO(activityDTO)
-                .eventType(EventType.USER_JOINED)
-                .build());
+
+        try {
+            new Thread(() -> {
+                notificationsClient.sendNotification(NotificationDTO.builder()
+                    .userDTO(userDTO)
+                    .activityDTO(activityDTO)
+                    .eventType(EventType.JOINED_ACTIVITY)
+                    .build());
+                notificationsClient.sendNotification(NotificationDTO.builder()
+                        .userDTO(ownerUserDTO)
+                        .activityDTO(activityDTO)
+                        .eventType(EventType.USER_JOINED)
+                        .build());
+            }).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         return ResponseEntity.ok(matchmakingClient.registerInActivity(activityRequest));
     }
@@ -164,12 +171,18 @@ public class MatchmakingController {
         ActivityDTO activityDTO = activitiesClient.getActivity(activityId);
 
         // Send notification to activity owner that the user has left.
-        UserDTO ownerUserDTO = usersClient.getUserByUsername(new Username(activityDTO.getOwner()));
-        notificationsClient.sendNotification(NotificationDTO.builder()
-                .userDTO(ownerUserDTO)
-                .activityDTO(activityDTO)
-                .eventType(EventType.USER_LEFT)
-                .build());
+        try {
+            new Thread(() -> {
+                UserDTO ownerUserDTO = usersClient.getUserByUsername(new Username(activityDTO.getOwner()));
+                notificationsClient.sendNotification(NotificationDTO.builder()
+                    .userDTO(ownerUserDTO)
+                    .activityDTO(activityDTO)
+                    .eventType(EventType.USER_LEFT)
+                    .build());
+            }).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         return ResponseEntity.ok(matchmakingClient.deRegisterFromActivity(activityRequest));
     }

@@ -54,10 +54,14 @@ public class AuthenticationController {
         usersClient.addUser(userDTO);
 
         // Send notification that the user has registered using this email.
-        notificationsClient.sendNotification(NotificationDTO.builder()
-                .userDTO(userDTO)
-                .eventType(EventType.SIGN_UP)
-                .build());
+        try {
+            new Thread(() -> notificationsClient.sendNotification(NotificationDTO.builder()
+                    .userDTO(userDTO)
+                    .eventType(EventType.SIGN_UP)
+                    .build())).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         var token = authClient.authenticate(appUserModel);
 
@@ -93,12 +97,18 @@ public class AuthenticationController {
             @RequestBody @Valid ResetPasswordModel resetPasswordModel) {
         authClient.resetPasswordWithPrevious(resetPasswordModel);
 
-        UserDTO userDTO = usersClient.getUserByUsername(resetPasswordModel.getAppUserModel().getUsername());
         // Send notification that password has been reset using previous password.
-        notificationsClient.sendNotification(NotificationDTO.builder()
-                        .userDTO(userDTO)
-                        .eventType(EventType.RESET_PASSWORD_CONFIRM)
-                .build());
+        try {
+            new Thread(() -> {
+                UserDTO userDTO = usersClient.getUserByUsername(resetPasswordModel.getAppUserModel().getUsername());
+                notificationsClient.sendNotification(NotificationDTO.builder()
+                    .userDTO(userDTO)
+                    .eventType(EventType.RESET_PASSWORD_CONFIRM)
+                    .build());
+            }).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         return ResponseEntity.ok().build();
     }
@@ -112,16 +122,22 @@ public class AuthenticationController {
      */
     @PostMapping("/reset_password_with_email")
     public ResponseEntity<Void> resetPasswordWithEmail(@RequestBody @Valid Username username) {
-        UserDTO userDTO = usersClient.getUserByUsername(username);
         var token = authClient.getEmailResetPasswordToken(username);
-        String tokenLink = "http://localhost:8087/api/authentication/reset_password?token=" + token;
 
         // Send password reset link to email address.
-        notificationsClient.sendNotification(NotificationDTO.builder()
-                        .userDTO(userDTO)
-                        .eventType(EventType.RESET_PASSWORD)
-                        .optionalField(tokenLink)
-                .build());
+        try {
+            new Thread(() -> {
+                UserDTO userDTO = usersClient.getUserByUsername(username);
+                String tokenLink = "http://localhost:8087/api/authentication/reset_password?token=" + token;
+                notificationsClient.sendNotification(NotificationDTO.builder()
+                    .userDTO(userDTO)
+                    .eventType(EventType.RESET_PASSWORD)
+                    .optionalField(tokenLink)
+                    .build());
+            }).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
         
         return ResponseEntity.ok().build();
     }
