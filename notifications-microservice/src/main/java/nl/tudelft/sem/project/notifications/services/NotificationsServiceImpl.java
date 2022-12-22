@@ -1,5 +1,7 @@
 package nl.tudelft.sem.project.notifications.services;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.activities.CompetitionDTO;
 import nl.tudelft.sem.project.notifications.EventType;
@@ -17,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 
 @Component
+@Getter
+@Setter
 public class NotificationsServiceImpl implements NotificationsService {
 
     @Autowired
