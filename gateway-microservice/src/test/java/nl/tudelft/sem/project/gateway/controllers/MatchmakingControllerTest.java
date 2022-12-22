@@ -13,116 +13,71 @@ import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.junit.jupiter.api.BeforeAll;
+import nl.tudelft.sem.project.matchmaking.MatchmakingClient;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.ResponseEntity;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.http.HttpStatus;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class MatchmakingControllerTest {
-    @MockBean
-    transient MatchmakingClient matchmakingClient;
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class MatchmakingControllerTest {
 
-    @MockBean
-    transient ActivitiesClient activitiesClient;
+    @Mock
+    private transient AuthManager authManager;
 
-    @MockBean
-    transient UsersClient usersClient;
+    @Mock
+    private transient MatchmakingClient matchmakingClient;
 
     @MockBean
     transient NotificationsClient notificationClient;
+    @Mock
+    private transient ActivitiesClient activitiesClient;
 
-    @MockBean
-    transient AuthManager authManager;
-
-    @Autowired
+    @InjectMocks
     MatchmakingController matchmakingController;
 
+    @Test
+    void deleteByUserNameAndActivityId() {
+        UUID activityId = UUID.randomUUID();
+        ActivityDTO activityDTO = ActivityDTO.builder()
+                .id(activityId)
+                .owner("Owner")
+                .build();
 
-    /**
-     * Setup the test.
-     */
-    @BeforeAll
-    public void mock() {
-        when(authManager.getUsername()).thenReturn("testUser");
-
-        when(activitiesClient.getActivity(any(UUID.class))).thenReturn(null);
+        when(authManager.getUsername()).thenReturn("Owner");
+        when(activitiesClient.getActivity(activityId)).thenReturn(activityDTO);
+        var ret = matchmakingController.deleteByUserNameAndActivityId(activityId, "User");
+        verify(authManager, times(1)).getUsername();
+        verify(activitiesClient, times(1)).getActivity(activityId);
+        verify(matchmakingClient, times(1)).deleteByUserNameAndActivityId(activityId, "User");
+        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    public void testList() {
-        when(matchmakingClient.findActivities(any(ActivityRequestDTO.class))).thenReturn(new ArrayList<>());
-        assertThat(matchmakingController.findActivities(ActivityFilterDTO.builder().build()))
-            .isEqualTo(ResponseEntity.ok(new ArrayList<>()));
-    }
+    void deleteByUserNameAndActivityIdNotOwner() {
+        UUID activityId = UUID.randomUUID();
+        ActivityDTO activityDTO = ActivityDTO.builder()
+                .id(activityId)
+                .owner("Owner")
+                .build();
 
-    @Test
-    public void testStrategy() {
-        when(matchmakingClient.autoFindActivity(any(MatchmakingStrategy.class),
-                any(ActivityRequestDTO.class))).thenReturn("Successful!");
+        when(authManager.getUsername()).thenReturn("Not Owner");
+        when(activitiesClient.getActivity(activityId)).thenReturn(activityDTO);
+        assertThrows(RuntimeException.class, () -> matchmakingController.deleteByUserNameAndActivityId(activityId, "User"));
 
-        assertThat((matchmakingController.autoFindActivity(MatchmakingStrategy.Random,
-                ActivityFilterDTO.builder().build())))
-            .isEqualTo(ResponseEntity.ok("Successful!"));
-    }
-
-    @Test
-    public void testDeregister() {
-        when(usersClient.getUserByUsername(any())).thenReturn(UserDTO.builder().username("adsdas").email("dasads").build());
-        when(activitiesClient.getActivity(any())).thenReturn(TrainingDTO.builder()
-                .owner("aaads")
-                .id(UUID.randomUUID())
-                .build());
-        when(matchmakingClient.deRegisterFromActivity(any(ActivityDeregisterRequestDTO.class)))
-                .thenReturn("Successful!");
-        assertThat(matchmakingController.deregister(UUID.randomUUID()))
-                .isEqualTo(ResponseEntity.ok("Successful!"));
-    }
-
-    @Test
-    public void testRegister() {
-        when(usersClient.getUserByUsername(any())).thenReturn(UserDTO.builder().username("adsdas").email("dasads").build());
-        when(activitiesClient.getActivity(any())).thenReturn(TrainingDTO.builder()
-                .owner("aaads")
-                .id(UUID.randomUUID())
-                .build());
-        when(authManager.getUsername()).thenReturn("adads");
-        when(matchmakingClient.registerInActivity(any(ActivityRegistrationRequestDTO.class))).thenReturn("Successful!");
-        assertThat(matchmakingController.register(SeatedUserModel.builder().build()))
-                .isEqualTo(ResponseEntity.ok("Successful!"));
-    }
-
-    @Test
-    public void testRespond() {
-        assertThatThrownBy(() -> {
-            matchmakingController.respondToRegistration(ActivityRegistrationResponseDTO.builder().build());
-        }).isInstanceOf(Exception.class);
-    }
-
-    @Test
-    public void testAcceptedApplications() {
-        when(matchmakingClient.getAcceptedApplications(any(String.class))).thenReturn(new ArrayList<>());
-        assertThat(matchmakingController.getAcceptedApplications())
-            .isEqualTo(ResponseEntity.ok(new ArrayList<>()));
-    }
-
-    @Test
-    public void testWaitingApplications() {
-        when(matchmakingClient.getWaitingApplications(any(String.class))).thenReturn(new ArrayList<>());
-        assertThat(matchmakingController.getWaitingApplications())
-                .isEqualTo(ResponseEntity.ok(new ArrayList<>()));
+        verify(authManager, times(1)).getUsername();
+        verify(activitiesClient, times(1)).getActivity(activityId);
+        verify(matchmakingClient, never()).deleteByUserNameAndActivityId(activityId, "User");
     }
 }

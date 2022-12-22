@@ -1,9 +1,9 @@
 package nl.tudelft.sem.project.activities.database.entities;
 
-import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +13,7 @@ import java.util.UUID;
  * It will have a 'T' in the discriminator column activity_type.
  */
 @Entity
+@SuperBuilder(toBuilder = true)
 @DiscriminatorValue("T")
 public class Training extends Activity {
     public Training() {

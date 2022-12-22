@@ -4,12 +4,8 @@ import feign.FeignException;
 import feign.Headers;
 import nl.tudelft.sem.project.matchmaking.ActivityFilterDTO;
 import org.springframework.cloud.openfeign.FeignClient;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -40,4 +36,15 @@ public interface ActivitiesClient {
     @GetMapping(value="/get_activity_by_id?id={id}")
     @Headers("Content-Type: application/json")
     ActivityDTO getActivity(@PathVariable(value = "id") UUID id) throws FeignException;
+
+    @PostMapping(value="/add_boat_to_activity?activityId={activityId}")
+    @Headers("Content-Type: application/json")
+    ActivityDTO addBoatToActivity(@PathVariable(value = "activityId") UUID activityId,
+                                  @RequestBody BoatDTO boatDTO) throws FeignException;
+
+    @PutMapping(value="/change_activity_times")
+    @Headers("Content-Type: application/json")
+    ResponseEntity<ActivityDTO> changeActivityTimes(
+            @RequestBody ChangeActivityTimeModel changeActivityTimeModel
+    ) throws FeignException;
 }

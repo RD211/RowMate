@@ -1,9 +1,12 @@
 package nl.tudelft.sem.project.activities.database.entities;
 
 import lombok.*;
-import nl.tudelft.sem.project.activities.CompetitionDTO;
+import lombok.experimental.SuperBuilder;
 import nl.tudelft.sem.project.enums.Gender;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +23,7 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 @Entity
 @EqualsAndHashCode(callSuper = true)
+@SuperBuilder(toBuilder = true)
 @DiscriminatorValue("C")
 public class Competition extends Activity {
 

@@ -4,13 +4,21 @@ import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.matchmaking.*;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
+import nl.tudelft.sem.project.enums.MatchmakingStrategy;
+import nl.tudelft.sem.project.matchmaking.ActivityDeregisterRequestDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRegistrationRequestDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRequestDTO;
+import nl.tudelft.sem.project.matchmaking.UserActivityApplication;
 import nl.tudelft.sem.project.matchmaking.services.MatchmakingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/matchmaking/")
@@ -128,5 +136,21 @@ public class MatchmakingController {
     public ResponseEntity<List<UserActivityApplication>> getAcceptedApplications(
             @RequestParam(value = "username") String username) {
         return ResponseEntity.ok(matchmakingService.getAllActivitiesThatUserIsPartOf(username));
+    }
+
+    /**
+     * Deletes a user from an activity.
+     *
+     * @param activityId The ID of the activity.
+     * @param userName The name of the user to be removed.
+     * @return 200 if everything went ok.
+     */
+    @DeleteMapping("/delete_user_from_activity")
+    public ResponseEntity<Void> deleteByUserNameAndActivityId(
+            @RequestParam @NotNull @Valid UUID activityId,
+            @RequestParam @NotNull @Valid String userName
+    ) {
+        matchmakingService.deleteUserFromActivity(userName, activityId);
+        return ResponseEntity.ok().build();
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
@@ -171,5 +172,46 @@ public class ActivityController {
     @GetMapping("/get_activity_by_id")
     public ResponseEntity<ActivityDTO> getActivityById(@Valid @RequestParam("id") UUID id) {
         return ResponseEntity.ok(activitiesClient.getActivity(id));
+    }
+
+    /**
+     * Adds a new boat to a given activity. If the given boat is not one
+     * in the database it is also added on top of that.
+     *
+     * @param activityId ID of the activity.
+     * @param boatDTO Boat DTO object to add.
+     * @return The activity object after it has changed.
+     */
+    @PostMapping("/add_boat_to_activity")
+    public ResponseEntity<ActivityDTO> addBoatToActivity(
+            @Valid @NotNull @RequestParam UUID activityId,
+            @Valid @NotNull @RequestBody BoatDTO boatDTO
+    ) {
+        var activity = activitiesClient.getActivity(activityId);
+        if (!authManager.getUsername().equals(activity.getOwner())) {
+            throw new RuntimeException("You are not the owner of this activity!");
+        }
+        return ResponseEntity.ok(activitiesClient.addBoatToActivity(activityId, boatDTO));
+    }
+
+    /**
+     * Changes the times of the activity.
+     *
+     * @param changeActivityTimeModel Model containing activity id and the new times.
+     * @return ActivityDTO of the changed activity. Returns 404 if there is no such
+     *         activity.
+     */
+    @PutMapping("/change_activity_times")
+    public ResponseEntity<ActivityDTO> changeActivityTimes(
+            @Valid @NotNull @RequestBody ChangeActivityTimeModel changeActivityTimeModel
+    ) {
+        var activity = activitiesClient.getActivity(changeActivityTimeModel.getActivityId());
+        if (!authManager.getUsername().equals(activity.getOwner())) {
+            throw new RuntimeException("You are not the owner of this activity!");
+        }
+        if (changeActivityTimeModel.getNewStartDate().after(changeActivityTimeModel.getNewEndDate())) {
+            throw new RuntimeException("Starting time should be before ending time.");
+        }
+        return ResponseEntity.ok(activitiesClient.changeActivityTimes(changeActivityTimeModel).getBody());
     }
 }

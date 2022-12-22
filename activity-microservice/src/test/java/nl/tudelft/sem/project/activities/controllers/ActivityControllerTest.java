@@ -1,9 +1,6 @@
 package nl.tudelft.sem.project.activities.controllers;
 
-import nl.tudelft.sem.project.activities.ActivityDTO;
-import nl.tudelft.sem.project.activities.BoatDTO;
-import nl.tudelft.sem.project.activities.CompetitionDTO;
-import nl.tudelft.sem.project.activities.TrainingDTO;
+import nl.tudelft.sem.project.activities.*;
 import nl.tudelft.sem.project.activities.database.entities.*;
 import nl.tudelft.sem.project.activities.services.ActivityService;
 import nl.tudelft.sem.project.enums.BoatRole;
@@ -20,6 +17,7 @@ import org.mockito.quality.Strictness;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,6 +39,12 @@ class ActivityControllerTest {
 
     @Mock
     transient ActivityConverterService activityConverterService;
+
+    @Mock
+    transient BoatsClient boatsClient;
+
+    @Mock
+    transient BoatConverterService boatConverterService;
 
     @InjectMocks
     ActivityController activityController;
@@ -230,5 +234,32 @@ class ActivityControllerTest {
 
         verify(activityService, times(1)).getActivityById(training.getId());
         assertEquals(trainingDTO, result);
+    }
+
+    // TODO fix the tests
+    //@Test
+    void addBoatToActivityNormal() {
+        UUID activityId = UUID.randomUUID();
+        Activity activity = Activity.builder()
+                .id(activityId)
+                .boats(new ArrayList<>())
+                .build();
+        UUID boatId = UUID.randomUUID();
+        BoatDTO boatDTO = BoatDTO.builder()
+                .boatId(boatId)
+                .build();
+        when(boatsClient.getBoat(boatId)).thenReturn(boatDTO);
+        activityController.addBoatToActivity(activityId, boatDTO);
+        verify(boatsClient, times(1)).getBoat(boatId);
+        verify(activityService, times(1)).addBoatToActivity(activityId, argThat(x -> x.getId().equals(boatId)));
+    }
+
+    @Test
+    void addBoatToActivityNewBoat() {
+
+    }
+
+    @Test
+    void changeActivityTimes() {
     }
 }

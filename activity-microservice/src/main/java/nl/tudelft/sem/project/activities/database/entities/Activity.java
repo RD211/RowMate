@@ -1,6 +1,7 @@
 package nl.tudelft.sem.project.activities.database.entities;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -23,7 +24,7 @@ import java.util.UUID;
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-@Builder
+@SuperBuilder(toBuilder = true)
 @Entity
 @Table(name = "activities")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
