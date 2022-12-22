@@ -2,6 +2,7 @@ package nl.tudelft.sem.project.activities.services;
 
 import nl.tudelft.sem.project.activities.ActivityNotFoundException;
 import nl.tudelft.sem.project.activities.database.entities.Activity;
+import nl.tudelft.sem.project.activities.database.entities.Boat;
 import nl.tudelft.sem.project.activities.database.entities.Competition;
 import nl.tudelft.sem.project.activities.database.entities.Training;
 import nl.tudelft.sem.project.activities.database.repository.ActivityRepository;
@@ -17,10 +18,7 @@ import org.mockito.quality.Strictness;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -39,8 +37,6 @@ class ActivityServiceTest {
     void findActivitiesFromFilter() {
         Date startDate = Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC));
         Date endDate = Date.from(LocalDateTime.now().plusMinutes(60).toInstant(ZoneOffset.UTC));
-        //LocalDateTime start = LocalDateTime.of(2022, 10, 14, 17, 30);
-        //LocalDateTime end = LocalDateTime.of(2022, 10, 14, 18, 30);
         LocalDateTime start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         List<Activity> ans = List.of(Activity.builder().id(UUID.randomUUID()).build());
@@ -142,5 +138,65 @@ class ActivityServiceTest {
         var ret = activityService.addCompetition(competition);
         assertThat(ret).isEqualTo(competition);
         verify(activityRepository, times(1)).save(competition);
+    }
+
+    @Test
+    void addBoatToActivityNormal() {
+        UUID activityId = UUID.randomUUID();
+        Boat boat = Boat.builder()
+                .name("Frog Boat")
+                .build();
+        Activity originalActivity = Activity.builder()
+                .boats(new ArrayList<>())
+                .build();
+        when(activityRepository.findById(activityId)).thenReturn(Optional.of(originalActivity));
+        when(activityRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        var ret = activityService.addBoatToActivity(activityId, boat);
+        verify(activityRepository, times(1)).findById(activityId);
+        verify(activityRepository, times(1)).save(any());
+        assertThat(ret.getBoats()).containsExactlyInAnyOrder(boat);
+    }
+
+    @Test
+    void addBoatToActivityNotFound() {
+        UUID activityId = UUID.randomUUID();
+        when(activityRepository.findById(activityId)).thenThrow(ActivityNotFoundException.class);
+        assertThatExceptionOfType(ActivityNotFoundException.class)
+                .isThrownBy(() -> activityService.addBoatToActivity(activityId, Boat.builder().build()));
+        verify(activityRepository, never()).save(any());
+    }
+
+    @Test
+    void changeActivityTimesNormal() {
+        Date startDate = Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+        Date endDate = Date.from(LocalDateTime.now().plusMinutes(60).toInstant(ZoneOffset.UTC));
+        LocalDateTime start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+        UUID activityId = UUID.randomUUID();
+        Activity activity = Activity.builder()
+                .id(activityId)
+                .startTime(start.minusHours(4))
+                .endTime(end.minusHours(4))
+                .build();
+
+        when(activityRepository.findById(activityId)).thenReturn(Optional.of(activity));
+        when(activityRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        var ret = activityService.changeActivityTimes(activityId, startDate, endDate);
+        verify(activityRepository, times(1)).findById(activityId);
+        verify(activityRepository, times(1)).save(any());
+        assertThat(ret.getStartTime()).isEqualTo(start);
+        assertThat(ret.getEndTime()).isEqualTo(end);
+    }
+
+    @Test
+    void changeActivityTimesMissing() {
+        Date startDate = Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+        Date endDate = Date.from(LocalDateTime.now().plusMinutes(60).toInstant(ZoneOffset.UTC));
+        UUID activityId = UUID.randomUUID();
+        when(activityRepository.findById(activityId)).thenThrow(ActivityNotFoundException.class);
+        assertThatExceptionOfType(ActivityNotFoundException.class)
+                .isThrownBy(() -> activityService.changeActivityTimes(activityId, startDate, endDate));
+        verify(activityRepository, never()).save(any());
     }
 }

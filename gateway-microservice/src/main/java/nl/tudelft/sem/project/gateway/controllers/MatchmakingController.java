@@ -6,7 +6,6 @@ import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import nl.tudelft.sem.project.matchmaking.*;
-import nl.tudelft.sem.project.users.UsersClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,22 +23,18 @@ public class MatchmakingController {
 
     private final transient ActivitiesClient activitiesClient;
 
-    private final transient UsersClient usersClient;
-
     private final transient AuthManager authManager;
 
     /**
      * The matchmaking controller constructor.
      *
      * @param matchmakingClient the matchmaking client.
-     * @param usersClient the user client.
      * @param authManager the auth manager.
      */
     @Autowired
-    public MatchmakingController(MatchmakingClient matchmakingClient, UsersClient usersClient, AuthManager authManager,
+    public MatchmakingController(MatchmakingClient matchmakingClient, AuthManager authManager,
                                  ActivitiesClient activitiesClient) {
         this.matchmakingClient = matchmakingClient;
-        this.usersClient = usersClient;
         this.authManager = authManager;
         this.activitiesClient = activitiesClient;
     }

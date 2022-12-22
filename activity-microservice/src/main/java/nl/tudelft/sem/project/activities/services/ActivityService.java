@@ -17,8 +17,6 @@ public class ActivityService {
 
     @Autowired
     transient ActivityRepository activityRepository;
-    @Autowired
-    transient BoatConverterService boatConverterService;
 
     final transient String couldNotFindActivityErrorMessage = "No activity could be found with this ID.";
 
@@ -132,8 +130,7 @@ public class ActivityService {
         }
         var activity = optActivity.get();
         activity.getBoats().add(boat);
-        activityRepository.save(activity);
-        return activity;
+        return activityRepository.save(activity);
     }
 
     /**
