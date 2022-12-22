@@ -7,6 +7,7 @@ import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import nl.tudelft.sem.project.matchmaking.*;
+import nl.tudelft.sem.project.notifications.NotificationClient;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,8 @@ public class MatchmakingController {
 
     private final transient UsersClient usersClient;
 
+    private final transient NotificationClient notificationClient;
+
     private final transient AuthManager authManager;
 
     /**
@@ -37,11 +40,16 @@ public class MatchmakingController {
      * @param authManager the auth manager.
      */
     @Autowired
-    public MatchmakingController(MatchmakingClient matchmakingClient, UsersClient usersClient, AuthManager authManager,
-                                 ActivitiesClient activitiesClient) {
+    public MatchmakingController(
+            MatchmakingClient matchmakingClient,
+            UsersClient usersClient,
+            AuthManager authManager,
+            NotificationClient notificationClient,
+            ActivitiesClient activitiesClient) {
         this.matchmakingClient = matchmakingClient;
         this.usersClient = usersClient;
         this.authManager = authManager;
+        this.notificationClient = notificationClient;
         this.activitiesClient = activitiesClient;
     }
 
@@ -102,6 +110,28 @@ public class MatchmakingController {
         activitiesClient.getActivity(activityRequest.getActivityId());
 
         return ResponseEntity.ok(matchmakingClient.registerInActivity(activityRequest));
+    }
+
+    /**
+     * Responds to a request to join an activity. Only the owner of the activity can
+     * accept/reject a registration request.
+     *
+     * @param response a dto, containing the username of the user who wants to join the activity,
+     *                 the activity id, and a boolean indicating whether the request is accepted
+     *                 or not.
+     * @return a confirmation string.
+     */
+    @PostMapping("/respond")
+    public ResponseEntity<String> respondToRegistration(@RequestBody ActivityRegistrationResponseDTO response) {
+        var username = authManager.getUsername();
+
+        ActivityDTO activity = activitiesClient.getActivity(response.getActivityId());
+
+        if (!username.equals(activity.getOwner())) {
+            throw new IllegalArgumentException("You are not the owner of this activity!");
+        }
+
+        return ResponseEntity.ok(matchmakingClient.respondToRegistration(response));
     }
 
     /**
