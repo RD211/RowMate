@@ -101,6 +101,8 @@ public class MatchmakingServiceTest {
         Mockito.when(activitiesClient.findActivitiesFromFilter(any(ActivityFilterDTO.class)))
                 .thenReturn(List.of(activity));
 
+        Mockito.when(activitiesClient.getActivity(activity.getId())).thenReturn(activity);
+
         Mockito.when(boatsClient.getBoat(any(UUID.class)))
                 .thenReturn(boat);
 
@@ -126,6 +128,8 @@ public class MatchmakingServiceTest {
     public void testAutoFindNoPreferredRoleLeft() {
         Mockito.when(activitiesClient.findActivitiesFromFilter(any(ActivityFilterDTO.class)))
                 .thenReturn(List.of(activity));
+
+        Mockito.when(activitiesClient.getActivity(activity.getId())).thenReturn(activity);
 
         Mockito.when(usersClient.hasCertificate(any(), any())).thenReturn(true);
 
