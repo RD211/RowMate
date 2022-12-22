@@ -71,3 +71,10 @@ And this is the create competition model:
 
 <img src="images/create-competition-model.png" width=1000 >
 
+## Functional + Boundary tests
+
+We created a document that can be found in 'docs/Function + Boundary' that presents some of our boundary and functional tests!
+Some of the boundary tests can be also be found in some of the microservices with a special folder that says boundary.
+
+
+## All assignments, agendas and retrospectives can be found under docs/
