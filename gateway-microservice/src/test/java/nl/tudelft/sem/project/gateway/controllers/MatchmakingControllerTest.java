@@ -48,6 +48,9 @@ public class MatchmakingControllerTest {
     MatchmakingController matchmakingController;
 
 
+    /**
+     * Setup the test.
+     */
     @BeforeAll
     public void mock() {
         when(authManager.getUsername()).thenReturn("testUser");
@@ -64,22 +67,27 @@ public class MatchmakingControllerTest {
 
     @Test
     public void testStrategy() {
-        when(matchmakingClient.autoFindActivity(any(MatchmakingStrategy.class), any(ActivityRequestDTO.class))).thenReturn("Successful!");
+        when(matchmakingClient.autoFindActivity(any(MatchmakingStrategy.class),
+                any(ActivityRequestDTO.class))).thenReturn("Successful!");
 
-        assertThat((matchmakingController.autoFindActivity(MatchmakingStrategy.Random, ActivityFilterDTO.builder().build())))
+        assertThat((matchmakingController.autoFindActivity(MatchmakingStrategy.Random,
+                ActivityFilterDTO.builder().build())))
             .isEqualTo(ResponseEntity.ok("Successful!"));
     }
 
     @Test
     public void testDeregister() {
-        when(matchmakingClient.deRegisterFromActivity(any(ActivityDeregisterRequestDTO.class))).thenReturn("Successful!");
-        assertThat(matchmakingController.deregister(UUID.randomUUID())).isEqualTo(ResponseEntity.ok("Successful!"));
+        when(matchmakingClient.deRegisterFromActivity(any(ActivityDeregisterRequestDTO.class)))
+                .thenReturn("Successful!");
+        assertThat(matchmakingController.deregister(UUID.randomUUID()))
+                .isEqualTo(ResponseEntity.ok("Successful!"));
     }
 
     @Test
     public void testRegister() {
         when(matchmakingClient.registerInActivity(any(ActivityRegistrationRequestDTO.class))).thenReturn("Successful!");
-        assertThat(matchmakingController.register(SeatedUserModel.builder().build())).isEqualTo(ResponseEntity.ok("Successful!"));
+        assertThat(matchmakingController.register(SeatedUserModel.builder().build()))
+                .isEqualTo(ResponseEntity.ok("Successful!"));
     }
 
     @Test
