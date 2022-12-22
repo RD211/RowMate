@@ -27,7 +27,10 @@ Here is the table of issues
 |Certificates must have a hierarchy|Create the certificate controller|Kuba|2.5|0|FALSE| |
 |Misc|Add the commons package|David|1|2|TRUE| |
 
-We had the following suggestions for improvements for the next sprint:
-- Better communication for merge request reviews
-- Better communication on architecture
+# Problems encountered
+
+Here is a list of problems we encountered:
+
+- Better communication for merge request reviews.
+- Better communication on architecture.
 - More contribution in assignemnt texts.
