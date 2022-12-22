@@ -7,7 +7,7 @@ import nl.tudelft.sem.project.authentication.ResetPasswordModel;
 import nl.tudelft.sem.project.gateway.AuthenticateUserModel;
 import nl.tudelft.sem.project.gateway.CreateUserModel;
 import nl.tudelft.sem.project.notifications.EventType;
-import nl.tudelft.sem.project.notifications.NotificationClient;
+import nl.tudelft.sem.project.notifications.NotificationsClient;
 import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
@@ -31,7 +31,7 @@ public class AuthenticationController {
     private transient AuthClient authClient;
 
     @Autowired
-    private transient NotificationClient notificationsClient;
+    private transient NotificationsClient notificationsClient;
 
     /**
      * The register endpoint.
@@ -52,6 +52,16 @@ public class AuthenticationController {
                         .email(createUserModel.getEmail()).build();
 
         usersClient.addUser(userDTO);
+
+        // Send notification that the user has registered using this email.
+        try {
+            new Thread(() -> notificationsClient.sendNotification(NotificationDTO.builder()
+                    .userDTO(userDTO)
+                    .eventType(EventType.SIGN_UP)
+                    .build())).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         var token = authClient.authenticate(appUserModel);
 
@@ -86,6 +96,20 @@ public class AuthenticationController {
     public ResponseEntity<Void> resetPasswordWithPrevious(
             @RequestBody @Valid ResetPasswordModel resetPasswordModel) {
         authClient.resetPasswordWithPrevious(resetPasswordModel);
+
+        // Send notification that password has been reset using previous password.
+        try {
+            new Thread(() -> {
+                UserDTO userDTO = usersClient.getUserByUsername(resetPasswordModel.getAppUserModel().getUsername());
+                notificationsClient.sendNotification(NotificationDTO.builder()
+                    .userDTO(userDTO)
+                    .eventType(EventType.RESET_PASSWORD_CONFIRM)
+                    .build());
+            }).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
         return ResponseEntity.ok().build();
     }
 
@@ -98,16 +122,23 @@ public class AuthenticationController {
      */
     @PostMapping("/reset_password_with_email")
     public ResponseEntity<Void> resetPasswordWithEmail(@RequestBody @Valid Username username) {
-        var user = usersClient.getUserByUsername(username);
-        authClient.getEmailResetPasswordToken(username);
+        var token = authClient.getEmailResetPasswordToken(username);
 
-        notificationsClient.sendNotification(
-                new NotificationDTO(
-                        user,
-                        EventType.RESET_PASSWORD
-                )
-        );
-
+        // Send password reset link to email address.
+        try {
+            new Thread(() -> {
+                UserDTO userDTO = usersClient.getUserByUsername(username);
+                String tokenLink = "http://localhost:8087/api/authentication/reset_password?token=" + token;
+                notificationsClient.sendNotification(NotificationDTO.builder()
+                    .userDTO(userDTO)
+                    .eventType(EventType.RESET_PASSWORD)
+                    .optionalField(tokenLink)
+                    .build());
+            }).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        
         return ResponseEntity.ok().build();
     }
 

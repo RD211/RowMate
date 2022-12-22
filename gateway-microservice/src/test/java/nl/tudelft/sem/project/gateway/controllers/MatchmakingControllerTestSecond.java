@@ -1,11 +1,13 @@
 package nl.tudelft.sem.project.gateway.controllers;
 
 import nl.tudelft.sem.project.activities.ActivitiesClient;
+import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import nl.tudelft.sem.project.matchmaking.*;
-import nl.tudelft.sem.project.notifications.NotificationClient;
+import nl.tudelft.sem.project.notifications.NotificationsClient;
+import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -36,7 +38,7 @@ public class MatchmakingControllerTestSecond {
     transient UsersClient usersClient;
 
     @MockBean
-    transient NotificationClient notificationClient;
+    transient NotificationsClient notificationClient;
 
     @MockBean
     transient AuthManager authManager;
@@ -74,6 +76,11 @@ public class MatchmakingControllerTestSecond {
 
     @Test
     public void testDeregister() {
+        when(usersClient.getUserByUsername(any())).thenReturn(UserDTO.builder().username("adsdas").email("dasads").build());
+        when(activitiesClient.getActivity(any())).thenReturn(TrainingDTO.builder()
+                .owner("aaads")
+                .id(UUID.randomUUID())
+                .build());
         when(matchmakingClient.deRegisterFromActivity(any(ActivityDeregisterRequestDTO.class)))
                 .thenReturn("Successful!");
         assertThat(matchmakingController.deregister(UUID.randomUUID()))
@@ -82,6 +89,12 @@ public class MatchmakingControllerTestSecond {
 
     @Test
     public void testRegister() {
+        when(usersClient.getUserByUsername(any())).thenReturn(UserDTO.builder().username("adsdas").email("dasads").build());
+        when(activitiesClient.getActivity(any())).thenReturn(TrainingDTO.builder()
+                .owner("aaads")
+                .id(UUID.randomUUID())
+                .build());
+        when(authManager.getUsername()).thenReturn("adads");
         when(matchmakingClient.registerInActivity(any(ActivityRegistrationRequestDTO.class))).thenReturn("Successful!");
         assertThat(matchmakingController.register(SeatedUserModel.builder().build()))
                 .isEqualTo(ResponseEntity.ok("Successful!"));
