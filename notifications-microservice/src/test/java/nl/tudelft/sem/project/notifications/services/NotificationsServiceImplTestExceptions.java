@@ -3,6 +3,7 @@ package nl.tudelft.sem.project.notifications.services;
 import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.notifications.EventType;
 import nl.tudelft.sem.project.notifications.NotificationDTO;
+import nl.tudelft.sem.project.notifications.TestSMTP;
 import nl.tudelft.sem.project.notifications.exceptions.MailNotSentException;
 import nl.tudelft.sem.project.users.UserDTO;
 import org.junit.jupiter.api.Test;
@@ -25,9 +26,9 @@ import static org.junit.Assert.assertThrows;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("dev")
 @EnableConfigurationProperties
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application-dev.properties")
 @AutoConfigureMockMvc
-public class NotificationsServiceImplTestExceptions {
+public class NotificationsServiceImplTestExceptions extends TestSMTP {
 
     @Autowired
     private NotificationsServiceImpl notificationsService;

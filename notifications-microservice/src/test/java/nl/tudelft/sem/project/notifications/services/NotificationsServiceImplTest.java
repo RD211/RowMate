@@ -3,6 +3,7 @@ package nl.tudelft.sem.project.notifications.services;
 import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.notifications.EventType;
 import nl.tudelft.sem.project.notifications.NotificationDTO;
+import nl.tudelft.sem.project.notifications.TestSMTP;
 import nl.tudelft.sem.project.notifications.exceptions.MailNotSentException;
 import nl.tudelft.sem.project.users.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 @EnableConfigurationProperties
 @TestPropertySource(locations = "classpath:application-test.properties")
 @AutoConfigureMockMvc
-public class NotificationsServiceImplTest {
+public class NotificationsServiceImplTest extends TestSMTP {
 
     @Autowired
     private NotificationsServiceImpl notificationsService;
@@ -51,7 +52,7 @@ public class NotificationsServiceImplTest {
         SimpleMailMessage res = notificationsService.sendNotification(notificationDTO);
 
         assertThat(res.getTo()[0]).isEqualTo("TEST@TEST.TEST");
-        assertThat(res.getFrom()).isEqualTo("noreply.rowing.delft@gmail.com");
+        assertThat(res.getFrom()).isEqualTo("localhost");
         assertThat(res.getSubject()).isEqualTo("Test email");
         assertThat(res.getText()).contains("Test email.");
         assertThat(res.getText()).contains("Activity Details");
@@ -71,7 +72,7 @@ public class NotificationsServiceImplTest {
         SimpleMailMessage res = notificationsService.sendNotification(notificationDTO);
 
         assertThat(res.getTo()[0]).isEqualTo("TEST@TEST.TEST");
-        assertThat(res.getFrom()).isEqualTo("noreply.rowing.delft@gmail.com");
+        assertThat(res.getFrom()).isEqualTo("localhost");
         assertThat(res.getSubject()).isEqualTo("Test email");
         assertThat(res.getText()).contains("Test email.");
         assertThat(res.getText()).doesNotContain("Activity Details");
@@ -83,7 +84,7 @@ public class NotificationsServiceImplTest {
         JavaMailSenderImpl impl = (JavaMailSenderImpl) sender;
 
         assertThat(impl.getPort()).isEqualTo(587);
-        assertThat(impl.getHost()).isEqualTo("smtp.gmail.com");
-        assertThat(impl.getUsername()).isEqualTo("noreply.rowing.delft@gmail.com");
+        assertThat(impl.getHost()).isEqualTo("localhost");
+        assertThat(impl.getUsername()).isEqualTo("localhost");
     }
 }

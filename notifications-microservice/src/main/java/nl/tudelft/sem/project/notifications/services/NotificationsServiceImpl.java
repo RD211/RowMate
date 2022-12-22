@@ -12,11 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @Getter
@@ -33,8 +35,8 @@ public class NotificationsServiceImpl implements NotificationsService {
             EventType.SIGN_UP, EventType.TEST,
             EventType.RESET_PASSWORD, EventType.RESET_PASSWORD_CONFIRM);
 
-    @Value("${application.properties.test-mode:false}")
-    private transient String testMode;
+    //@Value("${application.properties.test-mode:false}")
+    //private transient String testMode;
 
     /**
      * Sends a mail notification to the email address
@@ -48,10 +50,11 @@ public class NotificationsServiceImpl implements NotificationsService {
      * @throws MailNotSentException if any issues are encountered regarding the sending of the notification
      */
     public SimpleMailMessage sendNotification(NotificationDTO notificationDTO) throws MailNotSentException {
+        //System.out.println(testMode + " for service");
         SimpleMailMessage message = new SimpleMailMessage();
         String activityDetails;
 
-        message.setFrom("noreply.rowing.delft@gmail.com");
+        message.setFrom(Objects.requireNonNull(((JavaMailSenderImpl) mailSender).getUsername()));
         message.setTo(notificationDTO.getUserDTO().getEmail());
         message.setSubject(messageTemplates.get(notificationDTO.getEventType()).getSubject());
 
@@ -64,13 +67,12 @@ public class NotificationsServiceImpl implements NotificationsService {
             message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage()
                     + activityDetails);
         }
-        if (!testMode.equals("true")) {
-            try {
-                mailSender.send(message);
-            } catch (Exception e) {
-                throw new MailNotSentException(e.getMessage());
-            }
+        try {
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new MailNotSentException(e.getMessage());
         }
+
         return message;
     }
 

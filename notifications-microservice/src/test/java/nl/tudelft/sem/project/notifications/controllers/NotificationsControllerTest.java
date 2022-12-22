@@ -6,6 +6,7 @@ import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.notifications.EventType;
 import nl.tudelft.sem.project.notifications.NotificationDTO;
+import nl.tudelft.sem.project.notifications.TestSMTP;
 import nl.tudelft.sem.project.users.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test"})
 @AutoConfigureMockMvc
-class NotificationsControllerTest {
+class NotificationsControllerTest extends TestSMTP {
 
     @Autowired
     private MockMvc mockMvc;

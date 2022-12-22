@@ -7,13 +7,12 @@ import nl.tudelft.sem.project.gateway.*;
 import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.UserDTO;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.subethamail.wiser.Wiser;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,6 +47,8 @@ public class ScenarioTests {
     GatewayCertificatesClient gatewayCertificatesClient;
     static List<ConfigurableApplicationContext> microservices;
 
+    private Wiser wiser;
+
     @BeforeAll
     static void startEverything() {
         microservices = List.of(
@@ -64,6 +65,19 @@ public class ScenarioTests {
                 new SpringApplicationBuilder(
                         nl.tudelft.sem.project.matchmaking.Application.class).run("--server.port=8083")
         );
+    }
+
+    @BeforeEach
+    private void initSmtpServer() {
+        wiser = new Wiser();
+        wiser.setPort(587);
+        wiser.setHostname("localhost");
+        wiser.start();
+    }
+
+    @AfterEach
+    private void stopSmtpServer() {
+        wiser.stop();
     }
 
     @AfterAll
