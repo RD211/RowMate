@@ -30,6 +30,8 @@ public class MatchmakingController {
 
     private final transient UsersClient usersClient;
 
+    private final transient NotificationClient notificationClient;
+
     private final transient AuthManager authManager;
 
     private final transient NotificationsClient notificationsClient;
@@ -47,6 +49,7 @@ public class MatchmakingController {
         this.matchmakingClient = matchmakingClient;
         this.usersClient = usersClient;
         this.authManager = authManager;
+        this.notificationClient = notificationClient;
         this.activitiesClient = activitiesClient;
         this.notificationsClient = notificationsClient;
     }
@@ -122,6 +125,28 @@ public class MatchmakingController {
                 .build());
 
         return ResponseEntity.ok(matchmakingClient.registerInActivity(activityRequest));
+    }
+
+    /**
+     * Responds to a request to join an activity. Only the owner of the activity can
+     * accept/reject a registration request.
+     *
+     * @param response a dto, containing the username of the user who wants to join the activity,
+     *                 the activity id, and a boolean indicating whether the request is accepted
+     *                 or not.
+     * @return a confirmation string.
+     */
+    @PostMapping("/respond")
+    public ResponseEntity<String> respondToRegistration(@RequestBody ActivityRegistrationResponseDTO response) {
+        var username = authManager.getUsername();
+
+        ActivityDTO activity = activitiesClient.getActivity(response.getActivityId());
+
+        if (!username.equals(activity.getOwner())) {
+            throw new IllegalArgumentException("You are not the owner of this activity!");
+        }
+
+        return ResponseEntity.ok(matchmakingClient.respondToRegistration(response));
     }
 
     /**

@@ -34,10 +34,21 @@ public class MailTemplateConfig {
         return MailTemplateImpl
                 .builder()
                 .subject("Activity joined")
-                .message("You have successfully joined the activity!")
+                .message("Your request to join an activity has been accepted!")
                 .eventType(EventType.JOINED_ACTIVITY)
                 .build();
     }
+
+    @Bean
+    public MailTemplateImpl getMailRejectJoin() {
+        return MailTemplateImpl
+                .builder()
+                .subject("Request declined :(")
+                .message("Your request to join an activity has been declined!")
+                .eventType(EventType.REJECT_REGISTRATION)
+                .build();
+    }
+
 
     @Bean
     public MailTemplateImpl getMailResetPassword() {
@@ -88,8 +99,8 @@ public class MailTemplateConfig {
         return MailTemplateImpl
                 .builder()
                 .subject("User joined your activity")
-                .message("A user has joined one of the activities " +
-                        "you are hosting!")
+                .message("A user has requested to join one of the activities " +
+                        "you are hosting! Go see their request!")
                 .eventType(EventType.USER_JOINED)
                 .build();
     }
