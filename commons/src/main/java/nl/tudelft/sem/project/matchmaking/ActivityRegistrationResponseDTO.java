@@ -5,11 +5,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActivityRequestDTO {
+public class ActivityRegistrationResponseDTO {
+
+    @NotNull
     protected String userName;
-    protected ActivityFilterDTO activityFilter;
+
+    @NotNull
+    protected UUID activityId;
+
+    @NotNull
+    protected boolean accepted;
 }
