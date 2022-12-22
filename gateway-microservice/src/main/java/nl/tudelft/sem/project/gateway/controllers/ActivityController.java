@@ -5,6 +5,8 @@ import nl.tudelft.sem.project.activities.*;
 import nl.tudelft.sem.project.gateway.CreateCompetitionModel;
 import nl.tudelft.sem.project.gateway.CreateTrainingModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
+import nl.tudelft.sem.project.matchmaking.ActivityApplicationModel;
+import nl.tudelft.sem.project.matchmaking.MatchmakingClient;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,6 +34,7 @@ public class ActivityController {
 
     private final transient BoatsClient boatsClient;
 
+    private final transient MatchmakingClient matchmakingClient;
 
     /**
      * The activity controller constructor.
@@ -41,11 +45,12 @@ public class ActivityController {
      */
     @Autowired
     public ActivityController(AuthManager authManager, UsersClient usersClient, ActivitiesClient activitiesClient,
-                              BoatsClient boatsClient) {
+                              BoatsClient boatsClient, MatchmakingClient matchmakingClient) {
         this.authManager = authManager;
         this.usersClient = usersClient;
         this.activitiesClient = activitiesClient;
         this.boatsClient = boatsClient;
+        this.matchmakingClient = matchmakingClient;
     }
 
 
@@ -190,5 +195,20 @@ public class ActivityController {
             throw new RuntimeException("Starting time should be before ending time.");
         }
         return ResponseEntity.ok(activitiesClient.changeActivityTimes(changeActivityTimeModel).getBody());
+    }
+
+    /**
+     * Gets all applications to an activity by status.
+     *
+     * @param activityId the activity id.
+     * @param accepted the status.
+     * @return the list of applications.
+     */
+    @GetMapping("/get_applications_for_activity_by_status")
+    public ResponseEntity<List<ActivityApplicationModel>> getApplicationsForActivityByStatus(
+            @RequestParam @NotNull @Valid UUID activityId,
+            @RequestParam @NotNull @Valid boolean accepted) {
+        return ResponseEntity.ok(
+                matchmakingClient.getApplicationsForActivityByStatus(activityId, accepted));
     }
 }

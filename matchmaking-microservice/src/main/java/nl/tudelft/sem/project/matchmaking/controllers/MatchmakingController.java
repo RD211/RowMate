@@ -153,4 +153,22 @@ public class MatchmakingController {
         matchmakingService.deleteUserFromActivity(userName, activityId);
         return ResponseEntity.ok().build();
     }
+
+    /**
+     * Gets all applications to an activity by status.
+     * For example, you could get all accepted applications which means
+     * already part of the activity. But also you could get people in the waiting
+     * area.
+     *
+     * @param activityId the activity id.
+     * @param accepted the status.
+     * @return the list of applications.
+     */
+    @GetMapping("/get_applications_for_activity_by_status")
+    public ResponseEntity<List<ActivityApplicationModel>> getApplicationsForActivityByStatus(
+            @RequestParam @NotNull @Valid UUID activityId,
+            @RequestParam @NotNull @Valid boolean accepted) {
+        return ResponseEntity.ok(
+                matchmakingService.getAllApplicationsToActivityByAcceptedStatus(activityId, accepted));
+    }
 }

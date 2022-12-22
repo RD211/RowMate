@@ -347,6 +347,22 @@ public class MatchmakingService {
     }
 
     /**
+     * Gets all applications to an activity by status(accepted or not yet).
+     *
+     * @param activityId the activity id.
+     * @param accepted the status.
+     * @return the list of applications.
+     */
+    public List<ActivityApplicationModel> getAllApplicationsToActivityByAcceptedStatus(UUID activityId,
+                                                                                      boolean accepted) {
+
+        return activityRegistrationRepository
+                .findByActivityIdAndAccepted(activityId, accepted).stream()
+                .map(x -> new ActivityApplicationModel(x.getUserName(), x.getBoat(), x.getRole()))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Deletes a user's registration.
      *
      * @param userName Name of the user.
