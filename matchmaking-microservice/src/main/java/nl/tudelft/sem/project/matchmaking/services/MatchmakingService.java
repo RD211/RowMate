@@ -187,7 +187,8 @@ public class MatchmakingService {
             );
 
         if (!overlappingRegistrations.isEmpty()
-                || !isUserEligibleForBoatPosition(dto.getUserName(), dto.getBoatRole(), dto.getActivityId(), dto.getBoat())) {
+                || !isUserEligibleForBoatPosition(
+                dto.getUserName(), dto.getBoatRole(), dto.getActivityId(), dto.getBoat())) {
             return false;
         }
 
