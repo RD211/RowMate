@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 // activate profiles to have spring use mocks during auto-injection of certain beans.
 @ActiveProfiles({"test"})
 @AutoConfigureMockMvc
-public class FeignClientTest {
+public class FeignClientUserTest {
     @Autowired
     UsersClient usersClient;
 

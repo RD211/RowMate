@@ -41,7 +41,7 @@ public class CertificatesController {
      */
     @GetMapping("/get_certificate_by_name")
     public ResponseEntity<CertificateDTO> getCertificateByName(
-            @NotNull @RequestParam("certificateName") CertificateName certificateName) {
+            @NotNull @RequestParam("certificateName") String certificateName) {
         var certificate = certificatesClient.getCertificateByName(certificateName);
         return ResponseEntity.ok(certificate);
     }

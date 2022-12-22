@@ -15,15 +15,15 @@ import java.util.UUID;
 public interface CertificatesClient {
     @PostMapping("/add_certificate")
     @Headers("Content-Type: application/json")
-    CertificateDTO addCertificate(CertificateDTO cartificate) throws FeignException;
+    CertificateDTO addCertificate(CertificateDTO certificate) throws FeignException;
 
     @GetMapping("/get_certificate_by_id?certificateId={certificateId}")
     @Headers("Content-Type: application/json")
-    CertificateDTO getCertificateById(@PathVariable(value = "certificateId") UUID id) throws FeignException;
+    CertificateDTO getCertificateById(@PathVariable(value = "certificateId") UUID certificateId) throws FeignException;
 
     @GetMapping("/get_certificate_by_name?certificateName={certificateName}")
     @Headers("Content-Type: application/json")
-    CertificateDTO getCertificateByName(@PathVariable(value = "certificateName") CertificateName certificateName) throws FeignException;
+    CertificateDTO getCertificateByName(@PathVariable(value = "certificateName") String certificateName) throws FeignException;
 
 
     @PutMapping("/change_certificate_name")
