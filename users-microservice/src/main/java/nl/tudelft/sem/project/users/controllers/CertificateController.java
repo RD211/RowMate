@@ -71,9 +71,9 @@ public class CertificateController {
      */
     @GetMapping("/get_certificate_by_name")
     public ResponseEntity<CertificateDTO> getCertificateByName(
-            @NotNull @RequestParam("certificateName") CertificateName certificateName)
-            throws CertificateNotFoundException {
-        var certificate = certificateService.getCertificateByName(certificateName);
+            @NotNull @RequestParam("certificateName") String certificateName)
+            throws CertificateNotFoundException, ConstraintViolationException {
+        var certificate = certificateService.getCertificateByName(new CertificateName(certificateName));
         return ResponseEntity.ok(certificateConverterService.toDTO(certificate));
     }
 
