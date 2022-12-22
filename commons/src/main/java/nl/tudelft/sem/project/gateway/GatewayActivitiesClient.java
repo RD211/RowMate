@@ -2,10 +2,9 @@ package nl.tudelft.sem.project.gateway;
 
 import feign.FeignException;
 import feign.Headers;
-import nl.tudelft.sem.project.activities.ActivityDTO;
-import nl.tudelft.sem.project.activities.CompetitionDTO;
-import nl.tudelft.sem.project.activities.TrainingDTO;
+import nl.tudelft.sem.project.activities.*;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -32,4 +31,19 @@ public interface GatewayActivitiesClient {
     @GetMapping(value="/get_activity_by_id?id={id}")
     @Headers("Content-Type: application/json")
     ActivityDTO getActivity(@RequestHeader("Authorization") String bearerToken, @PathVariable(value = "id") UUID id) throws FeignException;
+
+    @PostMapping("/add_boat_to_activity?activityId={activityId}")
+    @Headers("Content-Type: application/json")
+    ResponseEntity<ActivityDTO> addBoatToActivity(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable(value="activityId") UUID activityId,
+            @RequestBody BoatDTO boatDTO
+    ) throws FeignException;
+
+    @PutMapping("/change_activity_times")
+    @Headers("Content-Type: application/json")
+    ResponseEntity<ActivityDTO> changeActivityTimes(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestBody ChangeActivityTimeModel changeActivityTimeModel
+    ) throws FeignException;
 }
