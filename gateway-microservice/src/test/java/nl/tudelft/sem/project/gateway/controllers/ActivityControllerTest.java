@@ -13,14 +13,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -202,5 +206,154 @@ class ActivityControllerTest {
         );
         var result = activityController.getActivityById(id).getBody();
         assertEquals(activityDTO,  result);
+    }
+
+    @Test
+    void addBoatToActivityNorml() {
+        UUID activityId = UUID.randomUUID();
+        ActivityDTO activityDTO = ActivityDTO.builder()
+                .id(activityId)
+                .owner("Owner")
+                .build();
+        UUID boatId = UUID.randomUUID();
+        BoatDTO boatDTO = BoatDTO.builder()
+                .boatId(boatId)
+                .name("Boat")
+                .build();
+
+        ActivityDTO changedActivity = ActivityDTO.builder()
+                .id(activityId)
+                .owner("Owner")
+                .boats(List.of(boatDTO))
+                .build();
+        when(authManager.getUsername()).thenReturn("Owner");
+        when(activitiesClient.getActivity(activityId)).thenReturn(activityDTO);
+        when(activitiesClient.addBoatToActivity(activityId, boatDTO)).thenReturn(changedActivity);
+        var ret = activityController.addBoatToActivity(activityId, boatDTO);
+        verify(authManager, times(1)).getUsername();
+        verify(activitiesClient, times(1)).getActivity(activityId);
+        verify(activitiesClient, times(1)).addBoatToActivity(activityId, boatDTO);
+        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(ret.getBody()).isEqualTo(changedActivity);
+    }
+
+    @Test
+    void addBoatToActivityNotOwner() {
+        UUID activityId = UUID.randomUUID();
+        ActivityDTO activityDTO = ActivityDTO.builder()
+                .id(activityId)
+                .owner("Owner")
+                .build();
+        UUID boatId = UUID.randomUUID();
+        BoatDTO boatDTO = BoatDTO.builder()
+                .boatId(boatId)
+                .name("Boat")
+                .build();
+
+        ActivityDTO changedActivity = ActivityDTO.builder()
+                .id(activityId)
+                .owner("Owner")
+                .boats(List.of(boatDTO))
+                .build();
+        when(authManager.getUsername()).thenReturn("Not Owner");
+        when(activitiesClient.getActivity(activityId)).thenReturn(activityDTO);
+        when(activitiesClient.addBoatToActivity(activityId, boatDTO)).thenReturn(changedActivity);
+
+        assertThrows(RuntimeException.class, () -> {
+            activityController.addBoatToActivity(activityId, boatDTO);
+        });
+
+        verify(activitiesClient, never()).addBoatToActivity(any(), any());
+    }
+
+    @Test
+    void changeActivityTimesNormal() {
+        Date startDate = getDate(2022, 10, 20);
+        Date endDate = getDate(2022, 10, 21);
+        UUID activityId = UUID.randomUUID();
+        ActivityDTO activityDTO = ActivityDTO.builder()
+                .id(activityId)
+                .owner("Owner")
+                .startTime(getDate(2022, 9, 20))
+                .endTime(getDate(2022, 9, 21))
+                .build();
+        ChangeActivityTimeModel model = ChangeActivityTimeModel.builder()
+                .activityId(activityId)
+                .newStartDate(startDate)
+                .newEndDate(endDate)
+                .build();
+
+
+
+        when(authManager.getUsername()).thenReturn("Owner");
+        when(activitiesClient.getActivity(activityId)).thenReturn(activityDTO);
+        when(activitiesClient.changeActivityTimes(model)).thenAnswer(i -> {
+            var m = ((ChangeActivityTimeModel) i.getArguments()[0]);
+            return ResponseEntity.ok(activityDTO.withStartTime(m.getNewStartDate()).withEndTime(m.getNewEndDate()));
+        });
+        var ret = activityController.changeActivityTimes(model);
+        verify(authManager, times(1)).getUsername();
+        verify(activitiesClient, times(1)).getActivity(activityId);
+        verify(activitiesClient, times(1)).changeActivityTimes(model);
+        assertThat(ret.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(ret.getBody().getId()).isEqualTo(activityId);
+        assertThat(ret.getBody().getStartTime()).isEqualTo(startDate);
+        assertThat(ret.getBody().getEndTime()).isEqualTo(endDate);
+    }
+
+    @Test
+    void changeActivityTimeSlotNotOwner() {
+        Date startDate = getDate(2022, 10, 20);
+        Date endDate = getDate(2022, 10, 21);
+        UUID activityId = UUID.randomUUID();
+        ActivityDTO activityDTO = ActivityDTO.builder()
+                .id(activityId)
+                .owner("Owner")
+                .startTime(getDate(2022, 9, 20))
+                .endTime(getDate(2022, 9, 21))
+                .build();
+        ChangeActivityTimeModel model = ChangeActivityTimeModel.builder()
+                .activityId(activityId)
+                .newStartDate(startDate)
+                .newEndDate(endDate)
+                .build();
+
+
+
+        when(authManager.getUsername()).thenReturn("Not Owner");
+        when(activitiesClient.getActivity(activityId)).thenReturn(activityDTO);
+        when(activitiesClient.changeActivityTimes(model)).thenAnswer(i -> {
+            var m = ((ChangeActivityTimeModel) i.getArguments()[0]);
+            return ResponseEntity.ok(activityDTO.withStartTime(m.getNewStartDate()).withEndTime(m.getNewEndDate()));
+        });
+        assertThrows(RuntimeException.class, () -> activityController.changeActivityTimes(model));
+        verify(activitiesClient, never()).changeActivityTimes(any());
+    }
+
+    @Test
+    void changeActivityTimeSlotInconsistentTimes() {
+        Date startDate = getDate(2022, 10, 21);
+        Date endDate = getDate(2022, 10, 20);
+        UUID activityId = UUID.randomUUID();
+        ActivityDTO activityDTO = ActivityDTO.builder()
+                .id(activityId)
+                .owner("Owner")
+                .startTime(getDate(2022, 9, 20))
+                .endTime(getDate(2022, 9, 21))
+                .build();
+        ChangeActivityTimeModel model = ChangeActivityTimeModel.builder()
+                .activityId(activityId)
+                .newStartDate(startDate)
+                .newEndDate(endDate)
+                .build();
+
+        when(authManager.getUsername()).thenReturn("Owner");
+        when(activitiesClient.getActivity(activityId)).thenReturn(activityDTO);
+        when(activitiesClient.changeActivityTimes(model)).thenAnswer(i -> {
+            var m = ((ChangeActivityTimeModel) i.getArguments()[0]);
+            return ResponseEntity.ok(activityDTO.withStartTime(m.getNewStartDate()).withEndTime(m.getNewEndDate()));
+        });
+        assertThrows(RuntimeException.class, () -> activityController.changeActivityTimes(model));
+        verify(activitiesClient, never()).changeActivityTimes(any());
     }
 }

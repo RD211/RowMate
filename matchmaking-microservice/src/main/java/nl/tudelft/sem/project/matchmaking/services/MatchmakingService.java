@@ -345,4 +345,14 @@ public class MatchmakingService {
                 }
         ).collect(Collectors.toList());
     }
+
+    /**
+     * Deletes a user's registration.
+     *
+     * @param userName Name of the user.
+     * @param activityId The ID of the activity they were registered for.
+     */
+    public void deleteUserFromActivity(String userName, UUID activityId) {
+        activityRegistrationRepository.deleteByUserNameAndActivityId(userName, activityId);
+    }
 }

@@ -2,7 +2,6 @@ package nl.tudelft.sem.project.gateway.controllers;
 
 import nl.tudelft.sem.project.activities.ActivitiesClient;
 import nl.tudelft.sem.project.activities.ActivityDTO;
-import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
@@ -11,10 +10,10 @@ import nl.tudelft.sem.project.notifications.NotificationClient;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,8 +48,8 @@ public class MatchmakingController {
         this.matchmakingClient = matchmakingClient;
         this.usersClient = usersClient;
         this.authManager = authManager;
-        this.notificationClient = notificationClient;
         this.activitiesClient = activitiesClient;
+        this.notificationClient = notificationClient;
     }
 
     /**
@@ -175,5 +174,25 @@ public class MatchmakingController {
         var username = authManager.getUsername();
 
         return ResponseEntity.ok(matchmakingClient.getAcceptedApplications(username));
+    }
+
+    /**
+     * Deletes a user from an activity.
+     *
+     * @param activityId The ID of the activity.
+     * @param userName The name of the user to be removed.
+     * @return 200 if everything went ok.
+     */
+    @DeleteMapping("/delete_user_from_activity")
+    public ResponseEntity<Void> deleteByUserNameAndActivityId(
+            @RequestParam @NotNull @Valid UUID activityId,
+            @RequestParam @NotNull @Valid String userName
+    ) {
+        var activity = activitiesClient.getActivity(activityId);
+        if (!authManager.getUsername().equals(activity.getOwner())) {
+            throw new RuntimeException("You are not the owner of this activity!");
+        }
+        matchmakingClient.deleteByUserNameAndActivityId(activityId, userName);
+        return ResponseEntity.ok().build();
     }
 }
