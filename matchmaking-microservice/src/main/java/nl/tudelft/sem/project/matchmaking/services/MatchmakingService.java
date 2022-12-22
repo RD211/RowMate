@@ -19,6 +19,8 @@ import nl.tudelft.sem.project.matchmaking.models.AvailableActivityModel;
 import nl.tudelft.sem.project.matchmaking.strategies.EarliestFirstStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.MatchingStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.RandomStrategy;
+import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UsersClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,31 +31,19 @@ import java.util.stream.Collectors;
 @Service
 public class MatchmakingService {
 
-    transient ActivitiesClient activitiesClient;
-    transient BoatsClient boatsClient;
+    @Autowired
+    private transient ActivitiesClient activitiesClient;
+    @Autowired
+    private transient BoatsClient boatsClient;
 
-    transient ActivityRegistrationRepository activityRegistrationRepository;
+    @Autowired
+    private transient UsersClient usersClient;
+    @Autowired
+    private transient ActivityRegistrationRepository activityRegistrationRepository;
 
     public static final String autoFindErrorMessage =
         "Unfortunately, we could not find any activity matching your request. Please try again!";
 
-    /**
-     * The autowired constructor for the service.
-     *
-     * @param activitiesClient the activities' client.
-     * @param activityRegistrationRepository the activity register repo.
-     * @param boatsClient the boats client.
-     */
-    @Autowired
-    public MatchmakingService(
-            ActivitiesClient activitiesClient,
-            ActivityRegistrationRepository activityRegistrationRepository,
-            BoatsClient boatsClient
-    ) {
-        this.activitiesClient = activitiesClient;
-        this.activityRegistrationRepository = activityRegistrationRepository;
-        this.boatsClient = boatsClient;
-    }
 
     public List<ActivityDTO> findActivities(ActivityRequestDTO dto) {
         return activitiesClient.findActivitiesFromFilter(dto.getActivityFilter());
@@ -62,7 +52,7 @@ public class MatchmakingService {
     /**
      * Automatically matches a user with an activity according to their preferred strategy.
      * At the moment, if strategy is 1, the activity with the earliest start is chosen.
-     * Otherwise, the system will pick a random strategy.
+     * Otherwise, the system will pick the random strategy.
      *
      * @param strategy the matchmaking strategy
      * @param dto the DTO containing the activity request.
@@ -196,7 +186,8 @@ public class MatchmakingService {
                     dto.getBoatRole()
             );
 
-        if (!overlappingRegistrations.isEmpty()) {
+        if (!overlappingRegistrations.isEmpty()
+                || !isUserEligibleForBoatPosition(dto.getUserName(), dto.getBoatRole(), dto.getActivityId(), dto.getBoat())) {
             return false;
         }
 
@@ -210,6 +201,25 @@ public class MatchmakingService {
             );
         activityRegistrationRepository.save(registration);
         return true;
+    }
+
+    /**
+     * Checks whether the user has the certificate for the requested boat.
+     * If the user is not applying for cox position, this will always return true.
+     *
+     * @param userName The name of the user that should be checked.
+     * @param position The boat position the user is applying for.
+     * @param activityId The activity identifier that the boat belongs to.
+     * @param boatNumber The boat number in the activity.
+     * @return Whether the user is eligible for the position.
+     */
+    private boolean isUserEligibleForBoatPosition(String userName, BoatRole position, UUID activityId, int boatNumber) {
+        if (!position.equals(BoatRole.Cox)) {
+            return true;
+        }
+        ActivityDTO activity = activitiesClient.getActivity(activityId);
+        UUID requiredCertificateId = activity.getBoats().get(boatNumber).getCoxCertificateId();
+        return usersClient.hasCertificate(new Username(userName), requiredCertificateId);
     }
 
 
