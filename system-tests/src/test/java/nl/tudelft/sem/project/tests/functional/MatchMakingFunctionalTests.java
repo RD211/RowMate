@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(classes=nl.tudelft.sem.project.system.tests.Application.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class MatchMakingFunctionalTests {
+public class MatchMakingFunctionalTests extends FunctionalTestsBase {
     @Autowired
     GatewayAuthenticationClient gatewayAuthenticationClient;
 
@@ -61,28 +61,8 @@ public class MatchMakingFunctionalTests {
     ActivityDTO queriedDTO;
     CertificateDTO certificateDTO;
 
-
     @BeforeAll
-    void startEverything() {
-        microservices = List.of(
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.users.Application.class).run("--server.port=8084"),
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.gateway.Application.class).properties("jwt.secret=exampleSecret").run("--server.port=8087"),
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.authentication.Application.class).properties("jwt.secret=exampleSecret").run("--server.port=8081"),
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.activities.Application.class).run("--server.port=8085"),
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.notifications.Application.class).properties("application.properties.test-mode=true").run("--server.port=8086"),
-                new SpringApplicationBuilder(
-                        nl.tudelft.sem.project.matchmaking.Application.class).run("--server.port=8083")
-        );
-
-        populateDb();
-    }
-
-    private void populateDb() {
+    void populateDb() {
         var createUserModel = CreateUserModel.builder()
                 .username("tester1")
                 .email("tester@test.test")
@@ -131,6 +111,7 @@ public class MatchMakingFunctionalTests {
 
 
     public BoatDTO addBoatToTheDatabase(BoatDTO dto) {
+
         var adminToken = gatewayAuthenticationClient.authenticate(
                 AuthenticateUserModel.builder().username(
                         "administrator"
@@ -328,13 +309,5 @@ public class MatchMakingFunctionalTests {
                         BoatRole.Coach
                 )
         );
-    }
-
-    @AfterAll
-    static void shutdownEverything() {
-        microservices.forEach(x -> {
-            x.stop();
-            x.close();
-        });
     }
 }
