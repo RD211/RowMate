@@ -11,6 +11,7 @@ import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistrationRepository;
 import nl.tudelft.sem.project.matchmaking.services.MatchmakingService;
+import nl.tudelft.sem.project.users.UsersClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +42,9 @@ public class MatchmakingServiceTest {
     private BoatsClient boatsClient;
     @MockBean
     private ActivityRegistrationRepository activityRegistrationRepository;
+
+    @MockBean
+    private UsersClient usersClient;
 
     ActivityRequestDTO requestDTO;
     ActivityFilterDTO filterDTO;
@@ -97,8 +101,12 @@ public class MatchmakingServiceTest {
         Mockito.when(activitiesClient.findActivitiesFromFilter(any(ActivityFilterDTO.class)))
                 .thenReturn(List.of(activity));
 
+        Mockito.when(activitiesClient.getActivity(activity.getId())).thenReturn(activity);
+
         Mockito.when(boatsClient.getBoat(any(UUID.class)))
                 .thenReturn(boat);
+
+        Mockito.when(usersClient.hasCertificate(any(), any())).thenReturn(true);
 
         ActivityRegistration registration =
                 ActivityRegistration
@@ -120,6 +128,10 @@ public class MatchmakingServiceTest {
     public void testAutoFindNoPreferredRoleLeft() {
         Mockito.when(activitiesClient.findActivitiesFromFilter(any(ActivityFilterDTO.class)))
                 .thenReturn(List.of(activity));
+
+        Mockito.when(activitiesClient.getActivity(activity.getId())).thenReturn(activity);
+
+        Mockito.when(usersClient.hasCertificate(any(), any())).thenReturn(true);
 
         boat.setAvailablePositions(List.of(BoatRole.Other));
 

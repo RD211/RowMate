@@ -37,6 +37,12 @@ public interface GatewayMatchmakingClient {
     String deRegisterFromActivity(@RequestHeader("Authorization") String bearerToken,
                                   @RequestBody UUID activityId) throws FeignException;
 
+
+    @PostMapping(value="/respond")
+    @Headers("Content-Type: application/json")
+    String respondToRegistration(@RequestHeader("Authorization") String bearerToken,
+                                 @RequestBody ActivityRegistrationResponseDTO activityRegistrationResponseDTO) throws FeignException;
+
     @GetMapping(value="/get_waiting_applications")
     @Headers("Content-Type: application/json")
     List<UserActivityApplication> getWaitingApplications(@RequestHeader("Authorization") String bearerToken);

@@ -1,6 +1,9 @@
 package nl.tudelft.sem.project.matchmaking.controllers;
 
 import nl.tudelft.sem.project.activities.ActivityDTO;
+import nl.tudelft.sem.project.gateway.SeatedUserModel;
+import nl.tudelft.sem.project.matchmaking.*;
+import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.matchmaking.ActivityDeregisterRequestDTO;
 import nl.tudelft.sem.project.matchmaking.ActivityRegistrationRequestDTO;
@@ -32,7 +35,7 @@ public class MatchmakingController {
      * This endpoint will return all the activities that a user can participate in.
      *
      * @param dto the DTO containing all the data needed by the endpoint.
-     * @return a list of activities, represing the activities the user can take part in.
+     * @return a list of activities, representing the activities the user can take part in.
      */
     @PostMapping("list")
     public ResponseEntity<List<ActivityDTO>> findActivities(@RequestBody ActivityRequestDTO dto) {
@@ -51,8 +54,8 @@ public class MatchmakingController {
      */
     @PostMapping("/find/{strategy}")
     public ResponseEntity<String> autoFindActivity(
-            @PathVariable("strategy") MatchmakingStrategy strategy,
-            @RequestBody ActivityRequestDTO dto
+         @PathVariable("strategy") MatchmakingStrategy strategy,
+        @RequestBody ActivityRequestDTO dto
     ) {
         return ResponseEntity.ok(matchmakingService.autoFindActivity(strategy, dto));
     }
@@ -90,6 +93,24 @@ public class MatchmakingController {
         }
 
         throw new RuntimeException("You are not enrolled in the activity!");
+    }
+
+    /**
+     * Responds to an activity registration request. If the request is accepted, the registration is marked as "accepted".
+     * The user will be notified about the response.
+     *
+     * @param dto a DTO containing the username, activity id and response.
+     * @return a string, containing the response.
+     */
+    @PostMapping("respond")
+    public ResponseEntity<String> respondToRegistration(@RequestBody ActivityRegistrationResponseDTO dto) {
+        boolean result = matchmakingService.respondToRegistration(dto);
+
+        if (result) {
+            return ResponseEntity.ok("Your response has been processed and the user has been notified.");
+        }
+
+        throw new RuntimeException("There was an error processing your response.");
     }
 
     /**

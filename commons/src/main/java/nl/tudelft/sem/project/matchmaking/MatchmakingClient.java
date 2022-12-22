@@ -30,6 +30,10 @@ public interface MatchmakingClient {
     @Headers("Content-Type: application/json")
     String deRegisterFromActivity(@RequestBody ActivityDeregisterRequestDTO dto) throws FeignException;
 
+    @PostMapping(value="respond")
+    @Headers("Content-Type: application/json")
+    String respondToRegistration(@RequestBody ActivityRegistrationResponseDTO dto) throws FeignException;
+
     @GetMapping(value="/get_waiting_applications?username={username}")
     @Headers("Content-Type: application/json")
     List<UserActivityApplication> getWaitingApplications(@PathVariable("username") String username);
