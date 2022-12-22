@@ -27,7 +27,7 @@ public class MatchmakingController {
      * This endpoint will return all the activities that a user can participate in.
      *
      * @param dto the DTO containing all the data needed by the endpoint.
-     * @return a list of activities, represing the activities the user can take part in.
+     * @return a list of activities, representing the activities the user can take part in.
      */
     @PostMapping("list")
     public ResponseEntity<List<ActivityDTO>> findActivities(@RequestBody ActivityRequestDTO dto) {
