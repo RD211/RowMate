@@ -134,9 +134,11 @@ public class MatchmakingService {
 
         List<ActivityRegistration> forThisBoat = getRegistrationsForBoat(registrations, idx);
         for (BoatRole role : dto.getActivityFilter().getPreferredRoles()) {
+            if (!isUserEligibleForBoatPosition(dto.getUserName(), role, activity.getId(), idx)) {
+                continue;
+            }
             List<ActivityRegistration> registrationsForRole = getRegistrationsForRole(forThisBoat, role);
             List<BoatRole> availableSpotsForRole = getAvailableSpotForRole(boat, role);
-
             if (availableSpotsForRole.size() > registrationsForRole.size()) {
                 feasibleActivities.add(
                         AvailableActivityModel
