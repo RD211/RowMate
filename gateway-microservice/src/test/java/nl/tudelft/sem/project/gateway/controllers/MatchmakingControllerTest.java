@@ -39,8 +39,9 @@ class MatchmakingControllerTest {
     @Mock
     private transient MatchmakingClient matchmakingClient;
 
-    @MockBean
+    @Mock
     transient NotificationsClient notificationClient;
+
     @Mock
     private transient ActivitiesClient activitiesClient;
 
