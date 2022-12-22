@@ -122,8 +122,7 @@ public class AuthenticationController {
                         .eventType(EventType.RESET_PASSWORD)
                         .optionalField(tokenLink)
                 .build());
-
-        System.out.println(tokenLink);
+        
         return ResponseEntity.ok().build();
     }
 
