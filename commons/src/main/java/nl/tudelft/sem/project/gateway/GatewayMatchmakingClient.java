@@ -5,6 +5,7 @@ import feign.Headers;
 import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.matchmaking.ActivityFilterDTO;
+import nl.tudelft.sem.project.matchmaking.ActivityRegistrationResponseDTO;
 import nl.tudelft.sem.project.matchmaking.UserActivityApplication;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
