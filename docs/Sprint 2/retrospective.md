@@ -34,3 +34,7 @@ Here is a list of problems we encountered:
 - Better communication for merge request reviews.
 - Better communication on architecture.
 - More contribution in assignemnt texts.
+- We struggled with setting up the recursive relations in the certificates database.
+- We had some problems with setting up the endpoints, microservice config, designing the functionality.
+- We had some problems when using inheritance in JPA.
+- We had problems with annotations.
