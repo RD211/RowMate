@@ -30,8 +30,6 @@ public class MatchmakingController {
 
     private final transient UsersClient usersClient;
 
-    private final transient NotificationClient notificationClient;
-
     private final transient AuthManager authManager;
 
     private final transient NotificationsClient notificationsClient;
@@ -49,7 +47,6 @@ public class MatchmakingController {
         this.matchmakingClient = matchmakingClient;
         this.usersClient = usersClient;
         this.authManager = authManager;
-        this.notificationClient = notificationClient;
         this.activitiesClient = activitiesClient;
         this.notificationsClient = notificationsClient;
     }

@@ -198,7 +198,7 @@ public class NotificationsFunctionalTests extends FunctionalTestsBase{
         assertEquals(message.getEnvelopeSender(), "localhost");
         assertEquals(message.getMimeMessage().getSubject(), "Activity joined");
         assertTrue(message.getMimeMessage().getContent().toString().contains("Activity Details:"));
-        assertTrue(message.getMimeMessage().getContent().toString().contains("You have successfully joined the activity!"));
+        assertTrue(message.getMimeMessage().getContent().toString().contains("Your request to join an activity has been accepted!"));
         assertTrue(message.getMimeMessage().getContent().toString().contains("6666"));
         assertFalse(message.getMimeMessage().getContent().toString().contains("For:"));
     }

@@ -35,8 +35,8 @@ public class NotificationsServiceImpl implements NotificationsService {
             EventType.SIGN_UP, EventType.TEST,
             EventType.RESET_PASSWORD, EventType.RESET_PASSWORD_CONFIRM);
 
-    //@Value("${application.properties.test-mode:false}")
-    //private transient String testMode;
+    @Value("${application.properties.test-mode:false}")
+    private transient String testMode;
 
     /**
      * Sends a mail notification to the email address
@@ -70,7 +70,9 @@ public class NotificationsServiceImpl implements NotificationsService {
         try {
             mailSender.send(message);
         } catch (Exception e) {
-            throw new MailNotSentException(e.getMessage());
+            if (testMode.equals("true") && ((JavaMailSenderImpl) mailSender).getHost().equals("localhost") == false) {
+                throw new MailNotSentException(e.getMessage());
+            }
         }
 
         return message;
