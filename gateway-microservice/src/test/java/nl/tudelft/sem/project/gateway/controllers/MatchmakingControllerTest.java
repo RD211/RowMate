@@ -3,10 +3,9 @@ package nl.tudelft.sem.project.gateway.controllers;
 import nl.tudelft.sem.project.activities.ActivitiesClient;
 import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
+import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
-import nl.tudelft.sem.project.matchmaking.ActivityFilterDTO;
-import nl.tudelft.sem.project.matchmaking.ActivityRequestDTO;
-import nl.tudelft.sem.project.matchmaking.MatchmakingClient;
+import nl.tudelft.sem.project.matchmaking.*;
 import nl.tudelft.sem.project.notifications.NotificationClient;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,8 +19,10 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -48,8 +49,10 @@ public class MatchmakingControllerTest {
 
 
     @BeforeAll
-    public void mockAuth() {
+    public void mock() {
         when(authManager.getUsername()).thenReturn("testUser");
+
+        when(activitiesClient.getActivity(any(UUID.class))).thenReturn(null);
     }
 
     @Test
@@ -65,6 +68,25 @@ public class MatchmakingControllerTest {
 
         assertThat((matchmakingController.autoFindActivity(MatchmakingStrategy.Random, ActivityFilterDTO.builder().build())))
             .isEqualTo(ResponseEntity.ok("Successful!"));
+    }
+
+    @Test
+    public void testDeregister() {
+        when(matchmakingClient.deRegisterFromActivity(any(ActivityDeregisterRequestDTO.class))).thenReturn("Successful!");
+        assertThat(matchmakingController.deregister(UUID.randomUUID())).isEqualTo(ResponseEntity.ok("Successful!"));
+    }
+
+    @Test
+    public void testRegister() {
+        when(matchmakingClient.registerInActivity(any(ActivityRegistrationRequestDTO.class))).thenReturn("Successful!");
+        assertThat(matchmakingController.register(SeatedUserModel.builder().build())).isEqualTo(ResponseEntity.ok("Successful!"));
+    }
+
+    @Test
+    public void testRespond() {
+        assertThatThrownBy(() -> {
+            matchmakingController.respondToRegistration(ActivityRegistrationResponseDTO.builder().build());
+        }).isInstanceOf(Exception.class);
     }
 
     @Test
