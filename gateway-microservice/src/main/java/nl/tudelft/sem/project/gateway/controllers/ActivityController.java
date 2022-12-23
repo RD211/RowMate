@@ -7,6 +7,11 @@ import nl.tudelft.sem.project.gateway.CreateTrainingModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import nl.tudelft.sem.project.matchmaking.ActivityApplicationModel;
 import nl.tudelft.sem.project.matchmaking.MatchmakingClient;
+import nl.tudelft.sem.project.notifications.EventType;
+import nl.tudelft.sem.project.notifications.NotificationsClient;
+import nl.tudelft.sem.project.notifications.NotificationDTO;
+import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,23 +37,25 @@ public class ActivityController {
 
     private final transient ActivitiesClient activitiesClient;
 
-    private final transient BoatsClient boatsClient;
-
+    private final transient NotificationsClient notificationsClient;
     private final transient MatchmakingClient matchmakingClient;
+
+    private final transient BoatsClient boatsClient;
 
     /**
      * The activity controller constructor.
      *
-     * @param authManager the auth manager.
-     * @param usersClient the user client.
+     * @param authManager      the auth manager.
+     * @param usersClient      the user client.
      * @param activitiesClient the activities client.
      */
     @Autowired
     public ActivityController(AuthManager authManager, UsersClient usersClient, ActivitiesClient activitiesClient,
-                              BoatsClient boatsClient, MatchmakingClient matchmakingClient) {
+                              BoatsClient boatsClient, MatchmakingClient matchmakingClient, NotificationsClient notificationsClient) {
         this.authManager = authManager;
         this.usersClient = usersClient;
         this.activitiesClient = activitiesClient;
+        this.notificationsClient = notificationsClient;
         this.boatsClient = boatsClient;
         this.matchmakingClient = matchmakingClient;
     }
@@ -62,7 +69,7 @@ public class ActivityController {
      */
     @PostMapping("/create_training")
     public ResponseEntity<TrainingDTO> createTraining(@Valid @Validated
-                                                          @RequestBody CreateTrainingModel createTrainingModel) {
+                                                      @RequestBody CreateTrainingModel createTrainingModel) {
 
         if (createTrainingModel.getDateInterval().getStartDate()
                 .after(createTrainingModel.getDateInterval().getEndDate())) {
@@ -84,6 +91,20 @@ public class ActivityController {
                         .collect(Collectors.toList())
         );
 
+        // Send notification that the training has been created.
+        try {
+            new Thread(() -> {
+                UserDTO userDTO = usersClient.getUserByUsername(new Username(authManager.getUsername()));
+                notificationsClient.sendNotification(NotificationDTO.builder()
+                        .userDTO(userDTO)
+                        .activityDTO(trainingDTO)
+                        .eventType(EventType.CREATED_ACTIVITY)
+                        .build());
+            }).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
         return ResponseEntity.ok(activitiesClient.createTraining(trainingDTO));
     }
 
@@ -95,7 +116,7 @@ public class ActivityController {
      */
     @PostMapping("/create_competition")
     public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated
-                                                      @RequestBody CreateCompetitionModel createCompetitionModel) {
+                                                            @RequestBody CreateCompetitionModel createCompetitionModel) {
         if (createCompetitionModel.getDateInterval().getStartDate()
                 .after(createCompetitionModel.getDateInterval().getEndDate())) {
             throw new RuntimeException("Starting time should be before ending time.");
@@ -119,6 +140,20 @@ public class ActivityController {
                 createCompetitionModel.getRequiredOrganization(),
                 createCompetitionModel.getRequiredGender()
         );
+
+        // Send notification that competition has been created.
+        try {
+            new Thread(() -> {
+                UserDTO userDTO = usersClient.getUserByUsername(new Username(authManager.getUsername()));
+                notificationsClient.sendNotification(NotificationDTO.builder()
+                        .userDTO(userDTO)
+                        .activityDTO(competitionDTO)
+                        .eventType(EventType.CREATED_ACTIVITY)
+                        .build());
+            }).start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         return ResponseEntity.ok(activitiesClient.createCompetition(competitionDTO));
     }

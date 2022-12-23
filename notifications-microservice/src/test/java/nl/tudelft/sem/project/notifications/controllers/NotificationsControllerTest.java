@@ -6,6 +6,7 @@ import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.notifications.EventType;
 import nl.tudelft.sem.project.notifications.NotificationDTO;
+import nl.tudelft.sem.project.notifications.TestSMTP;
 import nl.tudelft.sem.project.users.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test"})
 @AutoConfigureMockMvc
-class NotificationsControllerTest {
+class NotificationsControllerTest extends TestSMTP {
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,7 +60,7 @@ class NotificationsControllerTest {
                 .build();
         String notificationJson = objectMapper.writeValueAsString(notificationDTO);
 
-        ResultActions res = mockMvc.perform(post("/sendNotification")
+        ResultActions res = mockMvc.perform(post("/api/notifications/sendNotification")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(notificationJson));
 
@@ -93,7 +94,7 @@ class NotificationsControllerTest {
                 .build();
         String notificationJson = objectMapper.writeValueAsString(notificationDTO);
 
-        ResultActions res = mockMvc.perform(post("/sendNotification")
+        ResultActions res = mockMvc.perform(post("/api/notifications/sendNotification")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(notificationJson));
 
@@ -106,7 +107,7 @@ class NotificationsControllerTest {
 
     @Test
     public void sendMailManual() throws Exception {
-        ResultActions res = mockMvc.perform(post("/sendNotifManual")
+        ResultActions res = mockMvc.perform(post("/api/notifications/sendNotifManual")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("TEST@TEST.TEST"));
 

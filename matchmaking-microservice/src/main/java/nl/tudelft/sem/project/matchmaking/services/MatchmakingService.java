@@ -13,6 +13,8 @@ import nl.tudelft.sem.project.matchmaking.models.AvailableActivityModel;
 import nl.tudelft.sem.project.matchmaking.strategies.EarliestFirstStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.MatchingStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.RandomStrategy;
+import nl.tudelft.sem.project.notifications.EventType;
+import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +41,8 @@ public class MatchmakingService {
 
     public static final String autoFindErrorMessage =
         "Unfortunately, we could not find any activity matching your request. Please try again!";
+
+    private static final long secondsToActivityStart = 30 * 60;
 
     public List<ActivityDTO> findActivities(ActivityRequestDTO dto) {
         return activitiesClient.findActivitiesFromFilter(dto.getActivityFilter());
@@ -217,7 +222,8 @@ public class MatchmakingService {
 
         if (!overlappingRegistrations.isEmpty()
                 || !isUserEligibleForBoatPosition(
-                dto.getUserName(), dto.getBoatRole(), dto.getActivityId(), dto.getBoat())) {
+                dto.getUserName(), dto.getBoatRole(), dto.getActivityId(), dto.getBoat())
+                || !isAllowedToJoinWithTime(activityDTO, Instant.now())) {
             return false;
         }
 
@@ -254,6 +260,19 @@ public class MatchmakingService {
         return usersClient.hasCertificate(new Username(userName), requiredCertificateId);
     }
 
+    /**
+     * Checks whether one can still join the activity at some point in time.
+     * The activities close for registration some time before their start.
+     *
+     * @param activity Activity to check for.
+     * @param now The time instant to check for.
+     * @return Whether a user is still allowed to join the activity.
+     */
+    private boolean isAllowedToJoinWithTime(ActivityDTO activity, Instant now) {
+        Instant activityTime = activity.getStartTime().toInstant();
+        Instant shouldJoinBefore = activityTime.minusSeconds(secondsToActivityStart);
+        return now.compareTo(shouldJoinBefore) <= 0;
+    }
 
     /**
      * De-registers a user from an activity.

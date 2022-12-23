@@ -54,9 +54,10 @@ public class MailTemplateConfig {
     public MailTemplateImpl getMailResetPassword() {
         return MailTemplateImpl
                 .builder()
-                .subject("Account password reset")
-                .message("Your account password has just been reset. " +
-                        "If this was not you, please contact us immediately.")
+                .subject("Reset your account password")
+                .message("A request to change the password for this " +
+                        "account has been done. If this was not you, " +
+                        "please ignore this email.")
                 .eventType(EventType.RESET_PASSWORD)
                 .build();
     }
@@ -111,6 +112,27 @@ public class MailTemplateConfig {
                 .subject("User left your activity")
                 .message("One user has left your activity.")
                 .eventType(EventType.USER_LEFT)
+                .build();
+    }
+
+    @Bean
+    public MailTemplateImpl getMailActivityCreated() {
+        return MailTemplateImpl
+                .builder()
+                .subject("Activity created")
+                .message("You have successfully created a new activity!")
+                .eventType(EventType.CREATED_ACTIVITY)
+                .build();
+    }
+
+    @Bean
+    public MailTemplateImpl getMailConfirmPasswordReset() {
+        return MailTemplateImpl
+                .builder()
+                .subject("Password reset")
+                .message("Your account password has just been reset. " +
+                        "If this was not you, please contact us immediately.")
+                .eventType(EventType.RESET_PASSWORD_CONFIRM)
                 .build();
     }
 }

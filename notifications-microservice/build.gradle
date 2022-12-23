@@ -59,6 +59,9 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.5.RELEASE'
 	implementation 'io.github.openfeign:feign-gson:10.11'
 
+	// Mock SMTP server
+	testImplementation group: 'org.subethamail', name: 'subethasmtp-wiser', version: '1.2'
+
 	// Local test database (in-memory)
 	implementation 'com.h2database:h2'
 	developmentOnly 'org.hibernate:hibernate-entitymanager'

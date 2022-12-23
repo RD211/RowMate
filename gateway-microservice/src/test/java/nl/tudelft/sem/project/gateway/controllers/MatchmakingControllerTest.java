@@ -2,7 +2,17 @@ package nl.tudelft.sem.project.gateway.controllers;
 
 import nl.tudelft.sem.project.activities.ActivitiesClient;
 import nl.tudelft.sem.project.activities.ActivityDTO;
+import nl.tudelft.sem.project.activities.BoatDTO;
+import nl.tudelft.sem.project.activities.TrainingDTO;
+import nl.tudelft.sem.project.enums.MatchmakingStrategy;
+import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
+import nl.tudelft.sem.project.matchmaking.*;
+import nl.tudelft.sem.project.notifications.NotificationsClient;
+import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserDTO;
+import nl.tudelft.sem.project.users.UsersClient;
+import org.junit.jupiter.api.BeforeAll;
 import nl.tudelft.sem.project.matchmaking.MatchmakingClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +38,9 @@ class MatchmakingControllerTest {
 
     @Mock
     private transient MatchmakingClient matchmakingClient;
+
+    @Mock
+    transient NotificationsClient notificationClient;
 
     @Mock
     private transient ActivitiesClient activitiesClient;

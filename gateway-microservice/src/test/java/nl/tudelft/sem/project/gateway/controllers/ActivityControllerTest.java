@@ -7,8 +7,12 @@ import nl.tudelft.sem.project.gateway.CreateTrainingModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
 import nl.tudelft.sem.project.matchmaking.ActivityApplicationModel;
 import nl.tudelft.sem.project.matchmaking.MatchmakingClient;
+import nl.tudelft.sem.project.notifications.NotificationsClient;
 import nl.tudelft.sem.project.shared.DateInterval;
+import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,6 +45,9 @@ class ActivityControllerTest {
 
     @Mock
     private transient BoatsClient boatsClient;
+
+    @Mock
+    private transient NotificationsClient notificationsClient;
 
     @Mock
     private transient ActivitiesClient activitiesClient;
@@ -93,6 +100,10 @@ class ActivityControllerTest {
                 )
         );
         when(authManager.getUsername()).thenReturn("tester");
+        when(usersClient.getUserByUsername(new Username("tester"))).thenReturn(UserDTO.builder()
+                .username("tester")
+                .email("test@test.test")
+                .build());
         when(activitiesClient.createTraining(withOwner)).thenReturn(
                 withId
         );
@@ -108,7 +119,7 @@ class ActivityControllerTest {
         var boat = BoatDTO.builder().name("test boat").boatId(boatId).build();
         when(boatsClient.getBoat(boatId)).thenReturn(boat);
         var model = new CreateCompetitionModel(
-                "bucharest", 
+                "tulcea",
                 new DateInterval(
                         getDate(2026, 12, 1), 
                         getDate(2030, 1, 4)), 
@@ -122,7 +133,7 @@ class ActivityControllerTest {
 
         var withOwner = new CompetitionDTO(
                 null, 
-                "bucharest", 
+                "tulcea",
                 "tester", 
                 getDate(2026, 12, 1), 
                 getDate(2030, 1, 4), 
@@ -136,7 +147,7 @@ class ActivityControllerTest {
 
         var withId = new CompetitionDTO(
                 UUID.randomUUID(), 
-                "bucharest", 
+                "tulcea",
                 "tester", 
                 getDate(2026, 12, 1), 
                 getDate(2030, 1, 4), 
@@ -148,6 +159,10 @@ class ActivityControllerTest {
                 null
         );
         when(authManager.getUsername()).thenReturn("tester");
+        when(usersClient.getUserByUsername(new Username("tester"))).thenReturn(UserDTO.builder()
+                .username("tester")
+                .email("test@test.test")
+                .build());
         when(activitiesClient.createCompetition(withOwner)).thenReturn(
                 withId
         );
@@ -162,7 +177,7 @@ class ActivityControllerTest {
         var id = UUID.randomUUID();
         var competitionDTO = new CompetitionDTO(
                 UUID.randomUUID(), 
-                "bucharest", 
+                "tulcea",
                 "tester", 
                 getDate(2026, 12, 1), 
                 getDate(2030, 1, 4), 
