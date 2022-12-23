@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.gateway.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import nl.tudelft.sem.project.users.CertificateDTO;
 import nl.tudelft.sem.project.users.CertificateName;
 import nl.tudelft.sem.project.users.CertificatesClient;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@SecurityRequirement(name = "Bearer Authentication")
 @RequestMapping("/api/certificates")
 public class CertificatesController {
 

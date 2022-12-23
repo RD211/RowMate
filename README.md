@@ -1,42 +1,80 @@
-# Lab Template
+# ROW Project group 33c
 
-This template contains two microservices:
-- authentication-microservice
-- example-microservice
+This is our project for the Software Engineering Methods course.
 
-The `authentication-microservice` is responsible for registering new users and authenticating current ones. After successful authentication, this microservice will provide a JWT token which can be used to bypass the security on the `example-microservice`. This token contains the *NetID* of the user that authenticated. If your scenario includes different roles, these will have to be added to the authentication-microservice and to the JWT token. To do this, you will have to:
-- Add a concept of roles to the `AppUser`
-- Add the roles to the `UserDetails` in `JwtUserDetailsService`
-- Add the roles as claims to the JWT token in `JwtTokenGenerator`
+We implemented a matching platform for people that want to participate in rowing competition or trainings.
 
-The `example-microservice` is just an example and needs to be modified to suit the domain you are modeling based on your scenario.
+# Structure
+This project contains six different microservices:
+- `authentication-microservice` - port **8081**
+- `activity-microservice` - port **8085**
+- `gateway-microservice` - port **8087**
+- `matchmaking-microservice` - port **8083**
+- `notifications-microservice` - port **8086**
+- `users-microservice` - port **8084**
 
-The `domain` and `application` packages contain the code for the domain layer and application layer. The code for the framework layer is the root package as *Spring* has some limitations on were certain files are located in terms of autowiring.
+There are also two extra projects which have special uses
+- `commons` - handles models and DTOs between different microservices.
+- `system-tests` - here we store all of our full end-to-end tests and the functional tests. (Only the test folder is relevant in this project)
 
-## Running the microservices
+### All interactions will be done via the `gateway-microservice`, so the only relevant port for testing and using the application is port number **8087**.
 
-You can run the two microservices individually by starting the Spring applications. Then, you can use *Postman* to perform the different requests:
+# Running the microservices
 
-Register:
-![image](images/register.png)
+In order to run the system you will need to run all six different microservices as spring boot applications.
+You can easily do this by running the following command: ```gradle bootRun --parallel```
+After making sure all the microservices have started up, all you need to access the interface is go to the following url.
 
-Authenticate:
-![image](images/authenticate.png)
+## http://localhost:8087/swagger-ui/index.html
 
-Hello:
-![image](images/hello.png)
+# Important note
+In order to create activities you will need to add boat(s) and certitficates to the database.
+You can do this only by using the admin endpoints that can be found in the adminController.
+In order to use these endpoints you will need to authenticate with the following credentials.
+Username: administrator
+Password: administrator
+The code that adds this user can be found in the authentication-microservice and can be configured to allow a different user to be the administrator.
 
-# Swagger-UI (OpenAPI)
+The administrator should be used only for calling admin endpoints and for nothing else! The admin user does not have an actual user account.
 
-We have Swagger-UI running on our microservices.
+In order to add a boat the database you will first need to create a certificate and reference that in the boat.
+After creating a boat you can create an activity after signing out of our administrator account and into a regular user account.
 
-To access the webpage go to: http://localhost:port/swagger-ui/index.html
-The ports will be different depending on the microservice.
-Right now:
+## We provided a step by step tutorial for creating an activity. Please follow the tutorial here: [click here](tutorial.md). It's an md file clearly explaining how to create an activity.
+## The file is called "tutorial.md".
 
-8081 - auth
 
-8082 - example-microservice
+# Swagger UI
+Here you will be prompted with the following webpage:
 
-Example for authentication microservices:
-![image](images/swagger-ui.png)
+<img src="images/gateway-swagger.png" width=600 >
+
+This is a way to interact with every endpoint that is accessible.
+
+The endpoints are separated by controller and roughly translate to the different microservices.
+In order to use the authenticated endpoints marked with a lock sign make sure to press the green authorize button and provide your token.
+
+In order to get a token you must use the following endpoint that is clearly described in the swagger page:
+
+<img src="images/register-swagger.png" width=1000 >
+
+
+All endpoints are clearly depicted by their name, javadoc and schema details.
+
+Schemas can be found at the bottom of the page and even include validation remarks of models and DTOs. Failing to take these into consideration will lead to a Constraint Violation Exception Error.
+
+For example this is the authentication model:
+
+<img src="images/authenticate-model.png" width=1000 >
+
+And this is the create competition model:
+
+<img src="images/create-competition-model.png" width=1000 >
+
+## Functional + Boundary tests
+
+We created a document that can be found in 'docs/Function + Boundary' that presents some of our boundary and functional tests!
+Some of the boundary tests can be also be found in some of the microservices with a special folder that says boundary.
+
+
+## All assignments, agendas and retrospectives can be found under docs/
