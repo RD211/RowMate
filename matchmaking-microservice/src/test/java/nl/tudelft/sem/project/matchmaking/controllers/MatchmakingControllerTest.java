@@ -44,7 +44,7 @@ class MatchmakingControllerTest {
 
         when(matchmakingService.getAllApplicationsToActivityByAcceptedStatus(
                 id, false)).thenReturn(
-                        List.of(new ActivityApplicationModel("tester",0, BoatRole.Coach))
+                        List.of(new ActivityApplicationModel("tester", 0, BoatRole.Coach))
         );
 
         var result =
@@ -56,10 +56,7 @@ class MatchmakingControllerTest {
         assert result != null;
         assertEquals(1, result.size());
         verify(matchmakingService, times(1))
-                .getAllApplicationsToActivityByAcceptedStatus(
-                        id,
-                        false
-                );
+                .getAllApplicationsToActivityByAcceptedStatus(id, false);
 
     }
 }

@@ -96,7 +96,8 @@ public class MatchmakingController {
     }
 
     /**
-     * Responds to an activity registration request. If the request is accepted, the registration is marked as "accepted".
+     * Responds to an activity registration request. If the request is accepted,
+     * the registration is marked as "accepted".
      * The user will be notified about the response.
      *
      * @param dto a DTO containing the username, activity id and response.

@@ -51,7 +51,8 @@ public class ActivityController {
      */
     @Autowired
     public ActivityController(AuthManager authManager, UsersClient usersClient, ActivitiesClient activitiesClient,
-                              BoatsClient boatsClient, MatchmakingClient matchmakingClient, NotificationsClient notificationsClient) {
+                              BoatsClient boatsClient, MatchmakingClient matchmakingClient,
+                              NotificationsClient notificationsClient) {
         this.authManager = authManager;
         this.usersClient = usersClient;
         this.activitiesClient = activitiesClient;
@@ -116,7 +117,8 @@ public class ActivityController {
      */
     @PostMapping("/create_competition")
     public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated
-                                                            @RequestBody CreateCompetitionModel createCompetitionModel) {
+                                                            @RequestBody
+                                                                CreateCompetitionModel createCompetitionModel) {
         if (createCompetitionModel.getDateInterval().getStartDate()
                 .after(createCompetitionModel.getDateInterval().getEndDate())) {
             throw new RuntimeException("Starting time should be before ending time.");
