@@ -2,10 +2,16 @@ package nl.tudelft.sem.project.tests.functional;
 
 import nl.tudelft.sem.project.gateway.*;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.subethamail.wiser.Wiser;
 
 import java.util.List;
 
@@ -29,6 +35,11 @@ public class FunctionalTestsBase {
     @Autowired
     GatewayCertificatesClient gatewayCertificatesClient;
 
+    @Autowired
+    GatewayMatchmakingClient gatewayMatchmakingClient;
+
+    protected Wiser wiser;
+
     static List<ConfigurableApplicationContext> microservices;
     @BeforeAll
     static void startEverything() {
@@ -46,6 +57,15 @@ public class FunctionalTestsBase {
                 new SpringApplicationBuilder(
                         nl.tudelft.sem.project.matchmaking.Application.class).run("--server.port=8083")
         );
+
+    }
+
+    @BeforeEach
+    private void initWiser() {
+        wiser = new Wiser();
+        wiser.setPort(587);
+        wiser.setHostname("localhost");
+        wiser.start();
     }
 
     @AfterAll
@@ -54,5 +74,10 @@ public class FunctionalTestsBase {
             x.stop();
             x.close();
         });
+    }
+
+    @AfterEach
+    private void shutdownWiser() {
+        wiser.stop();
     }
 }
