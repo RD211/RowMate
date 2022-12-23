@@ -48,4 +48,11 @@ public interface MatchmakingClient {
             @PathVariable(value = "activityId") UUID activityId,
             @PathVariable(value = "userName") String userName
     );
+
+    @GetMapping("/get_applications_for_activity_by_status?activityId={activityId}&accepted={accepted}")
+    @Headers("Content-Type: application/json")
+    List<ActivityApplicationModel> getApplicationsForActivityByStatus(
+            @PathVariable(value = "activityId") UUID activityId,
+            @PathVariable(value = "accepted") boolean accepted
+    );
 }
