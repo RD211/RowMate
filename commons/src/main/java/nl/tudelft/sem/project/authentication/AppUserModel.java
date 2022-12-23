@@ -1,9 +1,6 @@
 package nl.tudelft.sem.project.authentication;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import nl.tudelft.sem.project.shared.Username;
 import org.springframework.validation.annotation.Validated;
 
@@ -18,6 +15,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@With
 public class AppUserModel {
     @Valid @NotNull
     private Username username;

@@ -50,6 +50,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
+	// Mock SMTP server
+	testImplementation group: 'org.subethamail', name: 'subethasmtp-wiser', version: '1.2'
+
 	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {

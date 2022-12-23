@@ -1,6 +1,10 @@
 package nl.tudelft.sem.project.notifications.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import nl.tudelft.sem.project.activities.CompetitionDTO;
 import nl.tudelft.sem.project.activities.TrainingDTO;
+import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.notifications.EventType;
 import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.notifications.services.NotificationsService;
@@ -9,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -18,20 +24,11 @@ import java.util.UUID;
  * </p>
  */
 @RestController
+@RequestMapping("/api/notifications")
 public class NotificationsController {
 
     @Autowired
     private transient NotificationsService notificationsService;
-
-    /**
-     * The default test endpoint for the Notifications microservice.
-     *
-     * @return String
-     */
-    @GetMapping("/notifications")
-    public ResponseEntity<String> notificationDefault() {
-        return ResponseEntity.ok("[ENDPOINT] Notifications Microservice - WIP");
-    }
 
     /**
      * The endpoint to be used for sending notifications

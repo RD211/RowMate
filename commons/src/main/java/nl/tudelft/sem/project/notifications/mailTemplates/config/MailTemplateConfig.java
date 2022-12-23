@@ -34,18 +34,30 @@ public class MailTemplateConfig {
         return MailTemplateImpl
                 .builder()
                 .subject("Activity joined")
-                .message("You have successfully joined the activity!")
+                .message("Your request to join an activity has been accepted!")
                 .eventType(EventType.JOINED_ACTIVITY)
                 .build();
     }
 
     @Bean
+    public MailTemplateImpl getMailRejectJoin() {
+        return MailTemplateImpl
+                .builder()
+                .subject("Request declined :(")
+                .message("Your request to join an activity has been declined!")
+                .eventType(EventType.REJECT_REGISTRATION)
+                .build();
+    }
+
+
+    @Bean
     public MailTemplateImpl getMailResetPassword() {
         return MailTemplateImpl
                 .builder()
-                .subject("Account password reset")
-                .message("Your account password has just been reset. " +
-                        "If this was not you, please contact us immediately.")
+                .subject("Reset your account password")
+                .message("A request to change the password for this " +
+                        "account has been done. If this was not you, " +
+                        "please ignore this email.")
                 .eventType(EventType.RESET_PASSWORD)
                 .build();
     }
@@ -73,12 +85,22 @@ public class MailTemplateConfig {
     }
 
     @Bean
+    public  MailTemplateImpl getMailTestActivity() {
+        return MailTemplateImpl
+                .builder()
+                .subject("Test email")
+                .message("Test email.")
+                .eventType(EventType.TEST_ACTIVITY)
+                .build();
+    }
+
+    @Bean
     public MailTemplateImpl getMailUserJoined() {
         return MailTemplateImpl
                 .builder()
                 .subject("User joined your activity")
-                .message("A user has joined one of the activities " +
-                        "you are hosting!")
+                .message("A user has requested to join one of the activities " +
+                        "you are hosting! Go see their request!")
                 .eventType(EventType.USER_JOINED)
                 .build();
     }
@@ -90,6 +112,27 @@ public class MailTemplateConfig {
                 .subject("User left your activity")
                 .message("One user has left your activity.")
                 .eventType(EventType.USER_LEFT)
+                .build();
+    }
+
+    @Bean
+    public MailTemplateImpl getMailActivityCreated() {
+        return MailTemplateImpl
+                .builder()
+                .subject("Activity created")
+                .message("You have successfully created a new activity!")
+                .eventType(EventType.CREATED_ACTIVITY)
+                .build();
+    }
+
+    @Bean
+    public MailTemplateImpl getMailConfirmPasswordReset() {
+        return MailTemplateImpl
+                .builder()
+                .subject("Password reset")
+                .message("Your account password has just been reset. " +
+                        "If this was not you, please contact us immediately.")
+                .eventType(EventType.RESET_PASSWORD_CONFIRM)
                 .build();
     }
 }

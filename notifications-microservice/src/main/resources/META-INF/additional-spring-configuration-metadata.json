@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "application.properties.test-mode",
+      "type": "java.lang.String",
+      "description": "Description for application.properties.test-mode."
+    },
+    {
+      "name": "application.properties.test-mail-sender",
+      "type": "java.lang.String",
+      "description": "Description for application.properties.test-mail-sender."
+    }
+  ] }
