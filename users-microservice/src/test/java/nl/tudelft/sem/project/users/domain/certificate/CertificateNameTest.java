@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
+import nl.tudelft.sem.project.users.CertificateName;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolationException;
@@ -23,7 +24,7 @@ class CertificateNameTest {
 
     @Test
     void nameTooShort() {
-        assertThatThrownBy(() -> new CertificateName("AB")).isInstanceOf(ConstraintViolationException.class);
+        assertThatThrownBy(() -> new CertificateName("A")).isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test

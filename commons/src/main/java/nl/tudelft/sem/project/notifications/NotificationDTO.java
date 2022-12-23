@@ -24,6 +24,12 @@ public class NotificationDTO {
     protected ActivityDTO activityDTO;
 
     /**
+     * This field is for additional details, such as confirmation
+     * links, special messages, etc.
+     */
+    protected String optionalField;
+
+    /**
      * The event the notification refers to (reset password,
      * join activity, etc.)
      */

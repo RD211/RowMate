@@ -1,9 +1,6 @@
 package nl.tudelft.sem.project.gateway;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -12,6 +9,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Generated
 public class AuthenticateUserModel {
     @NotNull(message = "Username must not be null.")
     @Size(min = 4, max = 50, message = "Name must be between 4 and 50 characters.")

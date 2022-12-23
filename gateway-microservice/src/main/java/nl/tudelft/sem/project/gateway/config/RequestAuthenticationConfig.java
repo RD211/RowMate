@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.gateway.config;
 
+import lombok.Generated;
 import nl.tudelft.sem.project.gateway.authentication.JwtAuthenticationEntryPoint;
 import nl.tudelft.sem.project.gateway.authentication.JwtRequestFilter;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * The type Web security config.
  */
 @Configuration
+@Generated
 public class RequestAuthenticationConfig extends WebSecurityConfigurerAdapter {
     private final transient JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final transient JwtRequestFilter jwtRequestFilter;

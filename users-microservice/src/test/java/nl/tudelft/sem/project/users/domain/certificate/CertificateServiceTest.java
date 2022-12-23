@@ -1,6 +1,7 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
 import com.fasterxml.jackson.databind.util.ArrayIterator;
+import nl.tudelft.sem.project.users.CertificateName;
 import nl.tudelft.sem.project.users.database.repositories.CertificateRepository;
 
 import nl.tudelft.sem.project.users.exceptions.CertificateNameInUseException;
@@ -137,32 +138,84 @@ class CertificateServiceTest {
     }
 
     @Test
-    void updateCertificateWithNullThrows() {
-        assertThatThrownBy(() -> certificateService.updateCertificate(null))
-                .isInstanceOf(NullPointerException.class);
+    void updateCertificateWithNullsThrows() {
+        assertThatThrownBy(
+                () -> certificateService.updateCertificateName(null, new CertificateName("A name"))
+        ).isInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(
+                () -> certificateService.updateCertificateName(new Certificate(), null)
+        ).isInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(
+                () -> certificateService.updateCertificateSuperseded(null, Optional.empty())
+        ).isInstanceOf(NullPointerException.class);
+
+        assertThatThrownBy(
+                () -> certificateService.updateCertificateSuperseded(new Certificate(), null)
+        ).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void updateCertificateNonexistent() {
-        assertThatThrownBy(() -> certificateService.updateCertificate(nonExistentCertificate))
-                .isInstanceOf(CertificateNotFoundException.class);
+        assertThatThrownBy(
+                () -> certificateService.updateCertificateName(nonExistentCertificate, new CertificateName("A name"))
+        ).isInstanceOf(CertificateNotFoundException.class);
+
+        assertThatThrownBy(
+                () -> certificateService.updateCertificateSuperseded(nonExistentCertificate, Optional.empty())
+        ).isInstanceOf(CertificateNotFoundException.class);
     }
 
     @Test
-    void updateCertificateWorking() {
-        var toChange = Certificate.builder()
-                .id(existingCertificate.getId())
-                .name(new CertificateName("Updated name"))
-                .superseded(existingWithSupersededCertificate)
-                .build();
+    void updateCertificateNameThatAlreadyExists() {
+        var certificate = new Certificate("ABC");
+        assertThatThrownBy(() -> certificateService.updateCertificateName(certificate, existingCertificate.getName()))
+                .isInstanceOf(CertificateNameInUseException.class);
+    }
+
+    @Test
+    void updateCertificateNameWorking() {
+        var newName = new CertificateName("Updated name");
         when(certificateRepository.save(existingCertificate)).thenReturn(existingCertificate);
+        when(certificateRepository.existsByName(newName)).thenReturn(false);
 
-        var updated = certificateService.updateCertificate(toChange);
+        var updated = certificateService.updateCertificateName(existingCertificate, newName);
 
-        assertThat(toChange.getName()).isEqualTo(updated.getName());
-        assertThat(toChange.getSuperseded()).isEqualTo(updated.getSuperseded());
+        assertThat(updated.getName()).isEqualTo(newName);
 
         verify(certificateRepository, atLeastOnce()).save(existingCertificate);
+    }
+
+    @Test
+    void updateCertificateSupersedingWithEmpty() {
+        when(certificateRepository.save(existingWithSupersededCertificate)).thenReturn(existingWithSupersededCertificate);
+
+        var updated = certificateService.updateCertificateSuperseded(
+                existingWithSupersededCertificate, Optional.empty());
+
+        assertThat(updated.getSuperseded()).isEmpty();
+        verify(certificateRepository, atLeastOnce()).save(existingWithSupersededCertificate);
+    }
+
+    @Test
+    void updateCertificateSupersedingWithExistentSuperseded() {
+        when(certificateRepository.save(existingCertificate)).thenReturn(existingCertificate);
+
+        var updated = certificateService.updateCertificateSuperseded(
+                existingCertificate, Optional.of(existingWithSupersededCertificate.getId()));
+
+        assertThat(updated.getSuperseded()).hasValue(existingWithSupersededCertificate);
+        verify(certificateRepository, atLeastOnce()).save(existingCertificate);
+    }
+
+
+    @Test
+    void updateCertificateWithNonExistentSuperseding() {
+        assertThatThrownBy(
+                () -> certificateService.updateCertificateSuperseded(
+                        existingCertificate, Optional.of(nonExistentCertificate.getId()))
+        ).isInstanceOf(CertificateNotFoundException.class);
     }
 
     @Test

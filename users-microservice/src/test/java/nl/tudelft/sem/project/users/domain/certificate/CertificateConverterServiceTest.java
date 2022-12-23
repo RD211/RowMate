@@ -3,6 +3,7 @@ package nl.tudelft.sem.project.users.domain.certificate;
 import nl.tudelft.sem.project.users.CertificateDTO;
 import javax.validation.ConstraintViolationException;
 
+import nl.tudelft.sem.project.users.CertificateName;
 import nl.tudelft.sem.project.users.exceptions.CertificateNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +38,7 @@ class CertificateConverterServiceTest {
 
         assertThat(dto.getId()).isEqualTo(cert.getId());
         assertThat(dto.getName()).isEqualTo(cert.getName().getValue());
-        assertThat(dto.getSupersededId()).hasValue(cert.getSuperseded().get().getId());
+        assertThat(dto.getSupersededId()).isEqualTo(cert.getSuperseded().get().getId());
     }
 
     @Test
@@ -45,7 +46,7 @@ class CertificateConverterServiceTest {
         var dto = CertificateDTO.builder()
                 .id(UUID.randomUUID())
                 .name("A")
-                .supersededId(Optional.empty())
+                .supersededId(null)
                 .build();
         assertThatThrownBy(() -> sut.toEntity(dto)).isInstanceOf(ConstraintViolationException.class);
     }
@@ -56,7 +57,7 @@ class CertificateConverterServiceTest {
         var dto = CertificateDTO.builder()
                 .id(UUID.randomUUID())
                 .name("A valid name")
-                .supersededId(Optional.of(id))
+                .supersededId(id)
                 .build();
         when(certificateService.getCertificateById(id)).thenThrow(CertificateNotFoundException.class);
         assertThatThrownBy(() -> sut.toEntity(dto)).isInstanceOf(CertificateNotFoundException.class);
@@ -67,12 +68,12 @@ class CertificateConverterServiceTest {
         var dto = CertificateDTO.builder()
                 .id(UUID.randomUUID())
                 .name("A good name")
-                .supersededId(Optional.empty())
+                .supersededId(null)
                 .build();
         var entity = sut.toEntity(dto);
         assertThat(entity.getId()).isEqualTo(dto.getId());
         assertThat(entity.getName().getValue()).isEqualTo(dto.getName());
-        assertThat(entity.getSuperseded().map(c -> c.getId())).isEqualTo(dto.getSupersededId());
+        assertThat(entity.getSuperseded().map(c -> c.getId())).isEqualTo(Optional.ofNullable(dto.getSupersededId()));
     }
 
     @Test
@@ -81,7 +82,7 @@ class CertificateConverterServiceTest {
         var dto = CertificateDTO.builder()
                 .id(UUID.randomUUID())
                 .name("A good name")
-                .supersededId(Optional.of(id))
+                .supersededId(id)
                 .build();
         var superseded = new Certificate(id, new CertificateName("Some cert"), null);
 
@@ -92,7 +93,7 @@ class CertificateConverterServiceTest {
 
         assertThat(entity.getId()).isEqualTo(dto.getId());
         assertThat(entity.getName().getValue()).isEqualTo(dto.getName());
-        assertThat(entity.getSuperseded().map(c -> c.getId())).isEqualTo(dto.getSupersededId());
+        assertThat(entity.getSuperseded().map(c -> c.getId())).isEqualTo(Optional.of(dto.getSupersededId()));
     }
 
     @Test

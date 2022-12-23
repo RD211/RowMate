@@ -1,6 +1,7 @@
 package nl.tudelft.sem.project.users.domain.certificate;
 
 import lombok.*;
+import nl.tudelft.sem.project.users.CertificateName;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -32,7 +33,6 @@ public class Certificate {
     @Column(name = "id", updatable = false, nullable = false)
     @EqualsAndHashCode.Include
     @Getter
-    @NonNull
     private UUID id;
 
     @Column(name = "name", nullable = false, unique = true)
@@ -106,7 +106,7 @@ public class Certificate {
      * @param other Certificate to be looked for
      * @return True if other could be found in chain of this
      */
-    public boolean hasInChain(Certificate other) {
+    public boolean hasInChain(final Certificate other) {
         Certificate finger = this;
         while (finger != null) {
             if (other.equals(finger)) {

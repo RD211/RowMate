@@ -5,7 +5,12 @@ import feign.Headers;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.models.*;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.UUID;
 
 
 @FeignClient(url = "http://localhost:8084/api/users", name = "usersClient")
@@ -63,4 +68,8 @@ public interface UsersClient {
     @DeleteMapping("/delete_user_by_email")
     @Headers("Content-Type: application/json")
     void deleteUserByEmail(UserEmail email) throws FeignException;
+
+    @GetMapping("/has_certificate?username={username}&certificateId={certificateId}")
+    @Headers("Content-Type: application/json")
+    boolean hasCertificate(@PathVariable(value = "username") Username username, @PathVariable(value = "certificateId") UUID certificateId);
 }
