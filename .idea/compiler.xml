@@ -7,12 +7,11 @@
         <processorPath useClasspath="false">
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.24/13a394eed5c4f9efb2a6d956e2086f1d81e857d9/lombok-1.18.24.jar" />
         </processorPath>
+        <module name="project.authentication-microservice.main" />
         <module name="project.activity-microservice.main" />
         <module name="project.commons.main" />
         <module name="project.users-microservice.main" />
         <module name="project.matchmaking-microservice.main" />
-        <module name="project.authentication-microservice.main" />
-        <module name="project.gateway-microservice.main" />
         <module name="project.system-tests.main" />
       </profile>
       <profile name="Gradle Imported" enabled="true">
@@ -22,6 +21,15 @@
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/2.3.5.RELEASE/8769dfda61a9b0a5c82f1795fab0c4726f426c5d/spring-boot-configuration-processor-2.3.5.RELEASE.jar" />
         </processorPath>
         <module name="project.notifications-microservice.main" />
+      </profile>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.24/13a394eed5c4f9efb2a6d956e2086f1d81e857d9/lombok-1.18.24.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.therapi/therapi-runtime-javadoc-scribe/0.13.0/4167e2d40bd312de3e7a80bc8e3997394e314685/therapi-runtime-javadoc-scribe-0.13.0.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.therapi/therapi-runtime-javadoc/0.13.0/971082ad068aef0398e91a03f2c03acc2fe0498a/therapi-runtime-javadoc-0.13.0.jar" />
+        </processorPath>
+        <module name="project.gateway-microservice.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="11" />

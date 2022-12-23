@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.gateway.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import nl.tudelft.sem.project.activities.ActivitiesClient;
 import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
@@ -12,6 +13,7 @@ import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@SecurityRequirement(name = "Bearer Authentication")
 @RequestMapping("/api/matchmaking")
 public class MatchmakingController {
 
@@ -92,6 +95,8 @@ public class MatchmakingController {
 
     /**
      * Registers the user to an activity given the activity, role and boat.
+     * The boat is given as the index of the boat in the activity. Giving a value that is out the range
+     * of the list will result in a 400 error.
      *
      * @param seatedUserModel the model that contains the details.
      * @return a confirmation string.

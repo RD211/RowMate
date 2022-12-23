@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class CreateCompetitionModel {
     @Valid
     @NotNull
+    @Size(max = 200, message = "Location has maximum length of 200")
     protected String location;
     @Valid
     @NotNull
