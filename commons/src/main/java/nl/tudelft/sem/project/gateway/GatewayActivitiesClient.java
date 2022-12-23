@@ -3,10 +3,12 @@ package nl.tudelft.sem.project.gateway;
 import feign.FeignException;
 import feign.Headers;
 import nl.tudelft.sem.project.activities.*;
+import nl.tudelft.sem.project.matchmaking.ActivityApplicationModel;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @FeignClient(name="gatewayActivitiesClient", url="http://localhost:8087/api/activities")
@@ -46,4 +48,18 @@ public interface GatewayActivitiesClient {
             @RequestHeader("Authorization") String bearerToken,
             @RequestBody ChangeActivityTimeModel changeActivityTimeModel
     ) throws FeignException;
+
+    @GetMapping("/get_participants?activityId={activityId}")
+    @Headers("Content-Type: application/json")
+    List<ActivityApplicationModel> getParticipants(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable(value = "activityId") UUID activityId
+    );
+
+    @GetMapping("/get_waiting_room?activityId={activityId}")
+    @Headers("Content-Type: application/json")
+    List<ActivityApplicationModel> getWaitingRoom(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable(value = "activityId") UUID activityId
+    );
 }

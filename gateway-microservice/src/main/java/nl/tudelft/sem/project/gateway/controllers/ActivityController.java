@@ -5,6 +5,8 @@ import nl.tudelft.sem.project.activities.*;
 import nl.tudelft.sem.project.gateway.CreateCompetitionModel;
 import nl.tudelft.sem.project.gateway.CreateTrainingModel;
 import nl.tudelft.sem.project.gateway.authentication.AuthManager;
+import nl.tudelft.sem.project.matchmaking.ActivityApplicationModel;
+import nl.tudelft.sem.project.matchmaking.MatchmakingClient;
 import nl.tudelft.sem.project.notifications.EventType;
 import nl.tudelft.sem.project.notifications.NotificationsClient;
 import nl.tudelft.sem.project.notifications.NotificationDTO;
@@ -20,6 +22,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,7 @@ public class ActivityController {
     private final transient ActivitiesClient activitiesClient;
 
     private final transient NotificationsClient notificationsClient;
+    private final transient MatchmakingClient matchmakingClient;
 
     private final transient BoatsClient boatsClient;
 
@@ -47,12 +51,14 @@ public class ActivityController {
      */
     @Autowired
     public ActivityController(AuthManager authManager, UsersClient usersClient, ActivitiesClient activitiesClient,
-                              BoatsClient boatsClient, NotificationsClient notificationsClient) {
+                              BoatsClient boatsClient, MatchmakingClient matchmakingClient,
+                              NotificationsClient notificationsClient) {
         this.authManager = authManager;
         this.usersClient = usersClient;
         this.activitiesClient = activitiesClient;
         this.notificationsClient = notificationsClient;
         this.boatsClient = boatsClient;
+        this.matchmakingClient = matchmakingClient;
     }
 
 
@@ -111,7 +117,8 @@ public class ActivityController {
      */
     @PostMapping("/create_competition")
     public ResponseEntity<CompetitionDTO> createCompetition(@Valid @Validated
-                                                            @RequestBody CreateCompetitionModel createCompetitionModel) {
+                                                            @RequestBody
+                                                                CreateCompetitionModel createCompetitionModel) {
         if (createCompetitionModel.getDateInterval().getStartDate()
                 .after(createCompetitionModel.getDateInterval().getEndDate())) {
             throw new RuntimeException("Starting time should be before ending time.");
@@ -225,5 +232,31 @@ public class ActivityController {
             throw new RuntimeException("Starting time should be before ending time.");
         }
         return ResponseEntity.ok(activitiesClient.changeActivityTimes(changeActivityTimeModel).getBody());
+    }
+
+    /**
+     * Gets all participants to an activity.
+     *
+     * @param activityId the activity id.
+     * @return the list of participants.
+     */
+    @GetMapping("/get_participants")
+    public ResponseEntity<List<ActivityApplicationModel>> getParticipants(
+            @RequestParam @NotNull @Valid UUID activityId) {
+        return ResponseEntity.ok(
+                matchmakingClient.getApplicationsForActivityByStatus(activityId, true));
+    }
+
+    /**
+     * Gets all people that are in the waiting room for an activity.
+     *
+     * @param activityId the activity id.
+     * @return the waiting room.
+     */
+    @GetMapping("/get_waiting_room")
+    public ResponseEntity<List<ActivityApplicationModel>> getWaitingRoom(
+            @RequestParam @NotNull @Valid UUID activityId) {
+        return ResponseEntity.ok(
+                matchmakingClient.getApplicationsForActivityByStatus(activityId, false));
     }
 }
