@@ -202,12 +202,14 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
                 gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
         assertNotNull(applications);
         assertEquals(1, applications.size());
-        assertEquals(1, gatewayActivitiesClient.getApplicationsForActivityByStatus(
+        assertEquals(1, gatewayActivitiesClient.getWaitingRoom(
                 "Bearer " + otherUserToken,
-                applications.get(0).getActivityDTO().getId(),
-                false
+                applications.get(0).getActivityDTO().getId()
         ).size());
-
+        assertEquals(0, gatewayActivitiesClient.getParticipants(
+                "Bearer " + otherUserToken,
+                applications.get(0).getActivityDTO().getId()
+        ).size());
         gatewayMatchmakingClient.respondToRegistration(
                 "Bearer " + userToken,
                 new ActivityRegistrationResponseDTO(

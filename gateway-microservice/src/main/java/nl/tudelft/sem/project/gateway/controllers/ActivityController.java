@@ -198,17 +198,28 @@ public class ActivityController {
     }
 
     /**
-     * Gets all applications to an activity by status.
+     * Gets all participants to an activity.
      *
      * @param activityId the activity id.
-     * @param accepted the status.
-     * @return the list of applications.
+     * @return the list of participants.
      */
-    @GetMapping("/get_applications_for_activity_by_status")
-    public ResponseEntity<List<ActivityApplicationModel>> getApplicationsForActivityByStatus(
-            @RequestParam @NotNull @Valid UUID activityId,
-            @RequestParam @NotNull @Valid boolean accepted) {
+    @GetMapping("/get_participants")
+    public ResponseEntity<List<ActivityApplicationModel>> getParticipants(
+            @RequestParam @NotNull @Valid UUID activityId) {
         return ResponseEntity.ok(
-                matchmakingClient.getApplicationsForActivityByStatus(activityId, accepted));
+                matchmakingClient.getApplicationsForActivityByStatus(activityId, true));
+    }
+
+    /**
+     * Gets all people that are in the waiting room for an activity.
+     *
+     * @param activityId the activity id.
+     * @return the waiting room.
+     */
+    @GetMapping("/get_waiting_room")
+    public ResponseEntity<List<ActivityApplicationModel>> getWaitingRoom(
+            @RequestParam @NotNull @Valid UUID activityId) {
+        return ResponseEntity.ok(
+                matchmakingClient.getApplicationsForActivityByStatus(activityId, false));
     }
 }

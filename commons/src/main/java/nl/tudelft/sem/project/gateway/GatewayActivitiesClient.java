@@ -49,11 +49,17 @@ public interface GatewayActivitiesClient {
             @RequestBody ChangeActivityTimeModel changeActivityTimeModel
     ) throws FeignException;
 
-    @GetMapping("/get_applications_for_activity_by_status?activityId={activityId}&accepted={accepted}")
+    @GetMapping("/get_participants?activityId={activityId}")
     @Headers("Content-Type: application/json")
-    List<ActivityApplicationModel> getApplicationsForActivityByStatus(
+    List<ActivityApplicationModel> getParticipants(
             @RequestHeader("Authorization") String bearerToken,
-            @PathVariable(value = "activityId") UUID activityId,
-            @PathVariable(value = "accepted") boolean accepted
+            @PathVariable(value = "activityId") UUID activityId
+    );
+
+    @GetMapping("/get_waiting_room?activityId={activityId}")
+    @Headers("Content-Type: application/json")
+    List<ActivityApplicationModel> getWaitingRoom(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable(value = "activityId") UUID activityId
     );
 }
