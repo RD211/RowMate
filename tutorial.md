@@ -1,13 +1,14 @@
 # How to create an activity STEP BY STEP TUTORIAL
 
-In order to create an activity we must first add boats and those require certificates.
+In order to create an activity we must first add boats, which also require certificates.
 
 This document will provide a tutorial of how to create a training activity from scratch.
 
 ## Step 1: We must get ourselves an admin token.
+
 We must first get an admin token.
 
-The admin credentials are administrator and administrator.
+The admin credentials are "administrator" and "administrator".
 
 ![image](images/image1.png)
 
@@ -23,7 +24,7 @@ After that we can use admin endpoints.
 
 ## Step 2: We will now create a certificate
 
-We will call the add certificate endpoint from admin controller.
+We will call the add certificate endpoint from the admin controller.
 
 ![image](images/image5.png)
 
@@ -34,7 +35,7 @@ We can use this id for our next step
 
 ## Step 3: Add a boat
 
-We will call the add boat endpoint including our certificate id and we opted for two types of roles in our boat: Coach and Cox but we could also add more if we would like.
+We will call the add boat endpoint including our certificate id. We opted for two types of roles in our boat: Coach and Cox but we could also add more if we would like.
 
 ![image](images/image3.png)
 
@@ -54,11 +55,11 @@ We have created a new account and gotten a new token. We will place the token wh
 
 ## Step 5: We will now create a new training activity
 
-We need to include our boat in the boats list and selected a date that is in the future.
+We need to include our boat in the boats list and select a date that is in the future.
 
 ![image](images/image4.png)
 
-We received a response model of newly created activity. We can see that it managed to find our boat as it filled in the rest of the details for us automatically.
+We received a response model of our newly created activity. We can see that it managed to find our boat as it filled in the rest of the details for us automatically.
 
 
 
