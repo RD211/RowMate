@@ -30,6 +30,8 @@ public class UserCertificateController {
     @Autowired
     transient UserConverterService userConverterService;
     @Autowired
+    transient UserRepository userRepository;
+    @Autowired
     transient CertificateConverterService certificateConverterService;
 
     /**
@@ -40,7 +42,6 @@ public class UserCertificateController {
      * @throws CertificateNotFoundException if the certificate was not valid or not found.
      */
     @PostMapping("/add_certificate")
-    @Transactional
     public ResponseEntity<UserDTO> addCertificate(
             @Valid @NotNull @RequestBody AddCertificateUserModel addCertificateUserModel)
             throws CertificateNotFoundException {
@@ -51,7 +52,8 @@ public class UserCertificateController {
         var realUser = userConverterService.toDatabaseEntity(addCertificateUserModel.getUser());
         realUser.addCertificate(
                 certificateConverterService.toDatabaseEntity(addCertificateUserModel.getCertificate()));
-        return ResponseEntity.ok(userConverterService.toDTO(realUser));
+        var savedUser = userRepository.save(realUser);
+        return ResponseEntity.ok(userConverterService.toDTO(savedUser));
     }
 
     /**
@@ -62,7 +64,6 @@ public class UserCertificateController {
      * @throws CertificateNotFoundException in case the certificate does not exist in the database.
      */
     @DeleteMapping("/remove_certificate")
-    @Transactional
     public ResponseEntity<UserDTO> removeCertificate(
             @Valid @NotNull @RequestBody RemoveCertificateUserModel removeCertificateUserModel)
             throws CertificateNotFoundException {
@@ -73,7 +74,8 @@ public class UserCertificateController {
         var realUser = userConverterService.toDatabaseEntity(removeCertificateUserModel.getUser());
         realUser.removeCertificate(
                 certificateConverterService.toDatabaseEntity(removeCertificateUserModel.getCertificate()));
-        return ResponseEntity.ok(userConverterService.toDTO(realUser));
+        var savedUser = userRepository.save(realUser);
+        return ResponseEntity.ok(userConverterService.toDTO(savedUser));
     }
 
     /**
