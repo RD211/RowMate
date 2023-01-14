@@ -75,7 +75,10 @@ public class MatchmakingServiceTest {
                     .owner("someone")
                     .startTime(java.sql.Timestamp.valueOf(LocalDateTime.now()))
                     .endTime(java.sql.Timestamp.valueOf(LocalDateTime.now()))
-                    .boats(List.of(BoatDTO.builder().boatId(setUUID).build()))
+                    .boats(List.of(BoatDTO.builder()
+                            .boatId(setUUID)
+                            .availablePositions(List.of(BoatRole.PortSideRower))
+                            .build()))
                     .build();
 
         boat =
