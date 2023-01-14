@@ -22,6 +22,7 @@ import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class MatchmakingService {
@@ -123,10 +124,10 @@ public class MatchmakingService {
     /**
      * Generates a list of tasks for a user from a given activity.
      * The following are taken into account when selecting:
-     *  - User certificates
-     *  - User position preference
-     *  - Position availability
-     *  - Competition
+     *  - User certificates for boat roles
+     *  - User position preferences
+     *  - Boat position availabilities
+     *  - Competition activity requirements
      *
      * @param dto The activity request.
      * @param activity The activity to check.
@@ -145,22 +146,35 @@ public class MatchmakingService {
         List<AvailableActivityModel> result = new ArrayList<>();
         for (int i = 0; i < activity.getBoats().size(); i++) {
             BoatDTO boat = activity.getBoats().get(i);
-            var takenPositions = registrations.stream()
-                    .filter(ar -> activity.getBoats().get(ar.getBoat()).equals(boat))
-                    .map(ar -> ar.getRole()).collect(Collectors.toList());
+            var takenPositions = getTakenPositions(registrations, activity, boat);
 
-            var preferredBoatPositions = boat.getAvailablePositions().stream()
-                    .filter(p -> dto.getActivityFilter().getPreferredRoles().contains(p))
-                    .distinct();
-            var availablePositions = preferredBoatPositions
-                    .filter(p -> doesBoatPositionHaveFreeSlots(p, boat, takenPositions));
-            var allowedPositions = availablePositions
-                    .filter(p -> isUserEligibleForBoatPosition(dto.getUserName(), p, boat));
+            var roles = boat.getAvailablePositions().stream().distinct();
+            filterOnPreferredPositions(roles, dto.getActivityFilter().getPreferredRoles());
+            filterOnPositionAvailability(roles, boat, takenPositions);
+            filterOnPositionAllowed(roles, boat, dto.getUserName());
 
             final int boatIdx = i;
-            allowedPositions.forEach(p -> result.add(new AvailableActivityModel(activity, boatIdx, p)));
+            roles.forEach(p -> result.add(new AvailableActivityModel(activity, boatIdx, p)));
         }
         return result;
+    }
+
+    private List<BoatRole> getTakenPositions(List<ActivityRegistration> registrations, ActivityDTO activity, BoatDTO boat) {
+        return registrations.stream()
+                .filter(ar -> activity.getBoats().get(ar.getBoat()).equals(boat))
+                .map(ar -> ar.getRole()).collect(Collectors.toList());
+    }
+
+    private void filterOnPreferredPositions(Stream<BoatRole> stream, List<BoatRole> preferredRoles) {
+        stream.filter(p -> preferredRoles.contains(p));
+    }
+
+    private void filterOnPositionAvailability(Stream<BoatRole> stream, BoatDTO boat, List<BoatRole> takenPositions) {
+        stream.filter(p -> doesBoatPositionHaveFreeSlots(p, boat, takenPositions));
+    }
+
+    private void filterOnPositionAllowed(Stream<BoatRole> stream, BoatDTO boat, String userName) {
+        stream.filter(p -> isUserEligibleForBoatPosition(userName, p, boat));
     }
 
     /**
