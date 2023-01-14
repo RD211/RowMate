@@ -149,9 +149,9 @@ public class MatchmakingService {
             var takenPositions = getTakenPositions(registrations, activity, boat);
 
             var roles = boat.getAvailablePositions().stream().distinct();
-            filterOnPreferredPositions(roles, dto.getActivityFilter().getPreferredRoles());
-            filterOnPositionAvailability(roles, boat, takenPositions);
-            filterOnPositionAllowed(roles, boat, dto.getUserName());
+            roles = filterOnPreferredPositions(roles, dto.getActivityFilter().getPreferredRoles());
+            roles = filterOnPositionAvailability(roles, boat, takenPositions);
+            roles = filterOnPositionAllowed(roles, boat, dto.getUserName());
 
             final int boatIdx = i;
             roles.forEach(p -> result.add(new AvailableActivityModel(activity, boatIdx, p)));
@@ -165,16 +165,18 @@ public class MatchmakingService {
                 .map(ar -> ar.getRole()).collect(Collectors.toList());
     }
 
-    private void filterOnPreferredPositions(Stream<BoatRole> stream, List<BoatRole> preferredRoles) {
-        stream.filter(p -> preferredRoles.contains(p));
+    private Stream<BoatRole> filterOnPreferredPositions(Stream<BoatRole> stream, List<BoatRole> preferredRoles) {
+        return stream.filter(p -> preferredRoles.contains(p));
     }
 
-    private void filterOnPositionAvailability(Stream<BoatRole> stream, BoatDTO boat, List<BoatRole> takenPositions) {
-        stream.filter(p -> doesBoatPositionHaveFreeSlots(p, boat, takenPositions));
+    private Stream<BoatRole> filterOnPositionAvailability(
+            Stream<BoatRole> stream, BoatDTO boat, List<BoatRole> takenPositions
+    ) {
+        return stream.filter(p -> doesBoatPositionHaveFreeSlots(p, boat, takenPositions));
     }
 
-    private void filterOnPositionAllowed(Stream<BoatRole> stream, BoatDTO boat, String userName) {
-        stream.filter(p -> isUserEligibleForBoatPosition(userName, p, boat));
+    private Stream<BoatRole> filterOnPositionAllowed(Stream<BoatRole> stream, BoatDTO boat, String userName) {
+        return stream.filter(p -> isUserEligibleForBoatPosition(userName, p, boat));
     }
 
     /**
