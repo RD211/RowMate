@@ -31,6 +31,11 @@ public class UserService {
      * @throws UsernameInUseException if the username is already in use.
      */
     public User addUser(@NonNull User user) throws EmailInUseException, UsernameInUseException {
+        checkIfCredentialsExists();
+        return userRepository.save(user);
+    }
+
+    private void checkIfCredentialsExists(@NonNull User user) throws EmailInUseException, UsernameInUseException {
         boolean existsEmail = this.existsByEmail(user.getEmail());
         if (existsEmail) {
             throw new EmailInUseException("Email is already being used by somebody else.");
@@ -40,7 +45,6 @@ public class UserService {
         if (existsUsername) {
             throw new UsernameInUseException("Username is already being used by somebody else.");
         }
-        return userRepository.save(user);
     }
 
 
