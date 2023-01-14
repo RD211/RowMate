@@ -181,7 +181,7 @@ public class NotificationsFunctionalTests extends FunctionalTestsBase{
         var queriedDTO =
                 gatewayActivitiesClient.getTraining("Bearer " + userToken, trainingDTO.getId());
 
-        gatewayMatchmakingClient.registerInActivity(
+        gatewayActivityRegistrationClient.registerInActivity(
                 "Bearer " + userJoinToken,
                 new SeatedUserModel(
                         queriedDTO.getId(),
@@ -250,14 +250,14 @@ public class NotificationsFunctionalTests extends FunctionalTestsBase{
         var queriedDTO =
                 gatewayActivitiesClient.getTraining("Bearer " + userToken, trainingDTO.getId());
 
-        gatewayMatchmakingClient.registerInActivity(
+        gatewayActivityRegistrationClient.registerInActivity(
                 "Bearer " + userJoinToken,
                 new SeatedUserModel(
                         queriedDTO.getId(),
                         0,
                         BoatRole.Coach
                 ));
-        gatewayMatchmakingClient.deRegisterFromActivity("Bearer " + userJoinToken, trainingDTO.getId());
+        gatewayActivityRegistrationClient.deRegisterFromActivity("Bearer " + userJoinToken, trainingDTO.getId());
 
         WiserMessage message = wiser.getMessages().get(wiser.getMessages().size() - 1);
 

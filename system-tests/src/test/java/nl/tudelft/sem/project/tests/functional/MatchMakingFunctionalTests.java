@@ -36,25 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest(classes=nl.tudelft.sem.project.system.tests.Application.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class MatchMakingFunctionalTests extends FunctionalTestsBase {
-    @Autowired
-    GatewayAuthenticationClient gatewayAuthenticationClient;
-
-    @Autowired
-    GatewayUserClient gatewayUserClient;
-
-    @Autowired
-    GatewayAdminClient gatewayAdminClient;
-
-    @Autowired
-    GatewayBoatsClient gatewayBoatsClient;
-
-    @Autowired
-    GatewayMatchmakingClient gatewayMatchmakingClient;
-
-    @Autowired
-    GatewayActivitiesClient gatewayActivitiesClient;
-
-    static List<ConfigurableApplicationContext> microservices;
 
     String userToken;
     String otherUserToken;
@@ -143,7 +124,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
 
     @Test
     void createActivityAndSomeoneRegistersTest() {
-        gatewayMatchmakingClient.registerInActivity(
+        gatewayActivityRegistrationClient.registerInActivity(
                 "Bearer " + otherUserToken,
                 new SeatedUserModel(
                         queriedDTO.getId(),
@@ -153,13 +134,13 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
         );
 
         var applications =
-                gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
+                gatewayActivityRegistrationClient.getWaitingApplications("Bearer " + otherUserToken);
         assertNotNull(applications);
         assertEquals(1, applications.size());
 
 
         assertThatThrownBy(() -> {
-            gatewayMatchmakingClient.respondToRegistration(
+            gatewayActivityRegistrationClient.respondToRegistration(
                     "Bearer " + otherUserToken,
                     new ActivityRegistrationResponseDTO(
                             "tester2",
@@ -170,7 +151,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
         }).isInstanceOf(FeignException.class)
                 .hasMessageContaining("You are not the owner of this activity!");
 
-        gatewayMatchmakingClient.respondToRegistration(
+        gatewayActivityRegistrationClient.respondToRegistration(
                 "Bearer " + userToken,
                 new ActivityRegistrationResponseDTO(
                         "tester2",
@@ -179,11 +160,11 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
                 )
         );
 
-        applications = gatewayMatchmakingClient.getAcceptedApplications("Bearer " + otherUserToken);
+        applications = gatewayActivityRegistrationClient.getAcceptedApplications("Bearer " + otherUserToken);
         assertNotNull(applications);
         assertEquals(1, applications.size());
 
-        gatewayMatchmakingClient.deRegisterFromActivity("Bearer " + otherUserToken, queriedDTO.getId());
+        gatewayActivityRegistrationClient.deRegisterFromActivity("Bearer " + otherUserToken, queriedDTO.getId());
     }
 
     @Test
@@ -199,18 +180,18 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
         );
 
         var applications =
-                gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
+                gatewayActivityRegistrationClient.getWaitingApplications("Bearer " + otherUserToken);
         assertNotNull(applications);
         assertEquals(1, applications.size());
-        assertEquals(1, gatewayActivitiesClient.getWaitingRoom(
+        assertEquals(1, gatewayActivityRegistrationClient.getWaitingRoom(
                 "Bearer " + otherUserToken,
                 applications.get(0).getActivityDTO().getId()
         ).size());
-        assertEquals(0, gatewayActivitiesClient.getParticipants(
+        assertEquals(0, gatewayActivityRegistrationClient.getParticipants(
                 "Bearer " + otherUserToken,
                 applications.get(0).getActivityDTO().getId()
         ).size());
-        gatewayMatchmakingClient.respondToRegistration(
+        gatewayActivityRegistrationClient.respondToRegistration(
                 "Bearer " + userToken,
                 new ActivityRegistrationResponseDTO(
                         "tester2",
@@ -219,10 +200,10 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
                 )
         );
 
-        applications = gatewayMatchmakingClient.getAcceptedApplications("Bearer " + otherUserToken);
+        applications = gatewayActivityRegistrationClient.getAcceptedApplications("Bearer " + otherUserToken);
         assertEquals(0, applications.size());
 
-        applications = gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
+        applications = gatewayActivityRegistrationClient.getWaitingApplications("Bearer " + otherUserToken);
         assertEquals(0, applications.size());
     }
 
@@ -275,7 +256,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
         );
 
         var applications =
-                gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
+                gatewayActivityRegistrationClient.getWaitingApplications("Bearer " + otherUserToken);
 
         assertThatList(applications).contains(
                 new UserActivityApplication(
@@ -285,7 +266,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
                 )
         );
 
-        gatewayMatchmakingClient.deRegisterFromActivity("Bearer " + otherUserToken, query.getId());
+        gatewayActivityRegistrationClient.deRegisterFromActivity("Bearer " + otherUserToken, query.getId());
 
         var thirdUserToken = gatewayAuthenticationClient.register(
                 CreateUserModel.builder()
@@ -307,7 +288,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
         );
 
         applications =
-                gatewayMatchmakingClient.getWaitingApplications("Bearer " + thirdUserToken);
+                gatewayActivityRegistrationClient.getWaitingApplications("Bearer " + thirdUserToken);
 
         assertThatList(applications).contains(
                 new UserActivityApplication(
