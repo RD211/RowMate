@@ -151,7 +151,6 @@ class UserCertificateControllerTest {
         verify(userConverterService, times(1)).toDatabaseEntity(userDTO);
         verify(userRepository, times(1)).save(user);
         verify(userConverterService, times(1)).toDTO(savedUser);
-        verify(certificateRepository, times(1)).findById(certToRemove.getId());
         verifyNoMoreInteractions(userConverterService, userService, userRepository, certificateRepository);
     }
 
@@ -222,7 +221,6 @@ class UserCertificateControllerTest {
         verify(userConverterService, times(1)).toDatabaseEntity(userDTO);
         verify(userRepository, times(1)).save(user);
         verify(userConverterService, times(1)).toDTO(savedUser);
-        verify(certificateRepository, times(1)).findById(certToAdd.getId());
         verifyNoMoreInteractions(userConverterService, userService, userRepository, certificateRepository);
     }
 }
