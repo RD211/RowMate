@@ -233,7 +233,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
                 new CreateTrainingModel("idk",
                         new DateInterval(
                                 java.sql.Timestamp.valueOf(
-                                    LocalDateTime.of(2023, 11, 1, 1, 1, 1, 1)),
+                                    LocalDateTime.of(2024, 11, 1, 1, 1, 1, 1)),
                                 java.sql.Timestamp.valueOf(
                                         LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1))
                         ),
@@ -251,7 +251,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
         var competitionModel =
                 new CreateCompetitionModel("idk",
                         new DateInterval(java.sql.Timestamp.valueOf(
-                        LocalDateTime.of(2023, 7, 1, 1, 1, 1, 1)),
+                        LocalDateTime.of(2024, 1, 1, 1, 1, 1, 1)),
                         java.sql.Timestamp.valueOf(
                                 LocalDateTime.of(2026, 12, 1, 1, 1, 1, 1))),
                         List.of(boat2.getBoatId()), false, null, null);

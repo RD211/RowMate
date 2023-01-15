@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -26,18 +27,10 @@ public class UserController {
 
     @Autowired
     transient UserRepository userRepository;
-
     @Autowired
     transient UserService userService;
     @Autowired
-    transient CertificateService certificateService;
-    @Autowired
     transient UserConverterService userConverterService;
-    @Autowired
-    transient CertificateRepository certificateRepository;
-
-    @Autowired
-    transient CertificateConverterService certificateConverterService;
 
 
     /**
@@ -76,8 +69,7 @@ public class UserController {
             @Valid @NotNull @RequestBody ChangeGenderUserModel changeGenderUserModel) {
         var realUser = userConverterService.toDatabaseEntity(changeGenderUserModel.getUser());
         realUser.setGender(changeGenderUserModel.getGender());
-        var savedUser = userRepository.save(realUser);
-        return ResponseEntity.ok(userConverterService.toDTO(savedUser));
+        return ResponseEntity.ok(userConverterService.toDTO(userRepository.save(realUser)));
     }
 
     /**
@@ -91,8 +83,7 @@ public class UserController {
             @Valid @NotNull @RequestBody ChangeOrganizationUserModel changeOrganizationUserModel) {
         var realUser = userConverterService.toDatabaseEntity(changeOrganizationUserModel.getUser());
         realUser.setOrganization(changeOrganizationUserModel.getOrganization());
-        var savedUser = userRepository.save(realUser);
-        return ResponseEntity.ok(userConverterService.toDTO(savedUser));
+        return ResponseEntity.ok(userConverterService.toDTO(userRepository.save(realUser)));
     }
 
     /**
@@ -107,8 +98,7 @@ public class UserController {
             @Valid @NotNull @RequestBody ChangeAmateurUserModel changeAmateurUserModel) {
         var realUser = userConverterService.toDatabaseEntity(changeAmateurUserModel.getUser());
         realUser.setAmateur(changeAmateurUserModel.isAmateur());
-        var savedUser = userRepository.save(realUser);
-        return ResponseEntity.ok(userConverterService.toDTO(savedUser));
+        return ResponseEntity.ok(userConverterService.toDTO(userRepository.save(realUser)));
     }
 
     /**
@@ -142,53 +132,7 @@ public class UserController {
         return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
     }
 
-    /**
-     * Adds a new certificate to the user collection.
-     *
-     * @param addCertificateUserModel the model that contains the user and certificate.
-     * @return the updated dto.
-     * @throws CertificateNotFoundException if the certificate was not valid or not found.
-     */
-    @PostMapping("/add_certificate")
-    public ResponseEntity<UserDTO> addCertificate(
-            @Valid @NotNull @RequestBody AddCertificateUserModel addCertificateUserModel)
-            throws CertificateNotFoundException {
-        var certificate =
-                certificateRepository.findById(addCertificateUserModel.getCertificate().getId());
-        if (certificate.isEmpty()) {
-            throw new CertificateNotFoundException(addCertificateUserModel.getCertificate().getId());
-        }
 
-        var realUser = userConverterService.toDatabaseEntity(addCertificateUserModel.getUser());
-        realUser.addCertificate(
-                certificateConverterService.toDatabaseEntity(addCertificateUserModel.getCertificate()));
-        var updatedUser = userRepository.save(realUser);
-        return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
-    }
-
-    /**
-     * Removes a certificate from the users' collection.
-     *
-     * @param removeCertificateUserModel the model that contains the user and the certificate to remove.
-     * @return the updated user.
-     * @throws CertificateNotFoundException in case the certificate does not exist in the database.
-     */
-    @DeleteMapping("/remove_certificate")
-    public ResponseEntity<UserDTO> removeCertificate(
-            @Valid @NotNull @RequestBody RemoveCertificateUserModel removeCertificateUserModel)
-            throws CertificateNotFoundException {
-        var certificate =
-                certificateRepository.findById(removeCertificateUserModel.getCertificate().getId());
-        if (certificate.isEmpty()) {
-            throw new CertificateNotFoundException(removeCertificateUserModel.getCertificate().getId());
-        }
-
-        var realUser = userConverterService.toDatabaseEntity(removeCertificateUserModel.getUser());
-        realUser.removeCertificate(
-                certificateConverterService.toDatabaseEntity(removeCertificateUserModel.getCertificate()));
-        var updatedUser = userRepository.save(realUser);
-        return ResponseEntity.ok(userConverterService.toDTO(updatedUser));
-    }
 
     /**
      * Adds a new role to the user collection.
@@ -228,7 +172,7 @@ public class UserController {
      */
     @DeleteMapping("/delete_user_by_username")
     public ResponseEntity<Void> deleteUserByUsername(
-            @Valid @NotNull @RequestBody Username username) {
+            @Valid @RequestBody Username username) {
         userService.deleteUserByUsername(username);
         return ResponseEntity.ok().build();
     }
@@ -243,29 +187,8 @@ public class UserController {
      */
     @DeleteMapping("/delete_user_by_email")
     public ResponseEntity<Void> deleteUserByEmail(
-            @Valid @NotNull @RequestBody UserEmail email) {
+            @Valid @RequestBody UserEmail email) {
         userService.deleteUserByEmail(email);
         return ResponseEntity.ok().build();
-    }
-
-    /**
-     * Checks whether a user is in possession of a certificate directly or through supersedence.
-     *
-     * @param username The user to check for.
-     * @param certificateId The certificate to look for.
-     * @return Whether the user has the certificate.
-     */
-    @SuppressWarnings("PMD")
-    @GetMapping("/has_certificate")
-    public ResponseEntity<Boolean> hasCertificate(@Valid @NotNull @RequestParam("username") Username username,
-                                                  @Valid @NotNull @RequestParam("certificateId") UUID certificateId) {
-        var realUser = userService.getUserByUsername(username);
-        var realCertificate = certificateService.getCertificateById(certificateId);
-        for (Certificate cert : realUser.getCertificates()) {
-            if (cert.hasInChain(realCertificate)) {
-                return ResponseEntity.ok(true);
-            }
-        }
-        return ResponseEntity.ok(false);
     }
 }
