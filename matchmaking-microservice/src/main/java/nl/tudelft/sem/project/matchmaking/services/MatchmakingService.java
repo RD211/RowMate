@@ -13,10 +13,7 @@ import nl.tudelft.sem.project.matchmaking.models.AvailableActivityModel;
 import nl.tudelft.sem.project.matchmaking.strategies.EarliestFirstStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.MatchingStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.RandomStrategy;
-import nl.tudelft.sem.project.notifications.EventType;
-import nl.tudelft.sem.project.notifications.NotificationDTO;
 import nl.tudelft.sem.project.shared.Username;
-import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +22,7 @@ import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class MatchmakingService {
@@ -67,9 +65,7 @@ public class MatchmakingService {
 
         List<ActivityDTO> availableActivitiesInTimeslot = findActivities(dto);
 
-        UserDTO user = usersClient.getUserByUsername(new Username(dto.getUserName()));
-
-        activityMatcher.setAvailableActivities(extractFeasibleActivities(dto, availableActivitiesInTimeslot, user));
+        activityMatcher.setAvailableActivities(extractFeasibleActivities(dto, availableActivitiesInTimeslot));
         activityMatcher.setRequestData(dto);
 
         FoundActivityModel pickedActivity = activityMatcher.findActivityToRegister();
@@ -83,6 +79,8 @@ public class MatchmakingService {
         return autoFindErrorMessage;
     }
 
+
+
     /**
      * Given a list of available activities in the timeslot,
      * this function returns the ones that the user can participate in with one of their
@@ -95,20 +93,20 @@ public class MatchmakingService {
      */
     private List<AvailableActivityModel> extractFeasibleActivities(
         ActivityRequestDTO dto,
-        List<ActivityDTO> availableActivities,
-        UserDTO user
+        List<ActivityDTO> availableActivities
     ) {
         List<AvailableActivityModel> feasibleActivities = new ArrayList<>();
         for (ActivityDTO activity : availableActivities) {
-            determineFeasibility(dto, activity, feasibleActivities, user);
+            feasibleActivities.addAll(generateSuitableActivities(dto, activity));
         }
         return feasibleActivities;
     }
 
     private boolean userCanParticipateInCompetition(
             CompetitionDTO competitionDTO,
-            UserDTO userDTO
+            String userName
     ) {
+        var userDTO = usersClient.getUserByUsername(new Username(userName));
         if (!competitionDTO.getAllowsAmateurs() && userDTO.isAmateur()) {
             return false;
         }
@@ -123,76 +121,62 @@ public class MatchmakingService {
         return true;
     }
 
+    /**
+     * Generates a list of tasks for a user from a given activity.
+     * The following are taken into account when selecting:
+     *  - User certificates for boat roles
+     *  - User position preferences
+     *  - Boat position availabilities
+     *  - Competition activity requirements
+     *
+     * @param dto The activity request.
+     * @param activity The activity to check.
+     * @return The list of tasks the user can perform during this activity.
+     */
     @SuppressWarnings("PMD")
-    private void determineFeasibility(
-            ActivityRequestDTO dto,
-            ActivityDTO activity,
-            List<AvailableActivityModel> feasibleActivities,
-            UserDTO user
-    ) {
-
-        if (activity instanceof CompetitionDTO && !userCanParticipateInCompetition((CompetitionDTO) activity, user)) {
-            return;
+    private List<AvailableActivityModel> generateSuitableActivities(ActivityRequestDTO dto, ActivityDTO activity) {
+        if (activity instanceof CompetitionDTO
+                && !userCanParticipateInCompetition((CompetitionDTO) activity, dto.getUserName())) {
+            return new ArrayList<>();
         }
 
         List<ActivityRegistration> registrations
                 = activityRegistrationRepository.findAllByActivityId(activity.getId());
-        var boats = activity.getBoats();
-        for (int i = 0; i < boats.size(); i++) {
 
-            BoatDTO boat = boatsClient.getBoat(boats.get(i).getBoatId());
+        List<AvailableActivityModel> result = new ArrayList<>();
+        for (int i = 0; i < activity.getBoats().size(); i++) {
+            BoatDTO boat = activity.getBoats().get(i);
+            var takenPositions = getTakenPositions(registrations, activity, boat);
 
-            checkBoatAvailability(dto, activity, feasibleActivities, registrations, boat, i);
+            var roles = boat.getAvailablePositions().stream().distinct();
+            roles = filterOnPreferredPositions(roles, dto.getActivityFilter().getPreferredRoles());
+            roles = filterOnPositionAvailability(roles, boat, takenPositions);
+            roles = filterOnPositionAllowed(roles, boat, dto.getUserName());
+
+            final int boatIdx = i;
+            roles.forEach(p -> result.add(new AvailableActivityModel(activity, boatIdx, p)));
         }
+        return result;
     }
 
-    @SuppressWarnings("PMD")
-    private void checkBoatAvailability(
-            ActivityRequestDTO dto,
-            ActivityDTO activity,
-            final List<AvailableActivityModel> feasibleActivities,
-            final List<ActivityRegistration> registrations,
-            BoatDTO boat,
-            final int idx
+    private List<BoatRole> getTakenPositions(List<ActivityRegistration> registrations, ActivityDTO activity, BoatDTO boat) {
+        return registrations.stream()
+                .filter(ar -> activity.getBoats().get(ar.getBoat()).equals(boat))
+                .map(ar -> ar.getRole()).collect(Collectors.toList());
+    }
+
+    private Stream<BoatRole> filterOnPreferredPositions(Stream<BoatRole> stream, List<BoatRole> preferredRoles) {
+        return stream.filter(p -> preferredRoles.contains(p));
+    }
+
+    private Stream<BoatRole> filterOnPositionAvailability(
+            Stream<BoatRole> stream, BoatDTO boat, List<BoatRole> takenPositions
     ) {
-
-        List<ActivityRegistration> forThisBoat = getRegistrationsForBoat(registrations, idx);
-        for (BoatRole role : dto.getActivityFilter().getPreferredRoles()) {
-            if (!isUserEligibleForBoatPosition(dto.getUserName(), role, activity.getId(), idx)) {
-                continue;
-            }
-            List<ActivityRegistration> registrationsForRole = getRegistrationsForRole(forThisBoat, role);
-            List<BoatRole> availableSpotsForRole = getAvailableSpotForRole(boat, role);
-            if (availableSpotsForRole.size() > registrationsForRole.size()) {
-                feasibleActivities.add(
-                        AvailableActivityModel
-                                .builder()
-                                .activityDTO(activity)
-                                .boat(idx)
-                                .role(role)
-                                .build()
-                );
-                break;
-            }
-        }
+        return stream.filter(p -> doesBoatPositionHaveFreeSlots(p, boat, takenPositions));
     }
 
-    private List<ActivityRegistration> getRegistrationsForRole(List<ActivityRegistration> registrations, BoatRole role) {
-        return registrations.stream()
-                .filter(b -> b.getRole() == role)
-            .collect(Collectors.toList());
-    }
-
-
-    private List<BoatRole> getAvailableSpotForRole(BoatDTO boat, BoatRole role) {
-        return boat.getAvailablePositions()
-            .stream().filter(b -> b == role).collect(Collectors.toList());
-    }
-
-    private List<ActivityRegistration> getRegistrationsForBoat(List<ActivityRegistration> registrations, int idx) {
-        return registrations.stream()
-            .filter(b -> b.getBoat() == idx)
-            .collect(Collectors.toList());
+    private Stream<BoatRole> filterOnPositionAllowed(Stream<BoatRole> stream, BoatDTO boat, String userName) {
+        return stream.filter(p -> isUserEligibleForBoatPosition(userName, p, boat));
     }
 
     /**
@@ -205,9 +189,8 @@ public class MatchmakingService {
     @Transactional
     public boolean registerUserInActivity(ActivityRegistrationRequestDTO dto) {
         ActivityDTO activityDTO = activitiesClient.getActivity(dto.getActivityId());
-        UserDTO userDTO = usersClient.getUserByUsername(new Username(dto.getUserName()));
         if (activityDTO instanceof CompetitionDTO
-                && !userCanParticipateInCompetition((CompetitionDTO) activityDTO, userDTO)) {
+                && !userCanParticipateInCompetition((CompetitionDTO) activityDTO, dto.getUserName())) {
             return false;
         }
 
@@ -222,7 +205,7 @@ public class MatchmakingService {
 
         if (!overlappingRegistrations.isEmpty()
                 || !isUserEligibleForBoatPosition(
-                dto.getUserName(), dto.getBoatRole(), dto.getActivityId(), dto.getBoat())
+                dto.getUserName(), dto.getBoatRole(), activityDTO.getBoats().get(dto.getBoat()))
                 || !isAllowedToJoinWithTime(activityDTO, Instant.now())) {
             return false;
         }
@@ -247,17 +230,28 @@ public class MatchmakingService {
      *
      * @param userName The name of the user that should be checked.
      * @param position The boat position the user is applying for.
-     * @param activityId The activity identifier that the boat belongs to.
-     * @param boatNumber The boat number in the activity.
      * @return Whether the user is eligible for the position.
      */
-    private boolean isUserEligibleForBoatPosition(String userName, BoatRole position, UUID activityId, int boatNumber) {
+    private boolean isUserEligibleForBoatPosition(String userName, BoatRole position, BoatDTO boat) {
         if (!position.equals(BoatRole.Cox)) {
             return true;
         }
-        ActivityDTO activity = activitiesClient.getActivity(activityId);
-        UUID requiredCertificateId = activity.getBoats().get(boatNumber).getCoxCertificateId();
+        UUID requiredCertificateId = boat.getCoxCertificateId();
         return usersClient.hasCertificate(new Username(userName), requiredCertificateId);
+    }
+
+    /**
+     * Checks whether there are enough positions remaining of the role in the boat.
+     *
+     * @param role The role requested.
+     * @param boat The boat to check for availability.
+     * @param filledPositions The list of positions already occupied in the boat.
+     * @return Whether the role is still available in the boat.
+     */
+    private boolean doesBoatPositionHaveFreeSlots(final BoatRole role, BoatDTO boat, List<BoatRole> filledPositions) {
+        long rolePositionsInBoat = boat.getAvailablePositions().stream().filter(p -> p.equals(role)).count();
+        long filledRolePositions = filledPositions.stream().filter(p -> p.equals(role)).count();
+        return rolePositionsInBoat != filledRolePositions;
     }
 
     /**
