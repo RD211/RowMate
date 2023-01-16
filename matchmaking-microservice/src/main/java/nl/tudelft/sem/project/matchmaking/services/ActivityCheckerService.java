@@ -7,6 +7,7 @@ import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;
 import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,42 +26,64 @@ public class ActivityCheckerService {
 
     private static final long secondsToActivityStart = 30 * 60;
 
+    /**
+     * Checks if the user is allowed to participate in the activity.
+     * Checks user data against competition requirements if there are any.
+     *
+     * @param activity The activity checked.
+     * @param user The user which is considering joining the activity.
+     * @return Whether the user meets the requirements.
+     */
     public boolean isAllowedToParticipateInActivity(
-            ActivityDTO activityDTO, Username username
+            ActivityDTO activity, UserDTO user
     ) {
-        if (!(activityDTO instanceof CompetitionDTO)) return true;
-        CompetitionDTO competitionDTO = (CompetitionDTO) activityDTO;
+        if (!(activity instanceof CompetitionDTO)) {
+            return true;
+        }
+        CompetitionDTO competition = (CompetitionDTO) activity;
 
-        var userDTO = usersClient.getUserByUsername(username);
+        boolean allowsAmateurs = competition.getAllowsAmateurs();
+        Gender requiredGender = competition.getRequiredGender();
+        String requiredOrganization = competition.getRequiredOrganization();
 
-        boolean allowsAmateurs = competitionDTO.getAllowsAmateurs();
-        Gender requiredGender = competitionDTO.getRequiredGender();
-        String requiredOrganization = competitionDTO.getRequiredOrganization();
+        return (allowsAmateurs || !user.isAmateur())
+                && (requiredGender == null || requiredGender.equals(user.getGender()))
+                && (requiredOrganization == null || requiredOrganization.equals(user.getOrganization()));
+    }
 
-        return (allowsAmateurs || !userDTO.isAmateur())
-                && (requiredGender == null || requiredGender.equals(userDTO.getGender()))
-                && (requiredOrganization == null || requiredOrganization.equals(userDTO.getOrganization()));
+    /**
+     * Gets a stream of boat roles the user can fill.
+     * Selected according to the user preferences, certificates and role availabilities.
+     *
+     * @param boat The checked boat.
+     * @param takenRoles The list of roles already filled in the boat.
+     * @param user The user queried.
+     * @return A stream of possible boat roles the user can choose to fill.
+     */
+    public Stream<BoatRole> getAvailableBoatRoles(
+            BoatDTO boat, List<BoatRole> takenRoles, UserDTO user
+    ) {
+
+        var preferredRoles = user.getBoatRoles();
+        return preferredRoles.stream()
+                .filter(r -> doesBoatRoleHaveFreeSlots(r, boat, takenRoles))
+                .filter(r -> isUserEligibleForBoatPosition(new Username(user.getUsername()), r, boat));
     }
 
 
-    private List<BoatRole> getTakenPositions(List<ActivityRegistration> registrations, ActivityDTO activity, BoatDTO boat) {
+    /**
+     * Filters activity registrations for a given boat from an activity.
+     *
+     * @param registrations The list of all registrations of the activity.
+     * @param activity The activity.
+     * @param boat The boat.
+     * @return List of boat roles already taken in this boat.
+     */
+    public List<BoatRole> getTakenPositions(List<ActivityRegistration> registrations, ActivityDTO activity, BoatDTO boat) {
         return registrations.stream()
                 .filter(ar -> activity.getBoats().get(ar.getBoat()).equals(boat))
-                .map(ar -> ar.getRole()).collect(Collectors.toList());
-    }
-
-    private Stream<BoatRole> filterOnPreferredPositions(Stream<BoatRole> stream, List<BoatRole> preferredRoles) {
-        return stream.filter(p -> preferredRoles.contains(p));
-    }
-
-    private Stream<BoatRole> filterOnPositionAvailability(
-            Stream<BoatRole> stream, BoatDTO boat, List<BoatRole> takenPositions
-    ) {
-        return stream.filter(p -> doesBoatPositionHaveFreeSlots(p, boat, takenPositions));
-    }
-
-    private Stream<BoatRole> filterOnPositionAllowed(Stream<BoatRole> stream, BoatDTO boat, String userName) {
-        return stream.filter(p -> isUserEligibleForBoatPosition(userName, p, boat));
+                .map(ar -> ar.getRole())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -71,10 +94,10 @@ public class ActivityCheckerService {
      * @param filledPositions The list of positions already occupied in the boat.
      * @return Whether the role is still available in the boat.
      */
-    private boolean doesBoatPositionHaveFreeSlots(final BoatRole role, BoatDTO boat, List<BoatRole> filledPositions) {
+    public boolean doesBoatRoleHaveFreeSlots(final BoatRole role, BoatDTO boat, List<BoatRole> filledPositions) {
         long rolePositionsInBoat = boat.getAvailablePositions().stream().filter(p -> p.equals(role)).count();
         long filledRolePositions = filledPositions.stream().filter(p -> p.equals(role)).count();
-        return rolePositionsInBoat != filledRolePositions;
+        return filledRolePositions < rolePositionsInBoat;
     }
 
     /**
@@ -85,7 +108,7 @@ public class ActivityCheckerService {
      * @param now The time instant to check for.
      * @return Whether a user is still allowed to join the activity.
      */
-    private boolean isAllowedToJoinWithTime(ActivityDTO activity, Instant now) {
+    public boolean isAllowedToJoinWithTime(ActivityDTO activity, Instant now) {
         Instant activityTime = activity.getStartTime().toInstant();
         Instant shouldJoinBefore = activityTime.minusSeconds(secondsToActivityStart);
         return now.compareTo(shouldJoinBefore) <= 0;
@@ -95,16 +118,35 @@ public class ActivityCheckerService {
      * Checks whether the user has the certificate for the requested boat.
      * If the user is not applying for cox position, this will always return true.
      *
-     * @param userName The name of the user that should be checked.
+     * @param username The name of the user that should be checked.
      * @param position The boat position the user is applying for.
      * @return Whether the user is eligible for the position.
      */
-    private boolean isUserEligibleForBoatPosition(String userName, BoatRole position, BoatDTO boat) {
+    boolean isUserEligibleForBoatPosition(Username username, BoatRole position, BoatDTO boat) {
         if (!position.equals(BoatRole.Cox)) {
             return true;
         }
         UUID requiredCertificateId = boat.getCoxCertificateId();
-        return usersClient.hasCertificate(new Username(userName), requiredCertificateId);
+        return usersClient.hasCertificate(username, requiredCertificateId);
+    }
+
+    /**
+     * Checks requirements for joining an activity for the specified boat for the selected position.
+     * Checks:
+     *  - Activity type, i.e. if competition allows this kind of user
+     *  - User certificates if the position requires
+     *  - If it is not too late to join the activity
+     *
+     * @param activity The activity the user is trying to register to.
+     * @param user The user that is trying to get registered.
+     * @param role The role the user is trying to register for.
+     * @param boat The boat the user is trying to register for.
+     * @return Whether the user will be allowed to register.
+     */
+    public boolean isAllowedToRegister(ActivityDTO activity, UserDTO user, BoatRole role, BoatDTO boat) {
+        return isAllowedToParticipateInActivity(activity, user)
+                 && isUserEligibleForBoatPosition(new Username(user.getUsername()), role, boat)
+                 && isAllowedToJoinWithTime(activity, Instant.now());
     }
 
 }

@@ -13,12 +13,12 @@ import nl.tudelft.sem.project.matchmaking.strategies.EarliestFirstStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.MatchingStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.RandomStrategy;
 import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -119,7 +119,8 @@ public class MatchmakingService {
     private List<AvailableActivityModel> generateSuitableActivityTasks(ActivityRequestDTO dto, ActivityDTO activity) {
 
         List<AvailableActivityModel> result = new ArrayList<>();
-        if (!activityCheckerService.isAllowedToParticipateInActivity(activity, new Username(dto.getUserName()))) {
+        UserDTO user = usersClient.getUserByUsername(new Username(dto.getUserName()));
+        if (!activityCheckerService.isAllowedToParticipateInActivity(activity, user)) {
             return result;
         }
 
@@ -128,12 +129,9 @@ public class MatchmakingService {
 
         for (int i = 0; i < activity.getBoats().size(); i++) {
             BoatDTO boat = activity.getBoats().get(i);
-            var takenPositions = getTakenPositions(registrations, activity, boat);
+            var takenPositions = activityCheckerService.getTakenPositions(registrations, activity, boat);
 
-            var roles = boat.getAvailablePositions().stream().distinct();
-            roles = filterOnPreferredPositions(roles, dto.getActivityFilter().getPreferredRoles());
-            roles = filterOnPositionAvailability(roles, boat, takenPositions);
-            roles = filterOnPositionAllowed(roles, boat, dto.getUserName());
+            var roles = activityCheckerService.getAvailableBoatRoles(boat, takenPositions, user);
 
             final int boatIdx = i;
             roles.forEach(p -> result.add(new AvailableActivityModel(activity, boatIdx, p)));
@@ -152,12 +150,14 @@ public class MatchmakingService {
      */
     @Transactional
     public boolean registerUserInActivity(ActivityRegistrationRequestDTO dto) {
+
         ActivityDTO activityDTO = activitiesClient.getActivity(dto.getActivityId());
-        if (activityDTO instanceof CompetitionDTO
-                && !userCanParticipateInCompetition((CompetitionDTO) activityDTO, dto.getUserName())) {
+        UserDTO user = usersClient.getUserByUsername(new Username(dto.getUserName()));
+        BoatDTO boat = activityDTO.getBoats().get(dto.getBoat());
+
+        if (!activityCheckerService.isAllowedToRegister(activityDTO, user, dto.getBoatRole(), boat)) {
             return false;
         }
-
 
         List<ActivityRegistration> overlappingRegistrations
             = activityRegistrationRepository.findRequestOverlap(
@@ -167,17 +167,12 @@ public class MatchmakingService {
                     dto.getBoatRole()
             );
 
-        if (!overlappingRegistrations.isEmpty()
-                || !isUserEligibleForBoatPosition(
-                dto.getUserName(), dto.getBoatRole(), activityDTO.getBoats().get(dto.getBoat()))
-                || !isAllowedToJoinWithTime(activityDTO, Instant.now())) {
+        if (!overlappingRegistrations.isEmpty()) {
             return false;
         }
 
-        boolean status
-            = activitiesClient.getActivity(dto.getActivityId()).getOwner().equals(dto.getUserName());
-        ActivityRegistration registration
-            = new ActivityRegistration(
+        boolean status = activitiesClient.getActivity(dto.getActivityId()).getOwner().equals(dto.getUserName());
+        ActivityRegistration registration = new ActivityRegistration(
                 dto.getUserName(),
                 dto.getActivityId(),
                 dto.getBoat(),
