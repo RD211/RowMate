@@ -31,7 +31,8 @@ public class FunctionalTestsBase {
 
     @Autowired
     GatewayActivitiesClient gatewayActivitiesClient;
-
+    @Autowired
+    GatewayActivityRegistrationClient gatewayActivityRegistrationClient;
     @Autowired
     GatewayCertificatesClient gatewayCertificatesClient;
 

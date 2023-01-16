@@ -377,45 +377,4 @@ class ActivityControllerTest {
         assertThrows(RuntimeException.class, () -> activityController.changeActivityTimes(model));
         verify(activitiesClient, never()).changeActivityTimes(any());
     }
-
-    @Test
-    void getParticipants() {
-        var id = UUID.randomUUID();
-
-        when(matchmakingClient.getApplicationsForActivityByStatus(
-                id, true)).thenReturn(
-                List.of(new ActivityApplicationModel("tester", 0, BoatRole.Coach))
-        );
-
-        var result =
-                activityController.getParticipants(
-                        id
-                ).getBody();
-
-        assert result != null;
-        assertEquals(1, result.size());
-        verify(matchmakingClient, times(1)).getApplicationsForActivityByStatus(
-                id, true);
-
-    }
-
-    @Test
-    void getWaitingRoom() {
-        var id = UUID.randomUUID();
-
-        when(matchmakingClient.getApplicationsForActivityByStatus(
-                id, false)).thenReturn(
-                List.of(new ActivityApplicationModel("tester", 0, BoatRole.Coach))
-        );
-
-        var result =
-                activityController.getWaitingRoom(
-                        id
-                ).getBody();
-
-        assert result != null;
-        assertEquals(1, result.size());
-        verify(matchmakingClient, times(1)).getApplicationsForActivityByStatus(
-                id, false);
-    }
 }
