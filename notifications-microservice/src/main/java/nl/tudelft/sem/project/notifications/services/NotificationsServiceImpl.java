@@ -22,7 +22,6 @@ import java.util.Objects;
 
 @Component
 @Getter
-@Setter
 public class NotificationsServiceImpl implements NotificationsService {
 
     @Autowired
@@ -34,9 +33,6 @@ public class NotificationsServiceImpl implements NotificationsService {
     private final transient List<EventType> eventTypesUserRelated = Arrays.asList(
             EventType.SIGN_UP, EventType.TEST,
             EventType.RESET_PASSWORD, EventType.RESET_PASSWORD_CONFIRM);
-
-    @Value("${application.properties.test-mode:false}")
-    private transient String testMode;
 
     /**
      * Sends a mail notification to the email address
@@ -70,9 +66,7 @@ public class NotificationsServiceImpl implements NotificationsService {
         try {
             mailSender.send(message);
         } catch (Exception e) {
-            if (testMode.equals("true") && ((JavaMailSenderImpl) mailSender).getHost().equals("localhost") == false) {
-                throw new MailNotSentException(e.getMessage());
-            }
+            throw new MailNotSentException(e.getMessage());
         }
 
         return message;
@@ -84,13 +78,14 @@ public class NotificationsServiceImpl implements NotificationsService {
                 + " - " + activityDTO.getEndTime() + "\nLocation: "
                 + activityDTO.getLocation() + "\nHosted by: "
                 + activityDTO.getOwner();
+        String optionalField = notificationDTO.getOptionalField();
 
         if (activityDTO.getClass() == CompetitionDTO.class) {
             message += "\nFor: " + ((CompetitionDTO) activityDTO).getRequiredGender()
                     + "\nInvited organization: " + ((CompetitionDTO) activityDTO).getRequiredOrganization();
         }
-        if (notificationDTO.getOptionalField() != null) {
-            message += "\n\n" + notificationDTO.getOptionalField();
+        if (optionalField != null) {
+            message += "\n\n" + optionalField;
         }
         return message;
     }
