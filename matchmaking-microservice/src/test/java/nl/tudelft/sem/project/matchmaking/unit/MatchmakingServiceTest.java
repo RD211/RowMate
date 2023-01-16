@@ -11,6 +11,7 @@ import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistrationRepository;
 import nl.tudelft.sem.project.matchmaking.services.MatchmakingService;
+import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,7 @@ public class MatchmakingServiceTest {
     ActivityFilterDTO filterDTO;
     ActivityDTO activity;
     BoatDTO boat;
+
     protected UUID setUUID =  UUID.fromString("0000-00-00-00-000000");
 
     @BeforeEach

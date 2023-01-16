@@ -5,6 +5,7 @@ import nl.tudelft.sem.project.activities.BoatDTO;
 import nl.tudelft.sem.project.activities.CompetitionDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.Gender;
+import nl.tudelft.sem.project.matchmaking.ActivityRequestDTO;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;
 import nl.tudelft.sem.project.shared.Username;
 import nl.tudelft.sem.project.users.UserDTO;
@@ -55,19 +56,19 @@ public class ActivityCheckerService {
      * Gets a stream of boat roles the user can fill.
      * Selected according to the user preferences, certificates and role availabilities.
      *
+     * @param dto The activity request.
      * @param boat The checked boat.
      * @param takenRoles The list of roles already filled in the boat.
-     * @param user The user queried.
      * @return A stream of possible boat roles the user can choose to fill.
      */
     public Stream<BoatRole> getAvailableBoatRoles(
-            BoatDTO boat, List<BoatRole> takenRoles, UserDTO user
+            ActivityRequestDTO dto, BoatDTO boat, List<BoatRole> takenRoles
     ) {
 
-        var preferredRoles = user.getBoatRoles();
+        var preferredRoles = dto.getActivityFilter().getPreferredRoles();
         return preferredRoles.stream()
                 .filter(r -> doesBoatRoleHaveFreeSlots(r, boat, takenRoles))
-                .filter(r -> isUserEligibleForBoatPosition(new Username(user.getUsername()), r, boat));
+                .filter(r -> isUserEligibleForBoatPosition(new Username(dto.getUserName()), r, boat));
     }
 
 

@@ -131,7 +131,7 @@ public class MatchmakingService {
             BoatDTO boat = activity.getBoats().get(i);
             var takenPositions = activityCheckerService.getTakenPositions(registrations, activity, boat);
 
-            var roles = activityCheckerService.getAvailableBoatRoles(boat, takenPositions, user);
+            var roles = activityCheckerService.getAvailableBoatRoles(dto, boat, takenPositions);
 
             final int boatIdx = i;
             roles.forEach(p -> result.add(new AvailableActivityModel(activity, boatIdx, p)));
