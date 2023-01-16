@@ -3,7 +3,6 @@ package nl.tudelft.sem.project.matchmaking.services;
 import nl.tudelft.sem.project.activities.*;
 import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.matchmaking.*;
-import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.matchmaking.models.FoundActivityModel;
 import nl.tudelft.sem.project.matchmaking.domain.ActivityRegistration;
@@ -14,15 +13,14 @@ import nl.tudelft.sem.project.matchmaking.strategies.EarliestFirstStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.MatchingStrategy;
 import nl.tudelft.sem.project.matchmaking.strategies.RandomStrategy;
 import nl.tudelft.sem.project.shared.Username;
+import nl.tudelft.sem.project.users.UserDTO;
 import nl.tudelft.sem.project.users.UsersClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class MatchmakingService {
@@ -37,10 +35,12 @@ public class MatchmakingService {
     @Autowired
     private transient ActivityRegistrationRepository activityRegistrationRepository;
 
+    @Autowired
+    private transient ActivityCheckerService activityCheckerService;
+
     public static final String autoFindErrorMessage =
         "Unfortunately, we could not find any activity matching your request. Please try again!";
 
-    private static final long secondsToActivityStart = 30 * 60;
 
     public List<ActivityDTO> findActivities(ActivityRequestDTO dto) {
         return activitiesClient.findActivitiesFromFilter(dto.getActivityFilter());
@@ -95,31 +95,13 @@ public class MatchmakingService {
         ActivityRequestDTO dto,
         List<ActivityDTO> availableActivities
     ) {
-        List<AvailableActivityModel> feasibleActivities = new ArrayList<>();
+        List<AvailableActivityModel> feasibleTasks = new ArrayList<>();
         for (ActivityDTO activity : availableActivities) {
-            feasibleActivities.addAll(generateSuitableActivities(dto, activity));
+            feasibleTasks.addAll(generateSuitableActivityTasks(dto, activity));
         }
-        return feasibleActivities;
+        return feasibleTasks;
     }
 
-    private boolean userCanParticipateInCompetition(
-            CompetitionDTO competitionDTO,
-            String userName
-    ) {
-        var userDTO = usersClient.getUserByUsername(new Username(userName));
-        if (!competitionDTO.getAllowsAmateurs() && userDTO.isAmateur()) {
-            return false;
-        }
-        if (competitionDTO.getRequiredGender() != null
-                && !competitionDTO.getRequiredGender().equals(userDTO.getGender())) {
-            return false;
-        }
-        if (competitionDTO.getRequiredOrganization() != null
-                && !competitionDTO.getRequiredOrganization().equals(userDTO.getOrganization().toString())) {
-            return false;
-        }
-        return true;
-    }
 
     /**
      * Generates a list of tasks for a user from a given activity.
@@ -134,24 +116,22 @@ public class MatchmakingService {
      * @return The list of tasks the user can perform during this activity.
      */
     @SuppressWarnings("PMD")
-    private List<AvailableActivityModel> generateSuitableActivities(ActivityRequestDTO dto, ActivityDTO activity) {
-        if (activity instanceof CompetitionDTO
-                && !userCanParticipateInCompetition((CompetitionDTO) activity, dto.getUserName())) {
-            return new ArrayList<>();
+    private List<AvailableActivityModel> generateSuitableActivityTasks(ActivityRequestDTO dto, ActivityDTO activity) {
+
+        List<AvailableActivityModel> result = new ArrayList<>();
+        UserDTO user = usersClient.getUserByUsername(new Username(dto.getUserName()));
+        if (!activityCheckerService.isAllowedToParticipateInActivity(activity, user)) {
+            return result;
         }
 
         List<ActivityRegistration> registrations
                 = activityRegistrationRepository.findAllByActivityId(activity.getId());
 
-        List<AvailableActivityModel> result = new ArrayList<>();
         for (int i = 0; i < activity.getBoats().size(); i++) {
             BoatDTO boat = activity.getBoats().get(i);
-            var takenPositions = getTakenPositions(registrations, activity, boat);
+            var takenPositions = activityCheckerService.getTakenPositions(registrations, activity, boat);
 
-            var roles = boat.getAvailablePositions().stream().distinct();
-            roles = filterOnPreferredPositions(roles, dto.getActivityFilter().getPreferredRoles());
-            roles = filterOnPositionAvailability(roles, boat, takenPositions);
-            roles = filterOnPositionAllowed(roles, boat, dto.getUserName());
+            var roles = activityCheckerService.getAvailableBoatRoles(dto, boat, takenPositions);
 
             final int boatIdx = i;
             roles.forEach(p -> result.add(new AvailableActivityModel(activity, boatIdx, p)));
@@ -159,25 +139,7 @@ public class MatchmakingService {
         return result;
     }
 
-    private List<BoatRole> getTakenPositions(List<ActivityRegistration> registrations, ActivityDTO activity, BoatDTO boat) {
-        return registrations.stream()
-                .filter(ar -> activity.getBoats().get(ar.getBoat()).equals(boat))
-                .map(ar -> ar.getRole()).collect(Collectors.toList());
-    }
 
-    private Stream<BoatRole> filterOnPreferredPositions(Stream<BoatRole> stream, List<BoatRole> preferredRoles) {
-        return stream.filter(p -> preferredRoles.contains(p));
-    }
-
-    private Stream<BoatRole> filterOnPositionAvailability(
-            Stream<BoatRole> stream, BoatDTO boat, List<BoatRole> takenPositions
-    ) {
-        return stream.filter(p -> doesBoatPositionHaveFreeSlots(p, boat, takenPositions));
-    }
-
-    private Stream<BoatRole> filterOnPositionAllowed(Stream<BoatRole> stream, BoatDTO boat, String userName) {
-        return stream.filter(p -> isUserEligibleForBoatPosition(userName, p, boat));
-    }
 
     /**
      * Registers a user in an activity.
@@ -188,12 +150,14 @@ public class MatchmakingService {
      */
     @Transactional
     public boolean registerUserInActivity(ActivityRegistrationRequestDTO dto) {
+
         ActivityDTO activityDTO = activitiesClient.getActivity(dto.getActivityId());
-        if (activityDTO instanceof CompetitionDTO
-                && !userCanParticipateInCompetition((CompetitionDTO) activityDTO, dto.getUserName())) {
+        UserDTO user = usersClient.getUserByUsername(new Username(dto.getUserName()));
+        BoatDTO boat = activityDTO.getBoats().get(dto.getBoat());
+
+        if (!activityCheckerService.isAllowedToRegister(activityDTO, user, dto.getBoatRole(), boat)) {
             return false;
         }
-
 
         List<ActivityRegistration> overlappingRegistrations
             = activityRegistrationRepository.findRequestOverlap(
@@ -203,17 +167,12 @@ public class MatchmakingService {
                     dto.getBoatRole()
             );
 
-        if (!overlappingRegistrations.isEmpty()
-                || !isUserEligibleForBoatPosition(
-                dto.getUserName(), dto.getBoatRole(), activityDTO.getBoats().get(dto.getBoat()))
-                || !isAllowedToJoinWithTime(activityDTO, Instant.now())) {
+        if (!overlappingRegistrations.isEmpty()) {
             return false;
         }
 
-        boolean status
-            = activitiesClient.getActivity(dto.getActivityId()).getOwner().equals(dto.getUserName());
-        ActivityRegistration registration
-            = new ActivityRegistration(
+        boolean status = activitiesClient.getActivity(dto.getActivityId()).getOwner().equals(dto.getUserName());
+        ActivityRegistration registration = new ActivityRegistration(
                 dto.getUserName(),
                 dto.getActivityId(),
                 dto.getBoat(),
@@ -224,49 +183,7 @@ public class MatchmakingService {
         return true;
     }
 
-    /**
-     * Checks whether the user has the certificate for the requested boat.
-     * If the user is not applying for cox position, this will always return true.
-     *
-     * @param userName The name of the user that should be checked.
-     * @param position The boat position the user is applying for.
-     * @return Whether the user is eligible for the position.
-     */
-    private boolean isUserEligibleForBoatPosition(String userName, BoatRole position, BoatDTO boat) {
-        if (!position.equals(BoatRole.Cox)) {
-            return true;
-        }
-        UUID requiredCertificateId = boat.getCoxCertificateId();
-        return usersClient.hasCertificate(new Username(userName), requiredCertificateId);
-    }
 
-    /**
-     * Checks whether there are enough positions remaining of the role in the boat.
-     *
-     * @param role The role requested.
-     * @param boat The boat to check for availability.
-     * @param filledPositions The list of positions already occupied in the boat.
-     * @return Whether the role is still available in the boat.
-     */
-    private boolean doesBoatPositionHaveFreeSlots(final BoatRole role, BoatDTO boat, List<BoatRole> filledPositions) {
-        long rolePositionsInBoat = boat.getAvailablePositions().stream().filter(p -> p.equals(role)).count();
-        long filledRolePositions = filledPositions.stream().filter(p -> p.equals(role)).count();
-        return rolePositionsInBoat != filledRolePositions;
-    }
-
-    /**
-     * Checks whether one can still join the activity at some point in time.
-     * The activities close for registration some time before their start.
-     *
-     * @param activity Activity to check for.
-     * @param now The time instant to check for.
-     * @return Whether a user is still allowed to join the activity.
-     */
-    private boolean isAllowedToJoinWithTime(ActivityDTO activity, Instant now) {
-        Instant activityTime = activity.getStartTime().toInstant();
-        Instant shouldJoinBefore = activityTime.minusSeconds(secondsToActivityStart);
-        return now.compareTo(shouldJoinBefore) <= 0;
-    }
 
     /**
      * De-registers a user from an activity.
@@ -276,7 +193,7 @@ public class MatchmakingService {
      *      false otherwise.
      */
     @Transactional
-    public boolean deRegisterUserFromActivity(ActivityDeregisterRequestDTO dto) {
+    public boolean deregisterUserFromActivity(ActivityDeregisterRequestDTO dto) {
         Optional<ActivityRegistration> registration
             = activityRegistrationRepository.findById(new ActivityRegistrationId(dto.getUserName(), dto.getActivityId()));
         if (registration.isEmpty()) {
@@ -366,8 +283,8 @@ public class MatchmakingService {
      * @param accepted the status.
      * @return the list of applications.
      */
-    public List<ActivityApplicationModel> getAllApplicationsToActivityByAcceptedStatus(UUID activityId,
-                                                                                      boolean accepted) {
+    public List<ActivityApplicationModel> getAllApplicationsToActivityByAcceptedStatus(
+            UUID activityId, boolean accepted) {
 
         return activityRegistrationRepository
                 .findByActivityIdAndAccepted(activityId, accepted).stream()

@@ -1,9 +1,7 @@
 package nl.tudelft.sem.project.matchmaking.controllers;
 
 import nl.tudelft.sem.project.activities.ActivityDTO;
-import nl.tudelft.sem.project.gateway.SeatedUserModel;
 import nl.tudelft.sem.project.matchmaking.*;
-import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.matchmaking.ActivityDeregisterRequestDTO;
 import nl.tudelft.sem.project.matchmaking.ActivityRegistrationRequestDTO;
@@ -87,7 +85,7 @@ public class MatchmakingController {
      */
     @PostMapping("deregister")
     public ResponseEntity<String> deRegisterFromActivity(@RequestBody ActivityDeregisterRequestDTO dto) {
-        boolean result = matchmakingService.deRegisterUserFromActivity(dto);
+        boolean result = matchmakingService.deregisterUserFromActivity(dto);
         if (result) {
             return ResponseEntity.ok("You successfully deregistered.");
         }

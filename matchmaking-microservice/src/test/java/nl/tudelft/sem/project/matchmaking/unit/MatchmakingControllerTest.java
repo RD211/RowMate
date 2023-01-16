@@ -59,7 +59,7 @@ public class MatchmakingControllerTest {
 
     @Test
     public void testDeRegisterFalse() {
-        when(matchmakingService.deRegisterUserFromActivity(any())).thenReturn(false);
+        when(matchmakingService.deregisterUserFromActivity(any())).thenReturn(false);
         assertThatThrownBy(() -> {
             matchmakingController.deRegisterFromActivity(ActivityDeregisterRequestDTO.builder().build());
         }).isInstanceOf(RuntimeException.class);
@@ -67,7 +67,7 @@ public class MatchmakingControllerTest {
 
     @Test
     public void testDeRegisterTrue() {
-        when(matchmakingService.deRegisterUserFromActivity(any())).thenReturn(true);
+        when(matchmakingService.deregisterUserFromActivity(any())).thenReturn(true);
         assertThat(matchmakingController.deRegisterFromActivity(ActivityDeregisterRequestDTO.builder().build()))
                 .isEqualTo(ResponseEntity.ok("You successfully deregistered."));
     }

@@ -50,6 +50,7 @@ public class MatchmakingServiceTest {
     ActivityFilterDTO filterDTO;
     ActivityDTO activity;
     BoatDTO boat;
+
     protected UUID setUUID =  UUID.fromString("0000-00-00-00-000000");
 
     @BeforeEach
