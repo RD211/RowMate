@@ -31,35 +31,16 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/activities")
 public class ActivityController {
 
-    private final transient AuthManager authManager;
-
-    private final transient UsersClient usersClient;
-
-    private final transient ActivitiesClient activitiesClient;
-
-    private final transient NotificationsClient notificationsClient;
-    private final transient MatchmakingClient matchmakingClient;
-
-    private final transient BoatsClient boatsClient;
-
-    /**
-     * The activity controller constructor.
-     *
-     * @param authManager      the auth manager.
-     * @param usersClient      the user client.
-     * @param activitiesClient the activities client.
-     */
     @Autowired
-    public ActivityController(AuthManager authManager, UsersClient usersClient, ActivitiesClient activitiesClient,
-                              BoatsClient boatsClient, MatchmakingClient matchmakingClient,
-                              NotificationsClient notificationsClient) {
-        this.authManager = authManager;
-        this.usersClient = usersClient;
-        this.activitiesClient = activitiesClient;
-        this.notificationsClient = notificationsClient;
-        this.boatsClient = boatsClient;
-        this.matchmakingClient = matchmakingClient;
-    }
+    private transient AuthManager authManager;
+    @Autowired
+    private transient UsersClient usersClient;
+    @Autowired
+    private transient ActivitiesClient activitiesClient;
+    @Autowired
+    private transient NotificationsClient notificationsClient;
+    @Autowired
+    private transient BoatsClient boatsClient;
 
 
     /**
@@ -203,7 +184,7 @@ public class ActivityController {
      */
     @PostMapping("/add_boat_to_activity")
     public ResponseEntity<ActivityDTO> addBoatToActivity(
-            @Valid @NotNull @RequestParam UUID activityId,
+            @Valid @RequestParam UUID activityId,
             @Valid @NotNull @RequestBody BoatDTO boatDTO
     ) {
         var activity = activitiesClient.getActivity(activityId);
@@ -232,31 +213,5 @@ public class ActivityController {
             throw new RuntimeException("Starting time should be before ending time.");
         }
         return ResponseEntity.ok(activitiesClient.changeActivityTimes(changeActivityTimeModel).getBody());
-    }
-
-    /**
-     * Gets all participants to an activity.
-     *
-     * @param activityId the activity id.
-     * @return the list of participants.
-     */
-    @GetMapping("/get_participants")
-    public ResponseEntity<List<ActivityApplicationModel>> getParticipants(
-            @RequestParam @NotNull @Valid UUID activityId) {
-        return ResponseEntity.ok(
-                matchmakingClient.getApplicationsForActivityByStatus(activityId, true));
-    }
-
-    /**
-     * Gets all people that are in the waiting room for an activity.
-     *
-     * @param activityId the activity id.
-     * @return the waiting room.
-     */
-    @GetMapping("/get_waiting_room")
-    public ResponseEntity<List<ActivityApplicationModel>> getWaitingRoom(
-            @RequestParam @NotNull @Valid UUID activityId) {
-        return ResponseEntity.ok(
-                matchmakingClient.getApplicationsForActivityByStatus(activityId, false));
     }
 }

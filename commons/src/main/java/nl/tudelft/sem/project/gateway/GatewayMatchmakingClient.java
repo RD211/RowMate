@@ -27,36 +27,4 @@ public interface GatewayMatchmakingClient {
     String autoFindActivity(@RequestHeader("Authorization") String bearerToken,
                             @PathVariable(value = "strategy") MatchmakingStrategy strategy,
                             @RequestBody ActivityFilterDTO activityFilterDTO) throws FeignException;
-
-    @PostMapping(value="/register")
-    @Headers("Content-Type: application/json")
-    String registerInActivity(@RequestHeader("Authorization") String bearerToken,
-                              @RequestBody SeatedUserModel seatedUserModel) throws FeignException;
-
-    @PostMapping(value="/deregister")
-    @Headers("Content-Type: application/json")
-    String deRegisterFromActivity(@RequestHeader("Authorization") String bearerToken,
-                                  @RequestBody UUID activityId) throws FeignException;
-
-
-    @PostMapping(value="/respond")
-    @Headers("Content-Type: application/json")
-    String respondToRegistration(@RequestHeader("Authorization") String bearerToken,
-                                 @RequestBody ActivityRegistrationResponseDTO activityRegistrationResponseDTO) throws FeignException;
-
-    @GetMapping(value="/get_waiting_applications")
-    @Headers("Content-Type: application/json")
-    List<UserActivityApplication> getWaitingApplications(@RequestHeader("Authorization") String bearerToken);
-
-    @GetMapping(value="/get_accepted_applications")
-    @Headers("Content-Type: application/json")
-    List<UserActivityApplication> getAcceptedApplications(@RequestHeader("Authorization") String bearerToken);
-
-    @DeleteMapping("/delete_user_from_activity?activityId={activityId}&userName={userName}")
-    @Headers("Content-Type: application/json")
-    ResponseEntity<Void> deleteByUserNameAndActivityId(
-            @RequestHeader("Authorization") String bearerToken,
-            @PathVariable(value="activityId") UUID activityId,
-            @PathVariable(value="userName") String userName
-    ) throws FeignException;
 }

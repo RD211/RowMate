@@ -3,7 +3,6 @@ package nl.tudelft.sem.project.tests.functional;
 import feign.FeignException;
 import nl.tudelft.sem.project.activities.ActivityDTO;
 import nl.tudelft.sem.project.activities.BoatDTO;
-import nl.tudelft.sem.project.activities.TrainingDTO;
 import nl.tudelft.sem.project.enums.BoatRole;
 import nl.tudelft.sem.project.enums.MatchmakingStrategy;
 import nl.tudelft.sem.project.gateway.*;
@@ -12,21 +11,17 @@ import nl.tudelft.sem.project.matchmaking.ActivityRegistrationResponseDTO;
 import nl.tudelft.sem.project.matchmaking.UserActivityApplication;
 import nl.tudelft.sem.project.shared.DateInterval;
 import nl.tudelft.sem.project.users.CertificateDTO;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.Lifecycle;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatList;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,25 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest(classes=nl.tudelft.sem.project.system.tests.Application.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class MatchMakingFunctionalTests extends FunctionalTestsBase {
-    @Autowired
-    GatewayAuthenticationClient gatewayAuthenticationClient;
-
-    @Autowired
-    GatewayUserClient gatewayUserClient;
-
-    @Autowired
-    GatewayAdminClient gatewayAdminClient;
-
-    @Autowired
-    GatewayBoatsClient gatewayBoatsClient;
-
-    @Autowired
-    GatewayMatchmakingClient gatewayMatchmakingClient;
-
-    @Autowired
-    GatewayActivitiesClient gatewayActivitiesClient;
-
-    static List<ConfigurableApplicationContext> microservices;
 
     String userToken;
     String otherUserToken;
@@ -143,7 +119,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
 
     @Test
     void createActivityAndSomeoneRegistersTest() {
-        gatewayMatchmakingClient.registerInActivity(
+        gatewayActivityRegistrationClient.registerInActivity(
                 "Bearer " + otherUserToken,
                 new SeatedUserModel(
                         queriedDTO.getId(),
@@ -153,13 +129,13 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
         );
 
         var applications =
-                gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
+                gatewayActivityRegistrationClient.getWaitingApplications("Bearer " + otherUserToken);
         assertNotNull(applications);
         assertEquals(1, applications.size());
 
 
         assertThatThrownBy(() -> {
-            gatewayMatchmakingClient.respondToRegistration(
+            gatewayActivityRegistrationClient.respondToRegistration(
                     "Bearer " + otherUserToken,
                     new ActivityRegistrationResponseDTO(
                             "tester2",
@@ -170,7 +146,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
         }).isInstanceOf(FeignException.class)
                 .hasMessageContaining("You are not the owner of this activity!");
 
-        gatewayMatchmakingClient.respondToRegistration(
+        gatewayActivityRegistrationClient.respondToRegistration(
                 "Bearer " + userToken,
                 new ActivityRegistrationResponseDTO(
                         "tester2",
@@ -179,11 +155,11 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
                 )
         );
 
-        applications = gatewayMatchmakingClient.getAcceptedApplications("Bearer " + otherUserToken);
+        applications = gatewayActivityRegistrationClient.getAcceptedApplications("Bearer " + otherUserToken);
         assertNotNull(applications);
         assertEquals(1, applications.size());
 
-        gatewayMatchmakingClient.deRegisterFromActivity("Bearer " + otherUserToken, queriedDTO.getId());
+        gatewayActivityRegistrationClient.deRegisterFromActivity("Bearer " + otherUserToken, queriedDTO.getId());
     }
 
     @Test
@@ -199,18 +175,18 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
         );
 
         var applications =
-                gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
+                gatewayActivityRegistrationClient.getWaitingApplications("Bearer " + otherUserToken);
         assertNotNull(applications);
         assertEquals(1, applications.size());
-        assertEquals(1, gatewayActivitiesClient.getWaitingRoom(
+        assertEquals(1, gatewayActivityRegistrationClient.getWaitingRoom(
                 "Bearer " + otherUserToken,
                 applications.get(0).getActivityDTO().getId()
         ).size());
-        assertEquals(0, gatewayActivitiesClient.getParticipants(
+        assertEquals(0, gatewayActivityRegistrationClient.getParticipants(
                 "Bearer " + otherUserToken,
                 applications.get(0).getActivityDTO().getId()
         ).size());
-        gatewayMatchmakingClient.respondToRegistration(
+        gatewayActivityRegistrationClient.respondToRegistration(
                 "Bearer " + userToken,
                 new ActivityRegistrationResponseDTO(
                         "tester2",
@@ -219,10 +195,10 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
                 )
         );
 
-        applications = gatewayMatchmakingClient.getAcceptedApplications("Bearer " + otherUserToken);
+        applications = gatewayActivityRegistrationClient.getAcceptedApplications("Bearer " + otherUserToken);
         assertEquals(0, applications.size());
 
-        applications = gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
+        applications = gatewayActivityRegistrationClient.getWaitingApplications("Bearer " + otherUserToken);
         assertEquals(0, applications.size());
     }
 
@@ -275,7 +251,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
         );
 
         var applications =
-                gatewayMatchmakingClient.getWaitingApplications("Bearer " + otherUserToken);
+                gatewayActivityRegistrationClient.getWaitingApplications("Bearer " + otherUserToken);
 
         assertThatList(applications).contains(
                 new UserActivityApplication(
@@ -285,7 +261,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
                 )
         );
 
-        gatewayMatchmakingClient.deRegisterFromActivity("Bearer " + otherUserToken, query.getId());
+        gatewayActivityRegistrationClient.deRegisterFromActivity("Bearer " + otherUserToken, query.getId());
 
         var thirdUserToken = gatewayAuthenticationClient.register(
                 CreateUserModel.builder()
@@ -307,7 +283,7 @@ public class MatchMakingFunctionalTests extends FunctionalTestsBase {
         );
 
         applications =
-                gatewayMatchmakingClient.getWaitingApplications("Bearer " + thirdUserToken);
+                gatewayActivityRegistrationClient.getWaitingApplications("Bearer " + thirdUserToken);
 
         assertThatList(applications).contains(
                 new UserActivityApplication(

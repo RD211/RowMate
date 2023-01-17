@@ -48,18 +48,4 @@ public interface GatewayActivitiesClient {
             @RequestHeader("Authorization") String bearerToken,
             @RequestBody ChangeActivityTimeModel changeActivityTimeModel
     ) throws FeignException;
-
-    @GetMapping("/get_participants?activityId={activityId}")
-    @Headers("Content-Type: application/json")
-    List<ActivityApplicationModel> getParticipants(
-            @RequestHeader("Authorization") String bearerToken,
-            @PathVariable(value = "activityId") UUID activityId
-    );
-
-    @GetMapping("/get_waiting_room?activityId={activityId}")
-    @Headers("Content-Type: application/json")
-    List<ActivityApplicationModel> getWaitingRoom(
-            @RequestHeader("Authorization") String bearerToken,
-            @PathVariable(value = "activityId") UUID activityId
-    );
 }

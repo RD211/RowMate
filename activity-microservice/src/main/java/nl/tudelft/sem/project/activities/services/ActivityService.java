@@ -62,16 +62,12 @@ public class ActivityService {
      */
     public Training getTrainingById(UUID id) {
         var optTraining = activityRepository.findById(id);
-        if (optTraining.isEmpty()) {
-            throw new ActivityNotFoundException(couldNotFindActivityErrorMessage);
+        var training = optTraining
+                .orElseThrow(() -> new ActivityNotFoundException(couldNotFindActivityErrorMessage));
+        if (!(training instanceof Training)) {
+            throw new ActivityNotFoundException("Could not find training by id. Found different type of activity instead.");
         }
-
-        var training = optTraining.get();
-        if (training instanceof Training) {
-            return (Training) training;
-        }
-        throw new
-                ActivityNotFoundException("Could not find training by id. Found different type of activity instead.");
+        return (Training) training;
     }
 
     /**
@@ -82,16 +78,13 @@ public class ActivityService {
      */
     public Competition getCompetitionById(UUID id) {
         var optCompetition = activityRepository.findById(id);
-        if (optCompetition.isEmpty()) {
-            throw new ActivityNotFoundException(couldNotFindActivityErrorMessage);
+        var competition = optCompetition
+                .orElseThrow(() -> new ActivityNotFoundException(couldNotFindActivityErrorMessage));
+        if (!(competition instanceof Competition)) {
+            throw new
+                    ActivityNotFoundException("Could not find competition by id. Found different type of activity instead.");
         }
-
-        var competition = optCompetition.get();
-        if (competition instanceof Competition) {
-            return (Competition) competition;
-        }
-        throw new
-                ActivityNotFoundException("Could not find competition by id. Found different type of activity instead.");
+        return (Competition) competition;
     }
 
     /**
