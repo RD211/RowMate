@@ -13,23 +13,38 @@ public class Util {
             EventType.SIGN_UP, EventType.TEST,
             EventType.RESET_PASSWORD, EventType.RESET_PASSWORD_CONFIRM);
 
+    /**
+     * Formats the message to be included in the notification email
+     * @param notificationDTO the notification details
+     * @return the complete notification message text
+     */
     public static String formatActivityDetailsMessage(NotificationDTO notificationDTO) {
         if (eventTypesUserRelated.contains(notificationDTO.getEventType())) {
             return "";
         }
-
         ActivityDTO activityDTO = notificationDTO.getActivityDTO();
-        String message = "\nActivity Details:\nDate: " + activityDTO.getStartTime()
+        String message = addActivityInfo(activityDTO);
+        String optionalField = notificationDTO.getOptionalField();
+
+        message += "\n\n" + (optionalField != null ? optionalField : "");
+        return message;
+    }
+
+    /**
+     * Adds in the details about the activity.
+     * @param activityDTO the activity DTO
+     * @return part of the message containing activity info
+     */
+    private static String addActivityInfo(ActivityDTO activityDTO) {
+        String message;
+        message = "\nActivity Details:\nDate: " + activityDTO.getStartTime()
                 + " - " + activityDTO.getEndTime() + "\nLocation: "
                 + activityDTO.getLocation() + "\nHosted by: "
                 + activityDTO.getOwner();
-        String optionalField = notificationDTO.getOptionalField();
-
         if (activityDTO.getClass() == CompetitionDTO.class) {
             message += "\nFor: " + ((CompetitionDTO) activityDTO).getRequiredGender()
                     + "\nInvited organization: " + ((CompetitionDTO) activityDTO).getRequiredOrganization();
         }
-        message += "\n\n" + (optionalField != null ? optionalField : "");
         return message;
     }
 }
