@@ -14,7 +14,7 @@ public class Util {
             EventType.RESET_PASSWORD, EventType.RESET_PASSWORD_CONFIRM);
 
     public static String formatActivityDetailsMessage(NotificationDTO notificationDTO) {
-        if (!eventTypesUserRelated.contains(notificationDTO.getEventType())) {
+        if (eventTypesUserRelated.contains(notificationDTO.getEventType())) {
             return "";
         }
 
