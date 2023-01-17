@@ -31,7 +31,7 @@ public class UserService {
      * @throws UsernameInUseException if the username is already in use.
      */
     public User addUser(@NonNull User user) throws EmailInUseException, UsernameInUseException {
-        if(credentialsExist(user)) {
+        if (credentialsExist(user)) {
             throw new EmailInUseException("A user with the same username or email already exists.");
         }
         return userRepository.save(user);
@@ -42,7 +42,6 @@ public class UserService {
         boolean existsUsername = this.existsByUsername(user.getUsername());
         return existsUsername || existsEmail;
     }
-
 
     /**
      * Deletes a user by email.
