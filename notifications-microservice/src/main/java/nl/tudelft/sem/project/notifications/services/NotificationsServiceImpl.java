@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import static nl.tudelft.sem.project.notifications.Util.formatActivityDetailsMessage;
+
 @Component
 @Getter
 public class NotificationsServiceImpl implements NotificationsService {
@@ -29,10 +31,6 @@ public class NotificationsServiceImpl implements NotificationsService {
 
     @Autowired
     private transient HashMap<EventType, MailTemplate> messageTemplates;
-
-    private final transient List<EventType> eventTypesUserRelated = Arrays.asList(
-            EventType.SIGN_UP, EventType.TEST,
-            EventType.RESET_PASSWORD, EventType.RESET_PASSWORD_CONFIRM);
 
     /**
      * Sends a mail notification to the email address
@@ -46,47 +44,21 @@ public class NotificationsServiceImpl implements NotificationsService {
      * @throws MailNotSentException if any issues are encountered regarding the sending of the notification
      */
     public SimpleMailMessage sendNotification(NotificationDTO notificationDTO) throws MailNotSentException {
-        //System.out.println(testMode + " for service");
         SimpleMailMessage message = new SimpleMailMessage();
-        String activityDetails;
-
-        message.setFrom(Objects.requireNonNull(((JavaMailSenderImpl) mailSender).getUsername()));
-        message.setTo(notificationDTO.getUserDTO().getEmail());
-        message.setSubject(messageTemplates.get(notificationDTO.getEventType()).getSubject());
-
-        EventType eventType = notificationDTO.getEventType();
-
-        if (eventTypesUserRelated.contains(eventType)) {
-            message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage());
-        } else {
-            activityDetails = formatActivityDetailsMessage(notificationDTO);
-            message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage()
-                    + activityDetails);
-        }
+        addMessageDetails(notificationDTO, message);
+        message.setText(messageTemplates.get(notificationDTO.getEventType()).getMessage()
+                + formatActivityDetailsMessage(notificationDTO));
         try {
             mailSender.send(message);
         } catch (Exception e) {
             throw new MailNotSentException(e.getMessage());
         }
-
         return message;
     }
 
-    private String formatActivityDetailsMessage(NotificationDTO notificationDTO) {
-        ActivityDTO activityDTO = notificationDTO.getActivityDTO();
-        String message = "\nActivity Details:\nDate: " + activityDTO.getStartTime()
-                + " - " + activityDTO.getEndTime() + "\nLocation: "
-                + activityDTO.getLocation() + "\nHosted by: "
-                + activityDTO.getOwner();
-        String optionalField = notificationDTO.getOptionalField();
-
-        if (activityDTO.getClass() == CompetitionDTO.class) {
-            message += "\nFor: " + ((CompetitionDTO) activityDTO).getRequiredGender()
-                    + "\nInvited organization: " + ((CompetitionDTO) activityDTO).getRequiredOrganization();
-        }
-        if (optionalField != null) {
-            message += "\n\n" + optionalField;
-        }
-        return message;
+    private void addMessageDetails(NotificationDTO notificationDTO, SimpleMailMessage message) {
+        message.setFrom(Objects.requireNonNull(((JavaMailSenderImpl) mailSender).getUsername()));
+        message.setTo(notificationDTO.getUserDTO().getEmail());
+        message.setSubject(messageTemplates.get(notificationDTO.getEventType()).getSubject());
     }
 }
