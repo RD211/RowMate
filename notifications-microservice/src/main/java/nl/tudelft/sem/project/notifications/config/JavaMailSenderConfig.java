@@ -14,8 +14,6 @@ public class JavaMailSenderConfig {
     @Value("${application.properties.test-mode:false}")
     private transient String testMode;
 
-    private transient String trueLiteral = "true";
-
     /**
      * Bean returning a configured mail sender.
      *
@@ -26,6 +24,7 @@ public class JavaMailSenderConfig {
         System.out.println(testMode + " for mail");
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
 
+        String trueLiteral = "true";
         if (!testMode.equals("true")) {
             mailSender.setHost("smtp.gmail.com");
             mailSender.setPort(587);
