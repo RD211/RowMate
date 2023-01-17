@@ -1,13 +1,11 @@
 package nl.tudelft.sem.project.activities;
 
 import lombok.*;
-import nl.tudelft.sem.project.DTO;
 import nl.tudelft.sem.project.enums.Gender;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -16,7 +14,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Validated
-public class CompetitionDTO extends TrainingDTO {
+public class CompetitionDTO extends ActivityDTO {
 
     @NotNull @Valid
     protected Boolean allowsAmateurs;
