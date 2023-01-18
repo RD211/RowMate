@@ -50,6 +50,7 @@ public class MatchmakingServiceTest {
     ActivityFilterDTO filterDTO;
     ActivityDTO activity;
     BoatDTO boat;
+
     protected UUID setUUID =  UUID.fromString("0000-00-00-00-000000");
 
     @BeforeEach
@@ -75,7 +76,10 @@ public class MatchmakingServiceTest {
                     .owner("someone")
                     .startTime(java.sql.Timestamp.valueOf(LocalDateTime.now()))
                     .endTime(java.sql.Timestamp.valueOf(LocalDateTime.now()))
-                    .boats(List.of(BoatDTO.builder().boatId(setUUID).build()))
+                    .boats(List.of(BoatDTO.builder()
+                            .boatId(setUUID)
+                            .availablePositions(List.of(BoatRole.PortSideRower))
+                            .build()))
                     .build();
 
         boat =
