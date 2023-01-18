@@ -31,18 +31,17 @@ public class UserService {
      * @throws UsernameInUseException if the username is already in use.
      */
     public User addUser(@NonNull User user) throws EmailInUseException, UsernameInUseException {
-        boolean existsEmail = this.existsByEmail(user.getEmail());
-        if (existsEmail) {
-            throw new EmailInUseException("Email is already being used by somebody else.");
-        }
-
-        boolean existsUsername = this.existsByUsername(user.getUsername());
-        if (existsUsername) {
-            throw new UsernameInUseException("Username is already being used by somebody else.");
+        if (credentialsExist(user)) {
+            throw new EmailInUseException("A user with the same username or email already exists.");
         }
         return userRepository.save(user);
     }
 
+    private boolean credentialsExist(@NonNull User user) throws EmailInUseException, UsernameInUseException {
+        boolean existsEmail = this.existsByEmail(user.getEmail());
+        boolean existsUsername = this.existsByUsername(user.getUsername());
+        return existsUsername || existsEmail;
+    }
 
     /**
      * Deletes a user by email.

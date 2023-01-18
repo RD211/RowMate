@@ -5,7 +5,6 @@ import nl.tudelft.sem.project.users.UserEmail;
 import nl.tudelft.sem.project.users.database.repositories.UserRepository;
 import nl.tudelft.sem.project.users.EmailInUseException;
 import nl.tudelft.sem.project.users.UserNotFoundException;
-import nl.tudelft.sem.project.shared.UsernameInUseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -118,7 +117,7 @@ class UserServiceTest {
 
     @Test
     void addUserInvalidUsername() {
-        assertThrows(UsernameInUseException.class, () -> userService.addUser(susJoe));
+        assertThrows(EmailInUseException.class, () -> userService.addUser(susJoe));
         verify(userRepository, times(0)).save(any(User.class));
     }
 
