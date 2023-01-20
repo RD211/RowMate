@@ -257,7 +257,6 @@ class ActivityControllerTest {
 
     @Test
     void addBoatToActivityNewBoat() {
-        UUID activityId = UUID.randomUUID();
         UUID boatId = UUID.randomUUID();
         BoatDTO boatDTO = BoatDTO.builder()
                 .boatId(boatId)
@@ -268,6 +267,8 @@ class ActivityControllerTest {
         when(boatsClient.addBoat(boatDTO)).thenReturn(boatDTO);
 
         when(boatConverterService.toEntity(boatDTO)).thenReturn(boat);
+
+        UUID activityId = UUID.randomUUID();
 
         activityController.addBoatToActivity(activityId, boatDTO);
 
