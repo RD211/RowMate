@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public abstract class MatchingStrategy {
-    private ActivityRequestDTO requestData;
+    protected ActivityRequestDTO requestData = null;
     private List<AvailableActivityModel> availableActivities;
 
     public abstract FoundActivityModel findActivityToRegister();
