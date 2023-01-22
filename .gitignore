@@ -37,3 +37,6 @@ gradle-app.setting
 .idea/assetWizardSettings.xml
 .idea/dictionaries
 .idea/libraries
+
+.vscode/
+**/bin/**
