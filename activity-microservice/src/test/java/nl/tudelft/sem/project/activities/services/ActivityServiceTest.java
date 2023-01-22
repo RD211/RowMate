@@ -199,4 +199,13 @@ class ActivityServiceTest {
                 .isThrownBy(() -> activityService.changeActivityTimes(activityId, startDate, endDate));
         verify(activityRepository, never()).save(any());
     }
+
+    @Test
+    void missingActivityThrowsException() {
+        var activityId = UUID.randomUUID();
+
+        when(activityRepository.findById(activityId)).thenReturn(Optional.empty());
+        assertThatExceptionOfType(ActivityNotFoundException.class)
+                .isThrownBy(() -> activityService.addBoatToActivity(activityId, new Boat()));
+    }
 }
