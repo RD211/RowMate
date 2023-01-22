@@ -121,7 +121,8 @@ class AdminControllerTest {
                 .availablePositions(List.of(BoatRole.Cox, BoatRole.PortSideRower, BoatRole.StarboardSideRower))
                 .coxCertificateId(coxCertificateUUID)
                 .build();
-        when(certificatesClient.getCertificateById(coxCertificateUUID)).thenReturn(CertificateDTO.builder().id(coxCertificateUUID).name("C4").build());
+        when(certificatesClient.getCertificateById(coxCertificateUUID))
+                .thenReturn(CertificateDTO.builder().id(coxCertificateUUID).name("C4").build());
         when(boatsClient.addBoat(boat)).thenReturn(boat);
 
         var response = adminController.addBoat(boat);
@@ -147,7 +148,8 @@ class AdminControllerTest {
     void changeCoxCertifcate() {
         var coxCertificateUUID = UUID.randomUUID();
         var boatUUID = UUID.randomUUID();
-        when(certificatesClient.getCertificateById(coxCertificateUUID)).thenReturn(CertificateDTO.builder().id(coxCertificateUUID).name("C4").build());
+        when(certificatesClient.getCertificateById(coxCertificateUUID))
+                .thenReturn(CertificateDTO.builder().id(coxCertificateUUID).name("C4").build());
 
         var response = adminController.changeCoxCertificate(boatUUID, coxCertificateUUID);
 
