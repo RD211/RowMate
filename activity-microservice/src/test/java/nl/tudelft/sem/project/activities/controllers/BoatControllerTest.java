@@ -241,4 +241,38 @@ class BoatControllerTest {
         assertThat(ret.getBody().getAvailablePositions()).containsExactlyInAnyOrder(BoatRole.Cox);
         assertThat(ret.getBody().getCoxCertificateId()).isEqualTo(newCertId);
     }
+
+    @Test
+    void getBoats() {
+        List<Boat> boatsInTheSystem = List.of(
+                Boat.builder().id(UUID.randomUUID()).name("B1").availablePositions(List.of(BoatRole.Coach)).build(),
+                Boat.builder().id(UUID.randomUUID()).name("B2").availablePositions(List.of()).build(),
+                Boat.builder().id(UUID.randomUUID()).name("Another boat").availablePositions(
+                        List.of(BoatRole.PortSideRower, BoatRole.ScullingRower)).build()
+        );
+        for (Boat boat : boatsInTheSystem) {
+            when(boatConverterService.toDTO(boat)).thenReturn(
+                    BoatDTO.builder().boatId(boat.getId())
+                            .availablePositions(boat.getAvailablePositions())
+                            .name(boat.getName()).build()
+                            .withCoxCertificateId(boat.getCoxCertificateId())
+            );
+        }
+        when(boatService.getAllBoats()).thenReturn(boatsInTheSystem);
+
+        var response = boatController.getBoats();
+
+        verify(boatService, atLeastOnce()).getAllBoats();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        List<BoatDTO> expectedBoats = List.of(
+                BoatDTO.builder().boatId(boatsInTheSystem.get(0).getId())
+                        .name("B1").availablePositions(List.of(BoatRole.Coach)).build(),
+                BoatDTO.builder().boatId(boatsInTheSystem.get(1).getId())
+                        .name("B2").availablePositions(List.of()).build(),
+                BoatDTO.builder().boatId(boatsInTheSystem.get(2).getId())
+                        .name("Another boat").availablePositions(
+                        List.of(BoatRole.PortSideRower, BoatRole.ScullingRower)).build()
+        );
+        assertThat(response.getBody()).containsExactlyInAnyOrderElementsOf(expectedBoats);
+    }
 }
