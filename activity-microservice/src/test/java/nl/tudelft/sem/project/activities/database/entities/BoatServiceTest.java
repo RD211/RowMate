@@ -181,5 +181,13 @@ class BoatServiceTest {
         verify(boatRepository, never()).save(any());
     }
 
+    @Test
+    void changeCoxCertificateActuallyChangesIt() {
+        var certificateId = UUID.randomUUID();
+        Boat addedBoat = boatService.addBoat(normalBoat);
+        boatService.changeCoxCertificate(addedBoat.getId(), certificateId);
+        assertThat(addedBoat.getCoxCertificateId()).isEqualTo(certificateId);
+    }
+
     //TODO add a test case for certificate verification when there is a certificate missing exception
 }

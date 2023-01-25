@@ -15,6 +15,9 @@ public class EarliestFirstStrategy extends MatchingStrategy {
      *      null if no activities are available.
      */
     public FoundActivityModel findActivityToRegister() {
+        if (requestData == null) {
+            return null;
+        }
         List<AvailableActivityModel> activities = getAvailableActivities();
         if (activities.size() == 0) {
             return null;

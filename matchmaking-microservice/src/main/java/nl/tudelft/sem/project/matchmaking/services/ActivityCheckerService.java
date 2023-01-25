@@ -49,7 +49,7 @@ public class ActivityCheckerService {
 
         return (allowsAmateurs || !user.isAmateur())
                 && (requiredGender == null || requiredGender.equals(user.getGender()))
-                && (requiredOrganization == null || requiredOrganization.equals(user.getOrganization()));
+                && (requiredOrganization == null || requiredOrganization.equals(user.getOrganization().getName()));
     }
 
     /**
