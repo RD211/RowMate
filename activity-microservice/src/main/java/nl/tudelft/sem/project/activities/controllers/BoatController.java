@@ -77,8 +77,9 @@ public class BoatController {
      */
     @GetMapping("/get_boats")
     public ResponseEntity<List<BoatDTO>> getBoats() {
-        var boats = boatService.getAllBoats()
-                .stream().map(boatConverterService::toDTO).collect(Collectors.toList());
+        var boats = boatService.getAllBoats().stream()
+                .map(boatConverterService::toDTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(boats);
     }
 

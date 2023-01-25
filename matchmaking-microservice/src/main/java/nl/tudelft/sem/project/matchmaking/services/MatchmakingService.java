@@ -91,7 +91,7 @@ public class MatchmakingService {
      * @return a list of available activity models,
      *      containing the activity, the boat index and the role in which the user can be registered.
      */
-    private List<AvailableActivityModel> extractFeasibleActivities(
+    public List<AvailableActivityModel> extractFeasibleActivities(
         ActivityRequestDTO dto,
         List<ActivityDTO> availableActivities
     ) {
@@ -116,7 +116,7 @@ public class MatchmakingService {
      * @return The list of tasks the user can perform during this activity.
      */
     @SuppressWarnings("PMD")
-    private List<AvailableActivityModel> generateSuitableActivityTasks(ActivityRequestDTO dto, ActivityDTO activity) {
+    public List<AvailableActivityModel> generateSuitableActivityTasks(ActivityRequestDTO dto, ActivityDTO activity) {
 
         List<AvailableActivityModel> result = new ArrayList<>();
         UserDTO user = usersClient.getUserByUsername(new Username(dto.getUserName()));

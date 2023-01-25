@@ -14,6 +14,9 @@ public class RandomStrategy extends MatchingStrategy {
      *      null if there are no available activities.
      */
     public FoundActivityModel findActivityToRegister() {
+        if (requestData == null) {
+            return null;
+        }
         if (getAvailableActivities().size() == 0) {
             return null;
         }

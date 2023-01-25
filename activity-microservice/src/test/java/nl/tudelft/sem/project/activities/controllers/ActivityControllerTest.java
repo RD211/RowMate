@@ -1,5 +1,6 @@
 package nl.tudelft.sem.project.activities.controllers;
 
+import feign.FeignException;
 import nl.tudelft.sem.project.activities.*;
 import nl.tudelft.sem.project.activities.database.entities.*;
 import nl.tudelft.sem.project.activities.services.ActivityService;
@@ -236,27 +237,44 @@ class ActivityControllerTest {
         assertEquals(trainingDTO, result);
     }
 
-    // TODO fix the tests
-    //@Test
+    @Test
     void addBoatToActivityNormal() {
         UUID activityId = UUID.randomUUID();
-        Activity activity = Activity.builder()
-                .id(activityId)
-                .boats(new ArrayList<>())
-                .build();
         UUID boatId = UUID.randomUUID();
         BoatDTO boatDTO = BoatDTO.builder()
                 .boatId(boatId)
                 .build();
+
+        Boat boat = Boat.builder().id(boatId).build();
         when(boatsClient.getBoat(boatId)).thenReturn(boatDTO);
+        when(boatConverterService.toEntity(boatDTO)).thenReturn(boat);
+
         activityController.addBoatToActivity(activityId, boatDTO);
+
         verify(boatsClient, times(1)).getBoat(boatId);
-        verify(activityService, times(1)).addBoatToActivity(activityId, argThat(x -> x.getId().equals(boatId)));
+        verify(activityService, times(1)).addBoatToActivity(activityId, boat);
     }
 
     @Test
     void addBoatToActivityNewBoat() {
+        UUID boatId = UUID.randomUUID();
+        BoatDTO boatDTO = BoatDTO.builder()
+                .boatId(boatId)
+                .build();
 
+        Boat boat = Boat.builder().id(boatId).build();
+        when(boatsClient.getBoat(boatId)).thenThrow(FeignException.class);
+        when(boatsClient.addBoat(boatDTO)).thenReturn(boatDTO);
+
+        when(boatConverterService.toEntity(boatDTO)).thenReturn(boat);
+
+        UUID activityId = UUID.randomUUID();
+
+        activityController.addBoatToActivity(activityId, boatDTO);
+
+        verify(boatsClient, times(1)).getBoat(boatId);
+        verify(boatsClient, times(1)).addBoat(boatDTO);
+        verify(activityService, times(1)).addBoatToActivity(activityId, boat);
     }
 
     @Test
